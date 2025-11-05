@@ -23,6 +23,12 @@ from network_pinpointer.cli_output import get_formatter, print_error, print_info
 from network_pinpointer.quick_commands import QuickCommands
 from network_pinpointer.interactive_mode import InteractiveMode
 from network_pinpointer.diagnostic_recipes import RecipeLibrary
+from network_pinpointer.diff_mode import DiffAnalyzer
+from network_pinpointer.patterns import PatternLibrary
+from network_pinpointer.watch_mode import WatchMode
+from network_pinpointer.history import HistoryManager
+from network_pinpointer.export import Exporter
+from network_pinpointer.config import get_config
 
 
 class NetworkPinpointerCLI:
@@ -32,6 +38,10 @@ class NetworkPinpointerCLI:
         self.fmt = get_formatter()
         self.quick = QuickCommands()
         self.library = RecipeLibrary()
+        self.differ = DiffAnalyzer()
+        self.pattern_lib = PatternLibrary()
+        self.history = HistoryManager()
+        self.exporter = Exporter()
 
     def run(self, args=None):
         """Run the CLI application"""
@@ -53,6 +63,18 @@ class NetworkPinpointerCLI:
             self.run_explain(parsed_args.topic)
         elif parsed_args.command == 'recipes':
             self.list_recipes()
+        elif parsed_args.command == 'patterns':
+            self.show_patterns()
+        elif parsed_args.command == 'diff':
+            self.run_diff(parsed_args.before, parsed_args.after)
+        elif parsed_args.command == 'watch':
+            self.run_watch(parsed_args.targets, parsed_args.interval)
+        elif parsed_args.command == 'history':
+            self.run_history(parsed_args.target, parsed_args.hours, parsed_args.dimension)
+        elif parsed_args.command == 'export':
+            self.run_export(parsed_args.input, parsed_args.format)
+        elif parsed_args.command == 'config':
+            self.run_config(parsed_args.action)
         elif parsed_args.command == 'version':
             self.show_version()
         else:
@@ -161,6 +183,57 @@ For more information, visit: https://github.com/BruinGrowly/Network-Pinpointer
             help='List available diagnostic recipes'
         )
 
+        # Patterns
+        subparsers.add_parser(
+            'patterns',
+            help='Show library of known network patterns'
+        )
+
+        # Diff/Compare
+        diff_parser = subparsers.add_parser(
+            'diff',
+            help='Compare two network states'
+        )
+        diff_parser.add_argument('before', help='Before state file (JSON)')
+        diff_parser.add_argument('after', help='After state file (JSON)')
+
+        # Watch mode
+        watch_parser = subparsers.add_parser(
+            'watch',
+            help='Continuously monitor network targets'
+        )
+        watch_parser.add_argument('targets', nargs='+', help='Targets to monitor')
+        watch_parser.add_argument('-i', '--interval', type=int, default=300,
+                                 help='Check interval in seconds (default: 300)')
+
+        # History
+        history_parser = subparsers.add_parser(
+            'history',
+            help='View historical network data'
+        )
+        history_parser.add_argument('target', help='Target to view history for')
+        history_parser.add_argument('--hours', type=int, default=24,
+                                   help='Hours of history to show (default: 24)')
+        history_parser.add_argument('--dimension', choices=['love', 'justice', 'power', 'wisdom'],
+                                   help='Dimension to plot (default: health score)')
+
+        # Export
+        export_parser = subparsers.add_parser(
+            'export',
+            help='Export results to file'
+        )
+        export_parser.add_argument('input', help='Input file to export')
+        export_parser.add_argument('-f', '--format', choices=['json', 'html', 'markdown'],
+                                  default='html', help='Export format (default: html)')
+
+        # Config
+        config_parser = subparsers.add_parser(
+            'config',
+            help='Manage configuration'
+        )
+        config_parser.add_argument('action', choices=['show', 'create-example'],
+                                  help='Config action')
+
         # Version
         subparsers.add_parser(
             'version',
@@ -220,6 +293,47 @@ For more information, visit: https://github.com/BruinGrowly/Network-Pinpointer
     def list_recipes(self):
         """List all available recipes"""
         print(self.library.display_all_recipes())
+
+    def show_patterns(self):
+        """Show pattern library"""
+        print(self.pattern_lib.display_all_patterns())
+
+    def run_diff(self, before_file: str, after_file: str):
+        """Compare two network states"""
+        from pathlib import Path
+        analysis = self.differ.compare_files(Path(before_file), Path(after_file))
+        print(self.differ.display_comparison(analysis))
+
+    def run_watch(self, targets: list, interval: int):
+        """Run watch mode"""
+        watcher = WatchMode(targets, interval)
+        watcher.start()
+
+    def run_history(self, target: str, hours: int, dimension: Optional[str]):
+        """Show historical data"""
+        timeline = self.history.generate_timeline(target, hours, dimension)
+        print(timeline)
+
+    def run_export(self, input_file: str, format: str):
+        """Export results"""
+        print(f"Exporting {input_file} to {format}...")
+        print("Export feature implementation in progress")
+
+    def run_config(self, action: str):
+        """Manage configuration"""
+        if action == 'show':
+            config = get_config()
+            print(self.fmt.section_header("Current Configuration"))
+            print(f"Network Type: {config.network_type}")
+            print(f"Monitoring Interval: {config.monitoring_interval}s")
+            print(f"Output Format: {config.output.format}")
+            print(f"Colors: {config.output.colors}")
+        elif action == 'create-example':
+            from network_pinpointer.config import ConfigManager
+            from pathlib import Path
+            manager = ConfigManager()
+            path = Path.home() / ".network-pinpointer" / "config.yaml"
+            manager.create_example_config(path)
 
     def show_version(self):
         """Show version information"""
