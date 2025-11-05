@@ -326,6 +326,355 @@ class RecipeLibrary:
             target_dimensions=["Love", "Power", "Wisdom"]
         )
 
+        # Recipe 7: DNS Troubleshooting
+        self.recipes["dns_troubleshooting"] = DiagnosticRecipe(
+            name="DNS Troubleshooting Deep Dive",
+            description="Comprehensive DNS resolution analysis",
+            steps=[
+                RecipeStep(
+                    name="DNS Server Reachability",
+                    step_type=DiagnosticStep.PING,
+                    description="Check if DNS servers are reachable",
+                    params={"targets": ["8.8.8.8", "1.1.1.1"]},
+                    timeout=10
+                ),
+                RecipeStep(
+                    name="Multiple DNS Lookups",
+                    step_type=DiagnosticStep.DNS_LOOKUP,
+                    description="Test resolution across multiple domains",
+                    params={"domains": ["google.com", "cloudflare.com", "internal.local"]},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Recursive vs Iterative",
+                    step_type=DiagnosticStep.DNS_LOOKUP,
+                    description="Test different query types",
+                    params={"query_types": ["A", "AAAA", "MX", "TXT"]},
+                    timeout=10
+                ),
+                RecipeStep(
+                    name="Semantic Analysis",
+                    step_type=DiagnosticStep.SEMANTIC_ANALYSIS,
+                    description="Map DNS health to Wisdom dimension",
+                    params={},
+                    timeout=5
+                )
+            ],
+            interpretation="DNS failures show up as low Wisdom (lack of intelligence)",
+            target_dimensions=["Wisdom", "Love"]
+        )
+
+        # Recipe 8: VPN Diagnosis
+        self.recipes["vpn_diagnosis"] = DiagnosticRecipe(
+            name="VPN Connection Diagnosis",
+            description="Diagnose VPN connectivity and performance issues",
+            steps=[
+                RecipeStep(
+                    name="VPN Endpoint Reachability",
+                    step_type=DiagnosticStep.PING,
+                    description="Test if VPN endpoint is reachable",
+                    params={"count": 10},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Pre-VPN Route Analysis",
+                    step_type=DiagnosticStep.TRACEROUTE,
+                    description="Check path to VPN endpoint",
+                    params={"max_hops": 20},
+                    timeout=25
+                ),
+                RecipeStep(
+                    name="MTU and Fragmentation Check",
+                    step_type=DiagnosticStep.PING,
+                    description="Test for MTU issues (common in VPNs)",
+                    params={"packet_sizes": [1500, 1400, 1300, 1200]},
+                    timeout=20
+                ),
+                RecipeStep(
+                    name="Encrypted Traffic Analysis",
+                    step_type=DiagnosticStep.PACKET_CAPTURE,
+                    description="Verify encrypted tunneling is working",
+                    params={"count": 30},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Semantic Analysis",
+                    step_type=DiagnosticStep.SEMANTIC_ANALYSIS,
+                    description="VPN adds Justice (encryption) but may reduce Power (overhead)",
+                    params={},
+                    timeout=5
+                )
+            ],
+            interpretation="VPNs increase Justice (encryption) but may decrease Power (overhead)",
+            target_dimensions=["Justice", "Power", "Love"]
+        )
+
+        # Recipe 9: Load Balancer Check
+        self.recipes["load_balancer_check"] = DiagnosticRecipe(
+            name="Load Balancer Health Check",
+            description="Verify load balancer is distributing traffic properly",
+            steps=[
+                RecipeStep(
+                    name="Multiple Connection Tests",
+                    step_type=DiagnosticStep.PING,
+                    description="Test multiple connections to see backend distribution",
+                    params={"count": 50, "parallel": 5},
+                    timeout=30
+                ),
+                RecipeStep(
+                    name="Backend Server Checks",
+                    step_type=DiagnosticStep.PORT_SCAN,
+                    description="Verify all backend servers are responding",
+                    params={"backends": True},
+                    timeout=20
+                ),
+                RecipeStep(
+                    name="Session Affinity Test",
+                    step_type=DiagnosticStep.PACKET_CAPTURE,
+                    description="Check if sticky sessions are working",
+                    params={"count": 30},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Semantic Analysis",
+                    step_type=DiagnosticStep.SEMANTIC_ANALYSIS,
+                    description="Load balancers should show consistent Power/Love",
+                    params={},
+                    timeout=5
+                )
+            ],
+            interpretation="Uneven load balancing shows as variable Power/Love across attempts",
+            target_dimensions=["Power", "Love", "Wisdom"]
+        )
+
+        # Recipe 10: Microservices Mesh
+        self.recipes["microservices_mesh"] = DiagnosticRecipe(
+            name="Microservices Mesh Diagnosis",
+            description="Diagnose service mesh connectivity issues",
+            steps=[
+                RecipeStep(
+                    name="Service Discovery Check",
+                    step_type=DiagnosticStep.DNS_LOOKUP,
+                    description="Verify service discovery is working",
+                    params={"service_names": True},
+                    timeout=10
+                ),
+                RecipeStep(
+                    name="Inter-Service Connectivity",
+                    step_type=DiagnosticStep.PING,
+                    description="Test connectivity between microservices",
+                    params={"mesh_targets": True},
+                    timeout=20
+                ),
+                RecipeStep(
+                    name="mTLS Verification",
+                    step_type=DiagnosticStep.PACKET_CAPTURE,
+                    description="Verify mutual TLS is functioning",
+                    params={"count": 30, "filter": "tls"},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Circuit Breaker Analysis",
+                    step_type=DiagnosticStep.SEMANTIC_ANALYSIS,
+                    description="Check if circuit breakers are triggering (high Justice)",
+                    params={},
+                    timeout=5
+                )
+            ],
+            interpretation="Service mesh adds Justice (mTLS, policies) and Wisdom (observability)",
+            target_dimensions=["Justice", "Wisdom", "Love"]
+        )
+
+        # Recipe 11: Cloud Egress Analysis
+        self.recipes["cloud_egress"] = DiagnosticRecipe(
+            name="Cloud Egress Diagnosis",
+            description="Analyze connectivity from cloud to external services",
+            steps=[
+                RecipeStep(
+                    name="NAT Gateway Check",
+                    step_type=DiagnosticStep.ROUTE_CHECK,
+                    description="Verify NAT gateway routing",
+                    params={},
+                    timeout=10
+                ),
+                RecipeStep(
+                    name="External Service Connectivity",
+                    step_type=DiagnosticStep.PING,
+                    description="Test connectivity to various external services",
+                    params={"targets": ["api.external.com", "8.8.8.8", "1.1.1.1"]},
+                    timeout=20
+                ),
+                RecipeStep(
+                    name="Security Group Validation",
+                    step_type=DiagnosticStep.PORT_SCAN,
+                    description="Check if security groups are blocking egress",
+                    params={"egress_ports": [80, 443, 53, 22]},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Semantic Analysis",
+                    step_type=DiagnosticStep.SEMANTIC_ANALYSIS,
+                    description="Cloud egress issues often show as high Justice",
+                    params={},
+                    timeout=5
+                )
+            ],
+            interpretation="Cloud security groups affect Justice; NAT issues affect Love",
+            target_dimensions=["Justice", "Love", "Wisdom"]
+        )
+
+        # Recipe 12: Packet Loss Hunter
+        self.recipes["packet_loss_hunt"] = DiagnosticRecipe(
+            name="Packet Loss Root Cause Analysis",
+            description="Track down the source of packet loss",
+            steps=[
+                RecipeStep(
+                    name="Baseline Loss Measurement",
+                    step_type=DiagnosticStep.PING,
+                    description="Measure overall packet loss rate",
+                    params={"count": 100, "interval": 0.1},
+                    timeout=20
+                ),
+                RecipeStep(
+                    name="Per-Hop Loss Analysis",
+                    step_type=DiagnosticStep.TRACEROUTE,
+                    description="Identify which hop is dropping packets",
+                    params={"max_hops": 30, "queries_per_hop": 10},
+                    timeout=60
+                ),
+                RecipeStep(
+                    name="Time-Based Pattern Analysis",
+                    step_type=DiagnosticStep.PACKET_CAPTURE,
+                    description="Check if loss is periodic (QoS) or random (hardware)",
+                    params={"count": 200, "capture_time": 60},
+                    timeout=70
+                ),
+                RecipeStep(
+                    name="Interface Statistics",
+                    step_type=DiagnosticStep.SEMANTIC_ANALYSIS,
+                    description="Correlate loss with specific LJPW patterns",
+                    params={},
+                    timeout=5
+                )
+            ],
+            interpretation="Random loss = Power issue; Periodic loss = Justice (QoS)",
+            target_dimensions=["Power", "Justice"]
+        )
+
+        # Recipe 13: Route Validation
+        self.recipes["route_validation"] = DiagnosticRecipe(
+            name="Route Validation and Optimization",
+            description="Verify routing is optimal and stable",
+            steps=[
+                RecipeStep(
+                    name="Current Route Analysis",
+                    step_type=DiagnosticStep.TRACEROUTE,
+                    description="Map current routing path",
+                    params={"max_hops": 30},
+                    timeout=30
+                ),
+                RecipeStep(
+                    name="Route Stability Test",
+                    step_type=DiagnosticStep.TRACEROUTE,
+                    description="Run multiple traceroutes to detect flapping",
+                    params={"iterations": 10, "delay": 2},
+                    timeout=60
+                ),
+                RecipeStep(
+                    name="BGP Path Check",
+                    step_type=DiagnosticStep.ROUTE_CHECK,
+                    description="Verify BGP routing is stable",
+                    params={"bgp": True},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Semantic Analysis",
+                    step_type=DiagnosticStep.SEMANTIC_ANALYSIS,
+                    description="Route changes show as Justice fluctuations",
+                    params={},
+                    timeout=5
+                )
+            ],
+            interpretation="Unstable routing = varying Justice; Long paths = reduced Power",
+            target_dimensions=["Justice", "Power", "Wisdom"]
+        )
+
+        # Recipe 14: Bandwidth Bottleneck
+        self.recipes["bandwidth_bottleneck"] = DiagnosticRecipe(
+            name="Bandwidth Bottleneck Detection",
+            description="Identify where bandwidth is being constrained",
+            steps=[
+                RecipeStep(
+                    name="Link Capacity Test",
+                    step_type=DiagnosticStep.BANDWIDTH_TEST,
+                    description="Measure maximum achievable throughput",
+                    params={"duration": 10},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Path MTU Discovery",
+                    step_type=DiagnosticStep.PING,
+                    description="Find maximum transmission unit along path",
+                    params={"mtu_discovery": True},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Concurrent Stream Test",
+                    step_type=DiagnosticStep.BANDWIDTH_TEST,
+                    description="Test with multiple parallel streams",
+                    params={"streams": 5, "duration": 10},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Semantic Analysis",
+                    step_type=DiagnosticStep.SEMANTIC_ANALYSIS,
+                    description="Bandwidth constraints show as low Power",
+                    params={},
+                    timeout=5
+                )
+            ],
+            interpretation="Bandwidth bottlenecks manifest as low Power dimension",
+            target_dimensions=["Power", "Love"]
+        )
+
+        # Recipe 15: SSL/TLS Handshake
+        self.recipes["ssl_tls_diagnosis"] = DiagnosticRecipe(
+            name="SSL/TLS Handshake Analysis",
+            description="Diagnose SSL/TLS connection issues",
+            steps=[
+                RecipeStep(
+                    name="Certificate Validation",
+                    step_type=DiagnosticStep.PORT_SCAN,
+                    description="Check SSL certificate validity",
+                    params={"ssl_check": True, "ports": [443]},
+                    timeout=10
+                ),
+                RecipeStep(
+                    name="Handshake Timing",
+                    step_type=DiagnosticStep.PACKET_CAPTURE,
+                    description="Measure SSL handshake latency",
+                    params={"count": 20, "filter": "tls"},
+                    timeout=15
+                ),
+                RecipeStep(
+                    name="Cipher Suite Compatibility",
+                    step_type=DiagnosticStep.PORT_SCAN,
+                    description="Verify supported cipher suites",
+                    params={"ssl_ciphers": True},
+                    timeout=10
+                ),
+                RecipeStep(
+                    name="Semantic Analysis",
+                    step_type=DiagnosticStep.SEMANTIC_ANALYSIS,
+                    description="SSL adds Justice (encryption) and affects Power (overhead)",
+                    params={},
+                    timeout=5
+                )
+            ],
+            interpretation="SSL/TLS adds Justice but may impact Power and Love (latency)",
+            target_dimensions=["Justice", "Power", "Love"]
+        )
+
     def get_recipe(self, name: str) -> Optional[DiagnosticRecipe]:
         """Get a recipe by name"""
         return self.recipes.get(name)
