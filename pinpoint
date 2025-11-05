@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+"""
+Network Pinpointer - Enhanced CLI with Quality of Life Improvements
+
+A network diagnostic tool using LJPW semantic framework for
+intelligent network analysis and troubleshooting.
+
+Usage:
+    pinpoint interactive             # Start interactive mode
+    pinpoint quick-check [target]    # Quick 30s health check
+    pinpoint ping <target>           # Enhanced ping with analysis
+    pinpoint run <recipe>            # Run diagnostic recipe
+    pinpoint health                  # Show network health
+    pinpoint explain <topic>         # Explain LJPW dimensions
+    pinpoint recipes                 # List available recipes
+"""
+
+import sys
+import argparse
+from typing import Optional
+
+from network_pinpointer.cli_output import get_formatter, print_error, print_info
+from network_pinpointer.quick_commands import QuickCommands
+from network_pinpointer.interactive_mode import InteractiveMode
+from network_pinpointer.diagnostic_recipes import RecipeLibrary
+
+
+class NetworkPinpointerCLI:
+    """Main CLI application"""
+
+    def __init__(self):
+        self.fmt = get_formatter()
+        self.quick = QuickCommands()
+        self.library = RecipeLibrary()
+
+    def run(self, args=None):
+        """Run the CLI application"""
+        parser = self.create_parser()
+        parsed_args = parser.parse_args(args)
+
+        # Handle commands
+        if parsed_args.command == 'interactive':
+            self.run_interactive()
+        elif parsed_args.command == 'quick-check':
+            self.run_quick_check(parsed_args.target)
+        elif parsed_args.command == 'ping':
+            self.run_ping(parsed_args.target, parsed_args.count)
+        elif parsed_args.command == 'run':
+            self.run_recipe(parsed_args.recipe, parsed_args.target)
+        elif parsed_args.command == 'health':
+            self.run_health()
+        elif parsed_args.command == 'explain':
+            self.run_explain(parsed_args.topic)
+        elif parsed_args.command == 'recipes':
+            self.list_recipes()
+        elif parsed_args.command == 'version':
+            self.show_version()
+        else:
+            parser.print_help()
+
+    def create_parser(self) -> argparse.ArgumentParser:
+        """Create argument parser"""
+        parser = argparse.ArgumentParser(
+            prog='pinpoint',
+            description='Network diagnostic tool using LJPW semantic framework',
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog="""
+Examples:
+  pinpoint interactive              # Start interactive mode
+  pinpoint quick-check 8.8.8.8      # Quick health check
+  pinpoint ping api.example.com     # Enhanced ping
+  pinpoint run slow_connection      # Run diagnostic recipe
+  pinpoint health                   # Show network health
+  pinpoint explain love             # Learn about Love dimension
+
+For more information, visit: https://github.com/BruinGrowly/Network-Pinpointer
+            """
+        )
+
+        subparsers = parser.add_subparsers(dest='command', help='Command to run')
+
+        # Interactive mode
+        subparsers.add_parser(
+            'interactive',
+            help='Start interactive diagnostic mode'
+        )
+
+        # Quick check
+        quick_check_parser = subparsers.add_parser(
+            'quick-check',
+            help='Quick 30-second network health check'
+        )
+        quick_check_parser.add_argument(
+            'target',
+            nargs='?',
+            default='8.8.8.8',
+            help='Target IP or hostname (default: 8.8.8.8)'
+        )
+
+        # Enhanced ping
+        ping_parser = subparsers.add_parser(
+            'ping',
+            help='Enhanced ping with semantic analysis'
+        )
+        ping_parser.add_argument(
+            'target',
+            help='Target IP or hostname'
+        )
+        ping_parser.add_argument(
+            '-c', '--count',
+            type=int,
+            default=10,
+            help='Number of packets (default: 10)'
+        )
+
+        # Run recipe
+        run_parser = subparsers.add_parser(
+            'run',
+            help='Run a diagnostic recipe'
+        )
+        run_parser.add_argument(
+            'recipe',
+            choices=[
+                'slow_connection',
+                'cant_connect',
+                'intermittent',
+                'security_audit',
+                'baseline',
+                'quick_check'
+            ],
+            help='Recipe to run'
+        )
+        run_parser.add_argument(
+            'target',
+            nargs='?',
+            default='8.8.8.8',
+            help='Target IP or hostname (default: 8.8.8.8)'
+        )
+
+        # Health status
+        subparsers.add_parser(
+            'health',
+            help='Show current network health status'
+        )
+
+        # Explain
+        explain_parser = subparsers.add_parser(
+            'explain',
+            help='Explain LJPW dimensions or concepts'
+        )
+        explain_parser.add_argument(
+            'topic',
+            nargs='?',
+            default='ljpw',
+            help='Topic to explain (love, justice, power, wisdom, ljpw)'
+        )
+
+        # List recipes
+        subparsers.add_parser(
+            'recipes',
+            help='List available diagnostic recipes'
+        )
+
+        # Version
+        subparsers.add_parser(
+            'version',
+            help='Show version information'
+        )
+
+        return parser
+
+    def run_interactive(self):
+        """Run interactive mode"""
+        try:
+            interactive = InteractiveMode()
+            interactive.run()
+        except KeyboardInterrupt:
+            print("\n" + self.fmt.info("Interrupted by user. Goodbye!"))
+            sys.exit(0)
+
+    def run_quick_check(self, target: str):
+        """Run quick health check"""
+        success = self.quick.quick_check(target)
+        sys.exit(0 if success else 1)
+
+    def run_ping(self, target: str, count: int):
+        """Run enhanced ping"""
+        if not target:
+            print_error("Target is required for ping command")
+            print_info("Usage: pinpoint ping <target>")
+            sys.exit(1)
+
+        success = self.quick.enhanced_ping(target, count)
+        sys.exit(0 if success else 1)
+
+    def run_recipe(self, recipe_name: str, target: str):
+        """Run a diagnostic recipe"""
+        recipe = self.library.get_recipe(recipe_name)
+
+        if not recipe:
+            print_error(f"Recipe '{recipe_name}' not found")
+            print_info("Run 'pinpoint recipes' to see available recipes")
+            sys.exit(1)
+
+        # Show plan
+        print(recipe.display_plan())
+
+        # For now, run simplified version via interactive mode
+        interactive = InteractiveMode()
+        interactive.execute_recipe(recipe, target)
+
+    def run_health(self):
+        """Show health status"""
+        self.quick.show_health()
+
+    def run_explain(self, topic: str):
+        """Explain a topic"""
+        self.quick.explain(topic)
+
+    def list_recipes(self):
+        """List all available recipes"""
+        print(self.library.display_all_recipes())
+
+    def show_version(self):
+        """Show version information"""
+        print(self.fmt.section_header("Network Pinpointer"))
+        print("""
+Version: 1.0.0
+LJPW Semantic Framework for Network Diagnostics
+
+Components:
+  • Real Packet Capture
+  • Semantic Analysis Engine
+  • Holistic Health Tracking
+  • Root Cause Prioritization
+  • Interactive Diagnostic Mode
+
+Copyright (c) 2025
+License: MIT
+        """)
+
+
+def main():
+    """Main entry point"""
+    try:
+        cli = NetworkPinpointerCLI()
+        cli.run()
+    except KeyboardInterrupt:
+        print("\n\nInterrupted by user. Goodbye!")
+        sys.exit(0)
+    except Exception as e:
+        import traceback
+        print(f"\n{get_formatter().error('An error occurred:')}")
+        print(f"{e}")
+        if '--debug' in sys.argv:
+            print("\nDebug traceback:")
+            traceback.print_exc()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
