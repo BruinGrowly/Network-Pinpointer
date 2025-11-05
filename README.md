@@ -37,19 +37,37 @@ Every network operation can be mapped to coordinates (L, J, P, W) in this 4D spa
 
 ## Installation
 
+### Linux / macOS
+
 ```bash
 # Clone the repository
 git clone https://github.com/BruinGrowly/Network-Pinpointer.git
 cd Network-Pinpointer
 
+# Install dependencies (optional, for packet capture)
+pip install scapy pyyaml
+
 # Make the CLI executable
-chmod +x pinpoint.py
+chmod +x pinpoint
 
 # Run
-./pinpoint.py --help
+./pinpoint --help
 ```
 
-**Requirements:** Python 3.8+
+### Windows
+
+See **[Windows Installation Guide](docs/WINDOWS_INSTALLATION.md)** for complete instructions.
+
+**Quick start for Windows**:
+```powershell
+# Install dependencies
+pip install scapy pyyaml
+
+# Run with Python
+python pinpoint --help
+```
+
+**Requirements:** Python 3.8+, Npcap (Windows only)
 
 ## Quick Start
 
