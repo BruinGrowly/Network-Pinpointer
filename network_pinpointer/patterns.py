@@ -297,6 +297,262 @@ class PatternLibrary:
                     "Document and accept if asymmetry is intentional"
                 ],
                 severity="MEDIUM"
+            ),
+            NetworkPattern(
+                name="The MTU Mismatch",
+                signature="Good small packets, large packets fail/fragment",
+                ljpw_signature={
+                    "love": "0.6-0.8 (works for small data)",
+                    "justice": "moderate",
+                    "power": "< 0.5 (LOW for large transfers)",
+                    "wisdom": "0.4-0.6 (fragmentation visible)"
+                },
+                causes=[
+                    "MTU mismatch somewhere in path",
+                    "VPN/tunnel reducing effective MTU",
+                    "PPPoE without MTU adjustment",
+                    "Path MTU discovery blocked by firewall",
+                    "Jumbo frames not supported on all segments"
+                ],
+                symptoms=[
+                    "Small packets (ping) work fine",
+                    "Large file transfers fail or are very slow",
+                    "HTTP/HTTPS loads partially then hangs",
+                    "SSH works but file transfers don't",
+                    "Excessive packet fragmentation"
+                ],
+                fixes=[
+                    "Run path MTU discovery manually",
+                    "Reduce MTU on local interface to 1400",
+                    "Enable TCP MSS clamping on routers",
+                    "Fix PMTUD by allowing ICMP fragmentation needed",
+                    "Configure consistent MTU across entire path"
+                ],
+                severity="HIGH"
+            ),
+            NetworkPattern(
+                name="The NAT Exhaustion",
+                signature="Intermittent failures, high Justice, connection limits",
+                ljpw_signature={
+                    "love": "0.3-0.7 (intermittent)",
+                    "justice": "0.7-0.9 (HIGH - NAT is policy enforcement)",
+                    "power": "0.5-0.7 (degraded)",
+                    "wisdom": "0.4-0.6 (some connections invisible)"
+                },
+                causes=[
+                    "NAT port pool exhausted",
+                    "Too many connections for available ports",
+                    "NAT timeout too long (ports not freed)",
+                    "Connection tracking table full",
+                    "Many clients behind single NAT IP"
+                ],
+                symptoms=[
+                    "New connections fail while existing work",
+                    "Works fine then suddenly fails",
+                    "Restarting app temporarily fixes it",
+                    "Peak hours have connection failures",
+                    "Error logs show 'no route to host' intermittently"
+                ],
+                fixes=[
+                    "Increase NAT port pool size",
+                    "Reduce NAT timeout values",
+                    "Add more public IPs for NAT pool",
+                    "Implement connection limits per client",
+                    "Use NAT64/DS-Lite for better scaling"
+                ],
+                severity="HIGH"
+            ),
+            NetworkPattern(
+                name="The Microservice Cascade Failure",
+                signature="Increasing Justice, decreasing Love/Power, timeouts",
+                ljpw_signature={
+                    "love": "< 0.4 (LOW - services unreachable)",
+                    "justice": "0.6-0.9 (circuit breakers triggering)",
+                    "power": "0.3-0.6 (degraded)",
+                    "wisdom": "0.5-0.8 (lots of error metadata)"
+                },
+                causes=[
+                    "One service failing causing cascade",
+                    "Circuit breakers opening everywhere",
+                    "Retry storms amplifying problem",
+                    "No backpressure/rate limiting",
+                    "Dependency chain too long"
+                ],
+                symptoms=[
+                    "One service down takes others with it",
+                    "Timeout errors multiplying",
+                    "Circuit breakers in OPEN state",
+                    "Request queues backing up",
+                    "Exponential increase in failed requests"
+                ],
+                fixes=[
+                    "Implement proper circuit breakers",
+                    "Add bulkheads to isolate failures",
+                    "Use exponential backoff with jitter",
+                    "Set appropriate timeouts at each level",
+                    "Add backpressure and rate limiting"
+                ],
+                severity="CRITICAL"
+            ),
+            NetworkPattern(
+                name="The Cloud Egress Surprise",
+                signature="High Justice blocking outbound, unexpected restrictions",
+                ljpw_signature={
+                    "love": "0.2-0.5 (can't reach external)",
+                    "justice": "0.7-0.9 (HIGH - security groups)",
+                    "power": "moderate",
+                    "wisdom": "0.3-0.6 (unclear what's blocked)"
+                },
+                causes=[
+                    "Default-deny security group egress rules",
+                    "Network ACLs blocking outbound traffic",
+                    "VPC routing table missing IGW route",
+                    "NAT gateway not configured",
+                    "Service endpoints blocking public internet"
+                ],
+                symptoms=[
+                    "Can't reach internet from cloud instances",
+                    "Internal cloud services work fine",
+                    "API calls to external services timeout",
+                    "Package installations fail",
+                    "Outbound connections silently dropped"
+                ],
+                fixes=[
+                    "Review and update security group egress rules",
+                    "Check VPC route tables for 0.0.0.0/0 route",
+                    "Verify NAT gateway is configured and healthy",
+                    "Update network ACLs to allow outbound",
+                    "Use VPC endpoints for AWS services"
+                ],
+                severity="HIGH"
+            ),
+            NetworkPattern(
+                name="The IPv4/IPv6 Split Brain",
+                signature="Works on IPv4, fails on IPv6 (or vice versa)",
+                ljpw_signature={
+                    "love": "0.4-0.9 (depends on protocol used)",
+                    "justice": "moderate",
+                    "power": "moderate",
+                    "wisdom": "0.3-0.6 (dual-stack confusion)"
+                },
+                causes=[
+                    "IPv6 configured but not routed properly",
+                    "Firewall rules only for IPv4",
+                    "DNS returning both A and AAAA but only one works",
+                    "Application preferring IPv6 which doesn't work",
+                    "Partial IPv6 deployment"
+                ],
+                symptoms=[
+                    "Service works sometimes but not others",
+                    "Works when forcing IPv4, fails on auto",
+                    "Different behavior from different clients",
+                    "Long connection timeouts before fallback",
+                    "Ping works but application doesn't"
+                ],
+                fixes=[
+                    "Disable IPv6 if not fully deployed",
+                    "Implement IPv6 firewall rules matching IPv4",
+                    "Configure proper IPv6 routing",
+                    "Remove AAAA DNS records if IPv6 not working",
+                    "Set application to prefer working protocol"
+                ],
+                severity="MEDIUM"
+            ),
+            NetworkPattern(
+                name="The Container Network Overlay Blues",
+                signature="Pod-to-pod works, external access fails",
+                ljpw_signature={
+                    "love": "0.3-0.6 (partial connectivity)",
+                    "justice": "0.6-0.8 (network policies)",
+                    "power": "0.5-0.7 (overlay overhead)",
+                    "wisdom": "0.4-0.7 (complex networking)"
+                },
+                causes=[
+                    "CNI plugin misconfigured",
+                    "Network policies blocking traffic",
+                    "Service mesh sidecar injection issues",
+                    "NodePort/LoadBalancer misconfiguration",
+                    "Overlay network MTU problems"
+                ],
+                symptoms=[
+                    "Pods can talk to each other",
+                    "Can't reach services from outside cluster",
+                    "Ingress not working",
+                    "External DNS not resolving",
+                    "Inter-node pod communication fails"
+                ],
+                fixes=[
+                    "Verify CNI plugin installation",
+                    "Review and update network policies",
+                    "Check service type (ClusterIP vs LoadBalancer)",
+                    "Validate ingress controller configuration",
+                    "Reduce MTU for overlay networks"
+                ],
+                severity="HIGH"
+            ),
+            NetworkPattern(
+                name="The Wireless Interference Storm",
+                signature="WiFi-specific, periodic degradation, varying Power/Love",
+                ljpw_signature={
+                    "love": "0.3-0.8 (highly variable)",
+                    "justice": "low",
+                    "power": "0.2-0.7 (VARYING widely)",
+                    "wisdom": "0.3-0.6 (signal quality issues)"
+                },
+                causes=[
+                    "Channel congestion from neighbors",
+                    "Microwave/Bluetooth interference",
+                    "Too many clients on one AP",
+                    "2.4GHz interference from other devices",
+                    "Physical obstacles/metal interference"
+                ],
+                symptoms=[
+                    "Wired connections work fine",
+                    "WiFi performance varies by location",
+                    "Periodic slowdowns or dropouts",
+                    "Better performance early morning/late night",
+                    "Connection drops when microwave runs"
+                ],
+                fixes=[
+                    "Switch to less congested WiFi channel",
+                    "Use 5GHz instead of 2.4GHz",
+                    "Add more access points for better coverage",
+                    "Enable band steering",
+                    "Relocate AP away from interference sources"
+                ],
+                severity="MEDIUM"
+            ),
+            NetworkPattern(
+                name="The TCP Window Scaling Fail",
+                signature="Good latency, poor throughput, high BDP links",
+                ljpw_signature={
+                    "love": "0.7-0.9 (good latency)",
+                    "justice": "moderate",
+                    "power": "< 0.4 (LOW throughput)",
+                    "wisdom": "0.4-0.6 (TCP metadata shows issues)"
+                },
+                causes=[
+                    "TCP window scaling disabled",
+                    "Window size too small for BDP",
+                    "Firewall mangling TCP options",
+                    "Old OS without window scaling support",
+                    "Bandwidth-delay product mismatch"
+                ],
+                symptoms=[
+                    "Ping shows low latency",
+                    "Downloads much slower than expected",
+                    "Works fine on LAN, slow over WAN",
+                    "Single stream slow, multiple streams better",
+                    "Never exceeds certain throughput ceiling"
+                ],
+                fixes=[
+                    "Enable TCP window scaling in OS",
+                    "Increase TCP window size parameters",
+                    "Update firewall to not mangle TCP options",
+                    "Use TCP BBR congestion control",
+                    "Implement TCP tuning for high BDP links"
+                ],
+                severity="MEDIUM"
             )
         ]
 
