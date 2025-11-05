@@ -39,7 +39,7 @@ Every network operation can be mapped to coordinates (L, J, P, W) in this 4D spa
 
 ```bash
 # Clone the repository
-git clone https://github.com/YourOrg/Network-Pinpointer.git
+git clone https://github.com/BruinGrowly/Network-Pinpointer.git
 cd Network-Pinpointer
 
 # Make the CLI executable
