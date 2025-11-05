@@ -1,0 +1,39 @@
+{
+  "description": "Example configuration for Network-Pinpointer custom vocabulary",
+  "custom_vocabulary": {
+    "kubernetes": "power",
+    "docker": "power",
+    "container": "power",
+    "orchestration": "power",
+    "cdn": "love",
+    "cache": "power",
+    "redis": "power",
+    "memcached": "power",
+    "elasticsearch": "wisdom",
+    "kafka": "love",
+    "rabbitmq": "love",
+    "ssl": "justice",
+    "tls": "justice",
+    "oauth": "justice",
+    "jwt": "justice",
+    "prometheus": "wisdom",
+    "grafana": "wisdom",
+    "splunk": "wisdom",
+    "nginx": "love",
+    "apache": "love",
+    "haproxy": "love",
+    "traefik": "love",
+    "iptables": "justice",
+    "nftables": "justice",
+    "selinux": "justice",
+    "apparmor": "justice"
+  },
+  "notes": [
+    "This configuration extends the base network vocabulary with modern infrastructure terms.",
+    "Mappings:",
+    "  - Love: Services that facilitate connectivity and communication",
+    "  - Justice: Security, authentication, and policy enforcement",
+    "  - Power: Execution engines, containers, and processing systems",
+    "  - Wisdom: Monitoring, logging, and observability tools"
+  ]
+}
