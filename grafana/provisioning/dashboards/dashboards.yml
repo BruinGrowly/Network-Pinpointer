@@ -1,0 +1,17 @@
+# Grafana Dashboard Provisioning
+# Automatically loads Network Pinpointer dashboards
+
+apiVersion: 1
+
+providers:
+  # Main LJPW dashboards
+  - name: 'Network Pinpointer'
+    orgId: 1
+    folder: 'Network Pinpointer'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+      foldersFromFilesStructure: true

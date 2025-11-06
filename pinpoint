@@ -75,6 +75,8 @@ class NetworkPinpointerCLI:
             self.run_export(parsed_args.input, parsed_args.format)
         elif parsed_args.command == 'config':
             self.run_config(parsed_args.action)
+        elif parsed_args.command == 'setup':
+            self.run_setup()
         elif parsed_args.command == 'version':
             self.show_version()
         else:
@@ -234,6 +236,12 @@ For more information, visit: https://github.com/BruinGrowly/Network-Pinpointer
         config_parser.add_argument('action', choices=['show', 'create-example'],
                                   help='Config action')
 
+        # Setup wizard
+        subparsers.add_parser(
+            'setup',
+            help='Run the interactive setup wizard'
+        )
+
         # Version
         subparsers.add_parser(
             'version',
@@ -335,6 +343,12 @@ For more information, visit: https://github.com/BruinGrowly/Network-Pinpointer
             path = Path.home() / ".network-pinpointer" / "config.yaml"
             manager.create_example_config(path)
 
+    def run_setup(self):
+        """Run the setup wizard"""
+        from network_pinpointer.first_run import FirstRunExperience
+        experience = FirstRunExperience()
+        experience.run()
+
     def show_version(self):
         """Show version information"""
         print(self.fmt.section_header("Network Pinpointer"))
@@ -357,6 +371,11 @@ License: MIT
 def main():
     """Main entry point"""
     try:
+        # Check for first run and show welcoming experience
+        # (Love principle: warm greeting for new users)
+        from network_pinpointer.first_run import run_first_run_if_needed
+        run_first_run_if_needed()
+
         cli = NetworkPinpointerCLI()
         cli.run()
     except KeyboardInterrupt:

@@ -1,0 +1,265 @@
+# Prometheus Recording and Alerting Rules for LJPW Dimensions
+# These rules create aggregated metrics and alert on semantic anomalies
+
+groups:
+  # Recording Rules - Pre-compute common queries
+  - name: ljpw_recording_rules
+    interval: 30s
+    rules:
+      # Average LJPW dimensions over 5 minutes
+      - record: ljpw:love:avg_5m
+        expr: avg_over_time(network_pinpointer_love[5m])
+
+      - record: ljpw:justice:avg_5m
+        expr: avg_over_time(network_pinpointer_justice[5m])
+
+      - record: ljpw:power:avg_5m
+        expr: avg_over_time(network_pinpointer_power[5m])
+
+      - record: ljpw:wisdom:avg_5m
+        expr: avg_over_time(network_pinpointer_wisdom[5m])
+
+      # Total LJPW score (sum of all dimensions)
+      - record: ljpw:total_score
+        expr: |
+          network_pinpointer_love +
+          network_pinpointer_justice +
+          network_pinpointer_power +
+          network_pinpointer_wisdom
+
+      # LJPW balance (standard deviation - lower is more balanced)
+      - record: ljpw:balance:stddev
+        expr: |
+          stddev_over_time(
+            (network_pinpointer_love +
+             network_pinpointer_justice +
+             network_pinpointer_power +
+             network_pinpointer_wisdom)[5m:]
+          )
+
+      # Network health score (0-1, weighted combination)
+      - record: ljpw:health_score
+        expr: |
+          (
+            network_pinpointer_love * 0.3 +
+            network_pinpointer_justice * 0.2 +
+            network_pinpointer_power * 0.2 +
+            network_pinpointer_wisdom * 0.3
+          )
+
+      # Semantic anomaly rate (mismatches per minute)
+      - record: network:semantic_anomaly_rate
+        expr: rate(network_pinpointer_semantic_mismatches_total[5m]) * 60
+
+      # Analysis throughput (packets analyzed per second)
+      - record: network:analysis_throughput
+        expr: rate(network_pinpointer_packets_analyzed_total[1m])
+
+  # Alerting Rules - Detect problems
+  - name: ljpw_alerts
+    rules:
+      # Critical: Love dimension collapsed (connectivity lost)
+      - alert: LoveDimensionCritical
+        expr: ljpw:love:avg_5m < 0.3
+        for: 2m
+        labels:
+          severity: critical
+          dimension: love
+          category: connectivity
+        annotations:
+          summary: "Network connectivity severely degraded (Love: {{ $value | humanizePercentage }})"
+          description: |
+            Love dimension has dropped to {{ $value | humanizePercentage }}, indicating:
+            - Widespread connectivity issues
+            - High packet loss or latency
+            - Target unreachability
+
+            This is a CRITICAL issue requiring immediate attention.
+
+            Troubleshooting:
+            1. Check if targets are responsive: network-pinpointer diagnose --quick
+            2. Review recent network changes
+            3. Check for routing or firewall issues
+
+      # Warning: Justice dimension too high (over-restrictive policies)
+      - alert: JusticeDimensionTooHigh
+        expr: ljpw:justice:avg_5m > 0.85 and ljpw:love:avg_5m < 0.5
+        for: 5m
+        labels:
+          severity: warning
+          dimension: justice
+          category: policy
+        annotations:
+          summary: "Network policies may be too restrictive (Justice: {{ $value | humanizePercentage }})"
+          description: |
+            Justice dimension is {{ $value | humanizePercentage }} while Love is low.
+            This suggests overly restrictive policies blocking legitimate traffic.
+
+            Consider:
+            - Review firewall rules for false positives
+            - Check security group configurations
+            - Verify rate limiting isn't too aggressive
+
+      # Warning: Power dimension degraded (performance issues)
+      - alert: PowerDimensionDegraded
+        expr: ljpw:power:avg_5m < 0.4
+        for: 5m
+        labels:
+          severity: warning
+          dimension: power
+          category: performance
+        annotations:
+          summary: "Network performance degraded (Power: {{ $value | humanizePercentage }})"
+          description: |
+            Power dimension has dropped to {{ $value | humanizePercentage }}, indicating:
+            - Reduced throughput or bandwidth
+            - Network congestion
+            - Resource exhaustion
+
+            Actions:
+            1. Check for bandwidth saturation
+            2. Look for traffic spikes or DDoS
+            3. Review QoS policies
+
+      # Warning: Wisdom dimension low (observability issues)
+      - alert: WisdomDimensionLow
+        expr: ljpw:wisdom:avg_5m < 0.4
+        for: 5m
+        labels:
+          severity: warning
+          dimension: wisdom
+          category: observability
+        annotations:
+          summary: "Network observability degraded (Wisdom: {{ $value | humanizePercentage }})"
+          description: |
+            Wisdom dimension is {{ $value | humanizePercentage }}, suggesting:
+            - DNS resolution failures
+            - Routing visibility issues
+            - Lack of network intelligence
+
+            Check:
+            - DNS server availability
+            - Service discovery health
+            - Monitoring gaps
+
+      # Critical: Semantic anomaly spike
+      - alert: SemanticAnomalySpike
+        expr: network:semantic_anomaly_rate > 10
+        for: 3m
+        labels:
+          severity: critical
+          category: security
+        annotations:
+          summary: "High rate of semantic anomalies detected ({{ $value | printf \"%.1f\" }}/min)"
+          description: |
+            Detecting {{ $value | printf "%.1f" }} semantic mismatches per minute.
+
+            This could indicate:
+            - Unauthorized access attempts
+            - Credential stuffing attacks
+            - Misconfigured applications
+            - Data exfiltration attempts
+
+            IMMEDIATE ACTION REQUIRED:
+            1. Review semantic mismatch details: network-pinpointer show-anomalies
+            2. Check authentication logs
+            3. Verify application behavior
+            4. Consider blocking suspicious IPs
+
+      # Warning: LJPW imbalance (uneven dimensions)
+      - alert: LJPWImbalanced
+        expr: ljpw:balance:stddev > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          category: balance
+        annotations:
+          summary: "LJPW dimensions severely imbalanced"
+          description: |
+            Network dimensions are unbalanced (stddev: {{ $value | printf "%.2f" }}).
+
+            A balanced network typically has:
+            - Love: 0.7-0.9 (good connectivity)
+            - Justice: 0.4-0.6 (moderate security)
+            - Power: 0.6-0.8 (good performance)
+            - Wisdom: 0.7-0.9 (good observability)
+
+            Review the network-pinpointer dashboard to identify which dimension
+            is causing the imbalance.
+
+      # Warning: Overall health score low
+      - alert: NetworkHealthDegraded
+        expr: ljpw:health_score < 0.5
+        for: 5m
+        labels:
+          severity: warning
+          category: health
+        annotations:
+          summary: "Overall network health degraded (Score: {{ $value | humanizePercentage }})"
+          description: |
+            Network health score is {{ $value | humanizePercentage }}.
+
+            This is a composite metric indicating overall network quality.
+            Check individual LJPW dimensions to identify root cause.
+
+            Quick diagnostic: network-pinpointer diagnose --full
+
+      # Info: Analysis system performance
+      - alert: AnalysisSystemSlow
+        expr: network:analysis_throughput < 100
+        for: 5m
+        labels:
+          severity: info
+          category: system
+        annotations:
+          summary: "Network Pinpointer analysis throughput low ({{ $value | printf \"%.0f\" }} pkt/s)"
+          description: |
+            Analysis system is processing {{ $value | printf "%.0f" }} packets/second.
+
+            Normal throughput: 500-1000 pkt/s
+
+            Possible causes:
+            - High CPU usage
+            - Container resource limits
+            - Database bottleneck
+
+            Check: docker stats network-pinpointer
+
+  # Flow-level alerting rules
+  - name: flow_alerts
+    rules:
+      # Suspicious flow detected
+      - alert: SuspiciousFlowDetected
+        expr: increase(network_pinpointer_suspicious_flows_total[5m]) > 0
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "Suspicious network flow detected"
+          description: |
+            Network Pinpointer has identified {{ $value }} suspicious flows in the last 5 minutes.
+
+            These flows have semantic characteristics inconsistent with normal traffic:
+            - Encrypted traffic to unexpected destinations
+            - Authentication attempts from unusual sources
+            - Data transfers with suspicious patterns
+
+            Review: network-pinpointer flows --suspicious
+
+      # Long-running anomalous flow
+      - alert: AnomalousFlowPersistent
+        expr: network_pinpointer_flow_duration_seconds > 3600 and network_pinpointer_flow_anomaly_score > 0.7
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "Long-running anomalous flow ({{ $value | humanizeDuration }})"
+          description: |
+            A flow with high anomaly score has been active for {{ $value | humanizeDuration }}.
+
+            This could indicate:
+            - Data exfiltration in progress
+            - Unauthorized persistent connection
+            - Compromised internal service
+
+            Investigate immediately: network-pinpointer flows --long-running --anomalous

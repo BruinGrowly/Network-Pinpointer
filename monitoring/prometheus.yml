@@ -1,0 +1,51 @@
+# Prometheus Configuration for Network Pinpointer
+# Collects metrics about LJPW dimensions and network semantics
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'network-pinpointer'
+    environment: 'production'
+
+# Alert manager configuration (optional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - '/etc/prometheus/rules/*.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Network Pinpointer application metrics
+  - job_name: 'network-pinpointer'
+    static_configs:
+      - targets: ['network-pinpointer:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # Self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # InfluxDB metrics
+  - job_name: 'influxdb'
+    static_configs:
+      - targets: ['influxdb:8086']
+    metrics_path: '/metrics'
+
+  # PostgreSQL exporter (if using postgres_exporter)
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres:5432']
+
+  # Redis exporter (if using redis_exporter)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
