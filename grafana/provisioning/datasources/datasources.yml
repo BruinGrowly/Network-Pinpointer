@@ -1,0 +1,47 @@
+# Grafana Data Source Provisioning
+# Automatically configures InfluxDB and Prometheus connections
+
+apiVersion: 1
+
+datasources:
+  # InfluxDB - For LJPW time-series coordinates
+  - name: InfluxDB-NetworkPinpointer
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: network_pinpointer
+    isDefault: true
+    jsonData:
+      version: Flux
+      organization: network-pinpointer
+      defaultBucket: ljpw_metrics
+      tlsSkipVerify: true
+    secureJsonData:
+      token: ${INFLUXDB_TOKEN}
+    editable: false
+
+  # Prometheus - For application metrics and alerting
+  - name: Prometheus-NetworkPinpointer
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false
+    jsonData:
+      timeInterval: 15s
+      queryTimeout: 60s
+      httpMethod: POST
+    editable: false
+
+  # PostgreSQL - For long-term flow analysis (optional)
+  - name: PostgreSQL-NetworkPinpointer
+    type: postgres
+    url: postgres:5432
+    database: network_pinpointer
+    user: ${POSTGRES_USER}
+    secureJsonData:
+      password: ${POSTGRES_PASSWORD}
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1500
+      timescaledb: false
+    editable: false
