@@ -12,4 +12,5 @@ build/
 venv/
 *.json
 !examples/*.json
+!grafana/provisioning/dashboards/json/*.json
 .DS_Store
