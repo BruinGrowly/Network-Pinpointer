@@ -4,6 +4,7 @@
 Network Semantic Engine - LJPW Framework for Network Infrastructure
 
 Maps network operations, states, and configurations to Love, Justice, Power, Wisdom space.
+Enhanced with mathematical baselines from information theory.
 """
 
 import math
@@ -11,6 +12,16 @@ import re
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional, Set, Tuple
+
+from .ljpw_baselines import (
+    LJPWBaselines,
+    NumericalEquivalents,
+    ReferencePoints,
+    calculate_health_score,
+    is_balanced,
+    get_weakest_dimension,
+    get_love_multiplier_effect
+)
 
 
 class Dimension(Enum):
@@ -46,8 +57,13 @@ class Coordinates:
 
 @dataclass
 class NetworkSemanticResult:
-    """Complete semantic analysis result for network operations"""
+    """
+    Complete semantic analysis result for network operations.
 
+    Enhanced with mathematical baselines from information theory.
+    """
+
+    # Original fields
     coordinates: Coordinates
     distance_from_anchor: float
     semantic_clarity: float
@@ -56,6 +72,19 @@ class NetworkSemanticResult:
     dominant_dimension: str
     operation_type: str = "unknown"
     harmony_score: float = 0.0
+
+    # Mathematical baselines fields (v1.0)
+    effective_dimensions: Optional[Dict[str, float]] = None
+    distance_from_natural_equilibrium: Optional[float] = None
+    composite_score: Optional[float] = None
+    harmonic_mean: Optional[float] = None
+    geometric_mean: Optional[float] = None
+    coupling_aware_sum: Optional[float] = None
+    harmony_index: Optional[float] = None
+    love_multiplier_effect: Optional[Dict[str, float]] = None
+    balance_status: Optional[str] = None
+    performance_status: Optional[str] = None
+    improvement_suggestions: Optional[Dict] = None
 
 
 class NetworkVocabularyManager:
@@ -493,7 +522,15 @@ class NetworkSemanticEngine:
         # Classify operation type
         operation_type = self._classify_operation_type(coords, dominant)
 
+        # Calculate mathematical baselines metrics
+        L, J, P, W = coords.love, coords.justice, coords.power, coords.wisdom
+        baselines = LJPWBaselines()
+
+        # Get full diagnostic from mathematical baselines
+        diagnostic = baselines.full_diagnostic(L, J, P, W)
+
         return NetworkSemanticResult(
+            # Original fields
             coordinates=coords,
             distance_from_anchor=distance,
             semantic_clarity=clarity,
@@ -502,6 +539,18 @@ class NetworkSemanticEngine:
             dominant_dimension=dominant,
             operation_type=operation_type,
             harmony_score=harmony,
+            # Mathematical baselines fields
+            effective_dimensions=diagnostic['effective_dimensions'],
+            distance_from_natural_equilibrium=diagnostic['distances']['from_natural_equilibrium'],
+            composite_score=diagnostic['metrics']['composite_score'],
+            harmonic_mean=diagnostic['metrics']['harmonic_mean'],
+            geometric_mean=diagnostic['metrics']['geometric_mean'],
+            coupling_aware_sum=diagnostic['metrics']['coupling_aware_sum'],
+            harmony_index=diagnostic['metrics']['harmony_index'],
+            love_multiplier_effect=get_love_multiplier_effect(L),
+            balance_status=diagnostic['interpretation']['balance_status'],
+            performance_status=diagnostic['interpretation']['performance_status'],
+            improvement_suggestions=diagnostic['improvements']
         )
 
     def _classify_operation_type(

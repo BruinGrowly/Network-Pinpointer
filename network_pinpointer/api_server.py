@@ -25,8 +25,8 @@ from starlette.responses import Response
 
 # Import Network Pinpointer modules
 from .semantic_engine import SemanticEngine, Coordinates
-from .analyzer import NetworkAnalyzer
 from .config import ConfigManager, NetworkPinpointerConfig
+from .ljpw_baselines import LJPWBaselines, NumericalEquivalents, ReferencePoints
 
 # Prometheus metrics
 REQUEST_COUNT = Counter(
@@ -96,12 +96,34 @@ class SemanticMismatch(BaseModel):
     explanation: str
 
 
+class EffectiveDimensions(BaseModel):
+    """Coupling-adjusted effective dimensions"""
+    effective_L: float = Field(..., description="Love (source, not amplified)")
+    effective_J: float = Field(..., description="Justice (amplified by Love 1.4×)")
+    effective_P: float = Field(..., description="Power (amplified by Love 1.3×)")
+    effective_W: float = Field(..., description="Wisdom (amplified by Love 1.5×, strongest)")
+
+
+class MathematicalBaselines(BaseModel):
+    """Mathematical baselines metrics from information theory"""
+    composite_score: float = Field(..., description="Overall performance (can exceed 1.0)")
+    harmonic_mean: float = Field(..., ge=0.0, le=1.0, description="Robustness (weakest link)")
+    geometric_mean: float = Field(..., ge=0.0, le=1.0, description="Effectiveness (multiplicative)")
+    coupling_aware_sum: float = Field(..., description="Growth potential (with Love amplification)")
+    harmony_index: float = Field(..., ge=0.0, le=1.0, description="Balance (inverse distance from ideal)")
+    distance_from_natural_equilibrium: float = Field(..., description="Distance from optimal balance point")
+    balance_status: str = Field(..., description="near-optimal, good, moderate_imbalance, or significant_dysfunction")
+    performance_status: str = Field(..., description="needs_improvement, competent, strong, or excellent")
+
+
 class AnalysisResult(BaseModel):
-    """Result of network analysis"""
+    """Result of network analysis (enhanced with mathematical baselines)"""
     target: str
     timestamp: datetime
     ljpw: LJPWCoordinates
-    health_score: float = Field(..., ge=0.0, le=1.0, description="Overall health (0-1)")
+    effective_dimensions: Optional[EffectiveDimensions] = Field(None, description="Coupling-adjusted dimensions")
+    health_score: float = Field(..., ge=0.0, description="Overall health (composite score, can exceed 1.0)")
+    mathematical_baselines: Optional[MathematicalBaselines] = Field(None, description="Information-theoretic metrics")
     semantic_mismatches: List[SemanticMismatch] = Field(default_factory=list)
     interpretation: str
     recommendations: List[str] = Field(default_factory=list)
@@ -495,7 +517,7 @@ async def analyze(request: AnalysisRequest, background_tasks: BackgroundTasks):
 
 
 def _quick_analysis(target: str) -> AnalysisResult:
-    """Perform quick connectivity analysis"""
+    """Perform quick connectivity analysis with mathematical baselines"""
     # Simplified analysis for speed
     # In production, this would use the actual analyzer
 
@@ -503,16 +525,32 @@ def _quick_analysis(target: str) -> AnalysisResult:
     engine = SemanticEngine()
     coords = Coordinates(love=0.8, justice=0.5, power=0.6, wisdom=0.7)
 
-    health_score = (coords.love * 0.3 + coords.justice * 0.2 +
-                   coords.power * 0.2 + coords.wisdom * 0.3)
+    # Calculate mathematical baselines metrics
+    L, J, P, W = coords.love, coords.justice, coords.power, coords.wisdom
+    baselines = LJPWBaselines()
+    diagnostic = baselines.full_diagnostic(L, J, P, W)
 
-    interpretation = f"Target {target} is reachable with good connectivity (Love: {coords.love:.0%})."
+    # Use composite score as health score (not arbitrary weighted average)
+    health_score = diagnostic['metrics']['composite_score']
+
+    interpretation = f"Target {target} is reachable with good connectivity (Love: {coords.love:.0%}). {diagnostic['interpretation']['balance_action']}"
 
     return AnalysisResult(
         target=target,
         timestamp=datetime.utcnow(),
         ljpw=LJPWCoordinates(**coords.__dict__),
+        effective_dimensions=EffectiveDimensions(**diagnostic['effective_dimensions']),
         health_score=health_score,
+        mathematical_baselines=MathematicalBaselines(
+            composite_score=diagnostic['metrics']['composite_score'],
+            harmonic_mean=diagnostic['metrics']['harmonic_mean'],
+            geometric_mean=diagnostic['metrics']['geometric_mean'],
+            coupling_aware_sum=diagnostic['metrics']['coupling_aware_sum'],
+            harmony_index=diagnostic['metrics']['harmony_index'],
+            distance_from_natural_equilibrium=diagnostic['distances']['from_natural_equilibrium'],
+            balance_status=diagnostic['interpretation']['balance_status'],
+            performance_status=diagnostic['interpretation']['performance_status']
+        ),
         semantic_mismatches=[],
         interpretation=interpretation,
         recommendations=["Run full analysis for deeper insights: POST /analyze"],
@@ -521,40 +559,78 @@ def _quick_analysis(target: str) -> AnalysisResult:
 
 
 def _full_analysis(request: AnalysisRequest) -> AnalysisResult:
-    """Perform comprehensive semantic analysis"""
+    """Perform comprehensive semantic analysis with mathematical baselines"""
     # Full analysis with semantic engine
     # In production, this would use the full analyzer pipeline
 
     engine = SemanticEngine()
     coords = Coordinates(love=0.75, justice=0.6, power=0.7, wisdom=0.8)
 
-    health_score = (coords.love * 0.3 + coords.justice * 0.2 +
-                   coords.power * 0.2 + coords.wisdom * 0.3)
+    # Calculate mathematical baselines metrics
+    L, J, P, W = coords.love, coords.justice, coords.power, coords.wisdom
+    baselines = LJPWBaselines()
+    diagnostic = baselines.full_diagnostic(L, J, P, W)
 
-    # Detect semantic mismatches
+    # Use composite score as health score
+    health_score = diagnostic['metrics']['composite_score']
+
+    # Get Natural Equilibrium for comparison
+    NE = ReferencePoints.NATURAL_EQUILIBRIUM
+
+    # Detect semantic mismatches based on distance from Natural Equilibrium
     mismatches = []
-    if coords.love < 0.5:
+    if abs(L - NE[0]) > 0.2:
+        severity = "warning" if abs(L - NE[0]) < 0.4 else "critical"
         mismatches.append(SemanticMismatch(
             dimension="Love",
-            observed=coords.love,
-            expected=0.8,
-            severity="warning",
-            explanation="Connectivity is degraded. Check for network issues or high latency."
+            observed=L,
+            expected=NE[0],
+            severity=severity,
+            explanation=f"Love dimension is {abs(L - NE[0]):.2f} away from Natural Equilibrium ({NE[0]:.3f}). " +
+                       ("Connectivity may be degraded." if L < NE[0] else "Good connectivity, maintain current state.")
         ))
 
-    interpretation = f"Network analysis for {request.target} shows balanced LJPW profile."
+    if abs(J - NE[1]) > 0.2:
+        severity = "warning" if abs(J - NE[1]) < 0.4 else "critical"
+        mismatches.append(SemanticMismatch(
+            dimension="Justice",
+            observed=J,
+            expected=NE[1],
+            severity=severity,
+            explanation=f"Justice dimension is {abs(J - NE[1]):.2f} away from Natural Equilibrium ({NE[1]:.3f}). " +
+                       ("Policies may be too restrictive." if J > NE[1] else "Consider strengthening security policies.")
+        ))
 
+    # Build interpretation with mathematical context
+    interpretation = f"Network analysis for {request.target}: {diagnostic['interpretation']['performance_status']} performance, {diagnostic['interpretation']['balance_status']} balance. {diagnostic['interpretation']['balance_action']}"
+
+    # Recommendations based on improvement suggestions
     recommendations = [
-        "Monitor Love dimension for connectivity changes",
-        "Justice levels are moderate - appropriate for enterprise",
-        "Consider setting up continuous monitoring"
+        f"Primary focus: Improve {diagnostic['improvements']['primary_focus']} (target: {diagnostic['improvements']['primary_target']:.3f})",
+        f"Love multiplier effect: {diagnostic['interpretation']['love_multiplier_effect']}",
+        "Monitor composite score over time to track improvements",
+        "Distance from Natural Equilibrium: {:.3f} {}".format(
+            diagnostic['distances']['from_natural_equilibrium'],
+            "(near-optimal)" if diagnostic['distances']['from_natural_equilibrium'] < 0.2 else ""
+        )
     ]
 
     return AnalysisResult(
         target=request.target,
         timestamp=datetime.utcnow(),
         ljpw=LJPWCoordinates(**coords.__dict__),
+        effective_dimensions=EffectiveDimensions(**diagnostic['effective_dimensions']),
         health_score=health_score,
+        mathematical_baselines=MathematicalBaselines(
+            composite_score=diagnostic['metrics']['composite_score'],
+            harmonic_mean=diagnostic['metrics']['harmonic_mean'],
+            geometric_mean=diagnostic['metrics']['geometric_mean'],
+            coupling_aware_sum=diagnostic['metrics']['coupling_aware_sum'],
+            harmony_index=diagnostic['metrics']['harmony_index'],
+            distance_from_natural_equilibrium=diagnostic['distances']['from_natural_equilibrium'],
+            balance_status=diagnostic['interpretation']['balance_status'],
+            performance_status=diagnostic['interpretation']['performance_status']
+        ),
         semantic_mismatches=mismatches,
         interpretation=interpretation,
         recommendations=recommendations,
