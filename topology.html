@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network-Pinpointer Semantic Topology</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111; overflow: hidden; }
+        #chart { width: 100vw; height: 100vh; }
+        .controls { position: absolute; top: 20px; left: 20px; z-index: 100; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; color: #eee; font-family: sans-serif; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h3>Semantic Topology</h3>
+        <p>Nodes: Targets</p>
+        <p>Edges: Semantic Similarity</p>
+        <p>Position: LJPW Space (L, J, P)</p>
+    </div>
+    <div id="chart"></div>
+
+    <script>
+        const data = {"nodes": [{"id": 0, "label": "1.1.1.1", "x": 0.3857142857142857, "y": 0.07142857142857142, "z": 0.27142857142857146, "color": "#ff0055", "size": 18.791537646816224}, {"id": 1, "label": "8.8.8.8", "x": 0.3857142857142857, "y": 0.07142857142857142, "z": 0.27142857142857146, "color": "#ff0055", "size": 18.791537646816224}, {"id": 2, "label": "google.com", "x": 0.4476190476190476, "y": 0.09523809523809523, "z": 0.22857142857142856, "color": "#ff0055", "size": 18.640806071398394}], "edges": [{"source": 0, "target": 1, "weight": 1.0}, {"source": 0, "target": 2, "weight": 0.9544068955466375}, {"source": 1, "target": 2, "weight": 0.9544068955466375}]};
+        
+        // Nodes
+        const nodeX = data.nodes.map(n => n.x);
+        const nodeY = data.nodes.map(n => n.y);
+        const nodeZ = data.nodes.map(n => n.z);
+        const nodeColor = data.nodes.map(n => n.color);
+        const nodeSize = data.nodes.map(n => n.size);
+        const nodeText = data.nodes.map(n => n.label);
+        
+        // Edges
+        const edgeX = [];
+        const edgeY = [];
+        const edgeZ = [];
+        
+        data.edges.forEach(edge => {
+            const source = data.nodes[edge.source];
+            const target = data.nodes[edge.target];
+            
+            edgeX.push(source.x, target.x, null);
+            edgeY.push(source.y, target.y, null);
+            edgeZ.push(source.z, target.z, null);
+        });
+
+        const traceNodes = {
+            x: nodeX,
+            y: nodeY,
+            z: nodeZ,
+            mode: 'markers+text',
+            type: 'scatter3d',
+            text: nodeText,
+            textposition: 'top center',
+            marker: {
+                size: nodeSize,
+                color: nodeColor,
+                opacity: 0.8,
+                line: { color: '#fff', width: 1 }
+            },
+            hoverinfo: 'text'
+        };
+        
+        const traceEdges = {
+            x: edgeX,
+            y: edgeY,
+            z: edgeZ,
+            mode: 'lines',
+            type: 'scatter3d',
+            line: {
+                color: '#888',
+                width: 2,
+                opacity: 0.3
+            },
+            hoverinfo: 'none'
+        };
+        
+        const layout = {
+            margin: {l: 0, r: 0, b: 0, t: 0},
+            paper_bgcolor: '#111',
+            scene: {
+                xaxis: { title: 'Love', range: [0, 1], backgroundcolor: '#111', gridcolor: '#333' },
+                yaxis: { title: 'Justice', range: [0, 1], backgroundcolor: '#111', gridcolor: '#333' },
+                zaxis: { title: 'Power', range: [0, 1], backgroundcolor: '#111', gridcolor: '#333' },
+                camera: {
+                    eye: {x: 1.5, y: 1.5, z: 1.5}
+                }
+            },
+            showlegend: false
+        };
+        
+        Plotly.newPlot('chart', [traceEdges, traceNodes], layout);
+    </script>
+</body>
+</html>

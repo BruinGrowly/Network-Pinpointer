@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network-Pinpointer Drift Timeline: google.com</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        body { margin: 0; padding: 20px; background-color: #111; color: #eee; font-family: sans-serif; }
+        .chart-container { width: 100%; height: 400px; margin-bottom: 40px; }
+        h1 { text-align: center; color: #4facfe; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <h1>Semantic Drift Timeline</h1>
+    <div class="subtitle">Target: google.com</div>
+    
+    <div id="ljpw-chart" class="chart-container"></div>
+    <div id="mass-chart" class="chart-container"></div>
+    <div id="harmony-chart" class="chart-container"></div>
+
+    <script>
+        const data = [{"timestamp": "2025-11-28T21:13:03.076405", "love": 0.4476190476190476, "justice": 0.09523809523809523, "power": 0.22857142857142856, "wisdom": 0.22857142857142856, "mass": 4.630291484626412, "harmony": 0.23942079595640875}, {"timestamp": "2025-11-28T21:19:32.993699", "love": 0.4476190476190476, "justice": 0.09523809523809523, "power": 0.22857142857142856, "wisdom": 0.22857142857142856, "mass": 4.630291484626412, "harmony": 0.23942079595640875}];
+        const timestamps = data.map(d => d.timestamp);
+        
+        // 1. LJPW Coordinates
+        const traceL = {
+            x: timestamps,
+            y: data.map(d => d.love),
+            name: 'Love',
+            type: 'scatter',
+            line: {color: '#ff0055'}
+        };
+        const traceJ = {
+            x: timestamps,
+            y: data.map(d => d.justice),
+            name: 'Justice',
+            type: 'scatter',
+            line: {color: '#00ccff'}
+        };
+        const traceP = {
+            x: timestamps,
+            y: data.map(d => d.power),
+            name: 'Power',
+            type: 'scatter',
+            line: {color: '#ffaa00'}
+        };
+        const traceW = {
+            x: timestamps,
+            y: data.map(d => d.wisdom),
+            name: 'Wisdom',
+            type: 'scatter',
+            line: {color: '#aa00ff'}
+        };
+        
+        const layout1 = {
+            title: 'LJPW Dimensions Over Time',
+            paper_bgcolor: '#111',
+            plot_bgcolor: '#111',
+            font: { color: '#eee' },
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'Score', range: [0, 1] }
+        };
+        
+        Plotly.newPlot('ljpw-chart', [traceL, traceJ, traceP, traceW], layout1);
+        
+        // 2. Semantic Mass
+        const traceMass = {
+            x: timestamps,
+            y: data.map(d => d.mass),
+            name: 'Mass',
+            type: 'scatter',
+            fill: 'tozeroy',
+            line: {color: '#00f260'}
+        };
+        
+        const layout2 = {
+            title: 'Semantic Mass Over Time',
+            paper_bgcolor: '#111',
+            plot_bgcolor: '#111',
+            font: { color: '#eee' },
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'Mass' }
+        };
+        
+        Plotly.newPlot('mass-chart', [traceMass], layout2);
+        
+        // 3. Harmony Score
+        const traceHarmony = {
+            x: timestamps,
+            y: data.map(d => d.harmony),
+            name: 'Harmony',
+            type: 'scatter',
+            line: {color: '#ffffff', dash: 'dot'}
+        };
+        
+        const layout3 = {
+            title: 'Harmony Score Over Time',
+            paper_bgcolor: '#111',
+            plot_bgcolor: '#111',
+            font: { color: '#eee' },
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'Score', range: [0, 1] }
+        };
+        
+        Plotly.newPlot('harmony-chart', [traceHarmony], layout3);
+        
+    </script>
+</body>
+</html>

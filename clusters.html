@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network-Pinpointer Semantic Clusters</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111; color: #eee; font-family: sans-serif; }
+        #plot { width: 100vw; height: 100vh; }
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h2>Semantic Universe</h2>
+        <p><strong>X:</strong> Love (Connectivity)</p>
+        <p><strong>Y:</strong> Justice (Security)</p>
+        <p><strong>Z:</strong> Power (Performance)</p>
+        <p><strong>Color:</strong> Wisdom (Insight)</p>
+        <p><strong>Size:</strong> Semantic Mass</p>
+    </div>
+    <div id="plot"></div>
+    <script>
+        const data = [{"target": "1.1.1.1", "l": 0.3857142857142857, "j": 0.07142857142857142, "p": 0.27142857142857146, "w": 0.27142857142857146, "mass": 4.802608334828188, "desc": "Remote administration or bastion host"}, {"target": "8.8.8.8", "l": 0.3857142857142857, "j": 0.07142857142857142, "p": 0.27142857142857146, "w": 0.27142857142857146, "mass": 4.802608334828188, "desc": "Web content delivery or API service"}, {"target": "google.com", "l": 0.4476190476190476, "j": 0.09523809523809523, "p": 0.22857142857142856, "w": 0.22857142857142856, "mass": 4.630291484626412, "desc": "Web content delivery or API service"}];
+        
+        const trace = {
+            x: data.map(d => d.l),
+            y: data.map(d => d.j),
+            z: data.map(d => d.p),
+            mode: 'markers',
+            marker: {
+                size: data.map(d => Math.max(5, Math.min(50, d.mass * 2))),
+                color: data.map(d => d.w),
+                colorscale: 'Viridis',
+                opacity: 0.8,
+                showscale: true,
+                colorbar: {title: 'Wisdom'}
+            },
+            text: data.map(d => `
+                <b>${d.target}</b><br>
+                Mass: ${d.mass.toFixed(1)}<br>
+                L: ${d.l.toFixed(2)}<br>
+                J: ${d.j.toFixed(2)}<br>
+                P: ${d.p.toFixed(2)}<br>
+                W: ${d.w.toFixed(2)}<br>
+                <i>${d.desc}</i>
+            `),
+            hoverinfo: 'text',
+            type: 'scatter3d'
+        };
+
+        const layout = {
+            margin: {l: 0, r: 0, b: 0, t: 0},
+            paper_bgcolor: '#111',
+            scene: {
+                xaxis: {title: 'Love', range: [0, 1], gridcolor: '#333', zerolinecolor: '#555'},
+                yaxis: {title: 'Justice', range: [0, 1], gridcolor: '#333', zerolinecolor: '#555'},
+                zaxis: {title: 'Power', range: [0, 1], gridcolor: '#333', zerolinecolor: '#555'},
+                camera: {
+                    eye: {x: 1.5, y: 1.5, z: 1.5}
+                }
+            }
+        };
+
+        Plotly.newPlot('plot', [trace], layout);
+    </script>
+</body>
+</html>

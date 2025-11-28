@@ -71,6 +71,31 @@ python pinpoint --help
 
 ## Quick Start
 
+### LJPW Semantic Probe (NEW!)
+
+```bash
+# Comprehensive semantic profiling - discover what a target IS, not just if it's alive
+./pinpoint.py ljpw google.com
+
+# Quick scan (faster)
+./pinpoint.py ljpw 192.168.1.1 --quick
+
+# Deep scan (comprehensive)
+./pinpoint.py ljpw api.example.com --deep
+
+# Enhanced ping with semantic profile
+./pinpoint.py ping google.com --ljpw-profile
+```
+
+**What you get:**
+- Full LJPW semantic coordinates
+- Service archetype matching (e.g., "The Public Gateway", "The Data Vault")
+- Security posture assessment
+- Purpose inference
+- Actionable recommendations
+
+See **[LJPW Semantic Probe Guide](docs/LJPW_SEMANTIC_PROBE.md)** for details.
+
 ### Basic Diagnostics
 
 ```bash

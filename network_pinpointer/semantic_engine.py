@@ -182,6 +182,49 @@ class NetworkVocabularyManager:
             "synchronize",
             "cluster",
             "federation",
+            # Web & Internet
+            "web",
+            "www",
+            "internet",
+            "online",
+            "cloud",
+            "public",
+            "external",
+            "open",
+            "accessible",
+            "available",
+            "reachable",
+            # Protocols
+            "http",
+            "https",
+            "tcp",
+            "udp",
+            "ip",
+            "dns",
+            "dhcp",
+            "smtp",
+            "pop",
+            "imap",
+            "ftp",
+            "ssh",
+            "telnet",
+            "rest",
+            "api",
+            "graphql",
+            "websocket",
+            "grpc",
+            # Services
+            "server",
+            "client",
+            "application",
+            "app",
+            "frontend",
+            "backend",
+            "middleware",
+            "microservice",
+            "container",
+            "kubernetes",
+            "docker",
         }
 
         # JUSTICE - Rules, Policies, Validation, Security
@@ -243,6 +286,40 @@ class NetworkVocabularyManager:
             "mark",
             "shape",
             "police",
+            # Encryption & Protection
+            "encrypted",
+            "encryption",
+            "ssl",
+            "tls",
+            "protected",
+            "protection",
+            "defense",
+            "defend",
+            "shield",
+            "safeguard",
+            "private",
+            "confidential",
+            "secret",
+            # Security Tools
+            "ids",
+            "ips",
+            "waf",
+            "antivirus",
+            "malware",
+            "threat",
+            "vulnerability",
+            "patch",
+            "hardening",
+            "bastion",
+            "dmz",
+            # Access Control
+            "authentication",
+            "authorize",
+            "oauth",
+            "saml",
+            "ldap",
+            "kerberos",
+            "mfa",
         }
 
         # POWER - Performance, Control, Execution, Capability
@@ -311,6 +388,52 @@ class NetworkVocabularyManager:
             "flood",
             "drop",
             "reject",
+            # Databases & Storage
+            "database",
+            "db",
+            "sql",
+            "nosql",
+            "mysql",
+            "postgresql",
+            "postgres",
+            "mongodb",
+            "redis",
+            "cassandra",
+            "elasticsearch",
+            "storage",
+            "store",
+            "persist",
+            "cache",
+            "caching",
+            "memcached",
+            "cdn",
+            # Processing & Compute
+            "compute",
+            "processing",
+            "cpu",
+            "memory",
+            "ram",
+            "disk",
+            "worker",
+            "queue",
+            "job",
+            "task",
+            # Performance Optimization
+            "optimized",
+            "optimization",
+            "efficient",
+            "efficiency",
+            "scalable",
+            "scalability",
+            "scale",
+            "autoscale",
+            "elastic",
+            "balanced",
+            "loadbalancer",
+            "lb",
+            "haproxy",
+            "nginx",
+            "apache",
         }
 
         # WISDOM - Information, Monitoring, Diagnostics, Analysis
@@ -387,6 +510,29 @@ class NetworkVocabularyManager:
             "auto",
             "detect",
             "pattern",
+            # Monitoring Tools & Observability
+            "monitored",
+            "monitoring",
+            "observability",
+            "observable",
+            "telemetry",
+            "prometheus",
+            "grafana",
+            "datadog",
+            "newrelic",
+            "splunk",
+            "elk",
+            "kibana",
+            "logstash",
+            # Metrics & Analytics
+            "metrics",
+            "analytics",
+            "dashboard",
+            "visualization",
+            "graph",
+            "chart",
+            "trend",
+            "anomaly",
         }
 
         # Build keyword map
@@ -509,6 +655,13 @@ class NetworkSemanticEngine:
 
     def analyze_operation(self, operation_description: str) -> NetworkSemanticResult:
         """Analyze a network operation and return semantic result"""
+        # Check cache
+        from .caching import SemanticCache
+        cache = SemanticCache()
+        cached_result = cache.get_semantic_analysis(operation_description)
+        if cached_result:
+            return cached_result
+            
         coords, count = self.vocabulary.analyze_text(operation_description)
 
         if count == 0:
@@ -550,7 +703,7 @@ class NetworkSemanticEngine:
         # Get full diagnostic from mathematical baselines (v5.0 with harmony)
         diagnostic = baselines.full_diagnostic(L, J, P, W, harmony=harmony)
 
-        return NetworkSemanticResult(
+        result = NetworkSemanticResult(
             # Original fields
             coordinates=coords,
             distance_from_anchor=distance,
@@ -579,6 +732,10 @@ class NetworkSemanticEngine:
             coupling_multiplier=diagnostic['effective_dimensions']['coupling_multiplier'],
             cost_of_existence=diagnostic['distances']['cost_of_existence']
         )
+        
+        # Cache result
+        cache.put_semantic_analysis(operation_description, result)
+        return result
 
     def _classify_operation_type(
         self, coords: Coordinates, dominant: str

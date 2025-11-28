@@ -1,0 +1,186 @@
+"""
+Mass Distribution Chart Generator
+
+Generates interactive histograms of semantic mass distribution using Plotly.js.
+Visualizes:
+- Mass distribution (Histogram)
+- Mass vs Harmony (Scatter)
+- Mass Categories (Pie/Bar)
+"""
+
+import json
+import os
+from typing import List, Dict, Any
+
+class MassDistributionChartGenerator:
+    """Generates interactive mass distribution charts"""
+    
+    def __init__(self):
+        self.template = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network-Pinpointer Mass Distribution</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        body { margin: 0; padding: 20px; background-color: #111; color: #eee; font-family: sans-serif; }
+        .chart-container { width: 100%; height: 400px; margin-bottom: 40px; }
+        h1 { text-align: center; color: #4facfe; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 30px; background: #222; padding: 20px; border-radius: 8px; }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 24px; font-weight: bold; color: #00f260; }
+        .stat-label { font-size: 14px; color: #aaa; }
+    </style>
+</head>
+<body>
+    <h1>Semantic Mass Distribution</h1>
+    
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-val" id="total-mass">0</div>
+            <div class="stat-label">Total Network Mass</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" id="avg-mass">0</div>
+            <div class="stat-label">Average Mass</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" id="max-mass">0</div>
+            <div class="stat-label">Max Mass</div>
+        </div>
+    </div>
+
+    <div id="histogram" class="chart-container"></div>
+    <div id="scatter" class="chart-container"></div>
+    <div id="categories" class="chart-container"></div>
+
+    <script>
+        const data = %DATA%;
+        
+        // Calculate stats
+        const masses = data.map(d => d.mass);
+        const totalMass = masses.reduce((a, b) => a + b, 0);
+        const avgMass = totalMass / masses.length || 0;
+        const maxMass = Math.max(...masses, 0);
+        
+        document.getElementById('total-mass').textContent = totalMass.toFixed(1);
+        document.getElementById('avg-mass').textContent = avgMass.toFixed(1);
+        document.getElementById('max-mass').textContent = maxMass.toFixed(1);
+
+        // 1. Histogram
+        const trace1 = {
+            x: masses,
+            type: 'histogram',
+            marker: {
+                color: '#4facfe',
+                line: { color: '#fff', width: 1 }
+            },
+            opacity: 0.7
+        };
+        
+        const layout1 = {
+            title: 'Mass Distribution',
+            paper_bgcolor: '#111',
+            plot_bgcolor: '#111',
+            font: { color: '#eee' },
+            xaxis: { title: 'Semantic Mass' },
+            yaxis: { title: 'Count' },
+            bargap: 0.05
+        };
+        
+        Plotly.newPlot('histogram', [trace1], layout1);
+        
+        // 2. Mass vs Harmony Scatter
+        const trace2 = {
+            x: data.map(d => d.mass),
+            y: data.map(d => d.harmony),
+            mode: 'markers',
+            type: 'scatter',
+            text: data.map(d => d.target),
+            marker: {
+                size: 12,
+                color: data.map(d => d.harmony),
+                colorscale: 'Viridis',
+                showscale: true,
+                colorbar: { title: 'Harmony' }
+            }
+        };
+        
+        const layout2 = {
+            title: 'Mass vs Harmony',
+            paper_bgcolor: '#111',
+            plot_bgcolor: '#111',
+            font: { color: '#eee' },
+            xaxis: { title: 'Semantic Mass' },
+            yaxis: { title: 'Harmony Score', range: [0, 1] }
+        };
+        
+        Plotly.newPlot('scatter', [trace2], layout2);
+        
+        // 3. Categories Pie Chart
+        const categories = {};
+        data.forEach(d => {
+            let cat = 'Lightweight';
+            if (d.mass >= 50) cat = 'Massive';
+            else if (d.mass >= 20) cat = 'Heavyweight';
+            else if (d.mass >= 5) cat = 'Medium';
+            
+            categories[cat] = (categories[cat] || 0) + 1;
+        });
+        
+        const trace3 = {
+            labels: Object.keys(categories),
+            values: Object.values(categories),
+            type: 'pie',
+            marker: {
+                colors: ['#00f260', '#0575E6', '#e100ff', '#ff0000']
+            },
+            textinfo: 'label+percent',
+            hole: 0.4
+        };
+        
+        const layout3 = {
+            title: 'System Categories',
+            paper_bgcolor: '#111',
+            plot_bgcolor: '#111',
+            font: { color: '#eee' }
+        };
+        
+        Plotly.newPlot('categories', [trace3], layout3);
+        
+    </script>
+</body>
+</html>
+"""
+
+    def generate_chart(self, profiles: List[Any], output_file: str = "mass_distribution.html"):
+        """
+        Generate HTML mass distribution chart from profiles.
+        
+        Args:
+            profiles: List of semantic profiles (objects or dicts)
+            output_file: Path to output HTML file
+        """
+        data = []
+        for p in profiles:
+            if isinstance(p, dict):
+                target = p.get('target', 'Unknown')
+                mass = p.get('semantic_mass', 0.0)
+                harmony = p.get('harmony_score', 0.0)
+            else:
+                target = p.target
+                mass = getattr(p, 'semantic_mass', 0.0)
+                harmony = p.harmony_score
+
+            data.append({
+                'target': target,
+                'mass': mass,
+                'harmony': harmony
+            })
+            
+        html_content = self.template.replace('%DATA%', json.dumps(data))
+        
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+            
+        return os.path.abspath(output_file)

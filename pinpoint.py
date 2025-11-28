@@ -8,6 +8,12 @@ Semantic Network Diagnostic Tool using LJPW Framework
 import sys
 import os
 
+# Configure UTF-8 encoding for Windows console
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
 # Add network_pinpointer to path
 sys.path.insert(0, os.path.dirname(__file__))
 
