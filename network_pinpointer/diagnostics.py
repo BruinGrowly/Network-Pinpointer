@@ -213,7 +213,7 @@ class NetworkDiagnostics:
                 match = re.search(hop_pattern, line)
                 if match:
                     hop_num = int(match.group(1))
-                    hostname = match.group(2) if match.group(2) != "*" else "unknown"
+                    hostname = match.group(2) if match.group(2) and match.group(2) != "*" else "unknown"
                     ip = match.group(3) if match.group(3) else "unknown"
                     latency = (
                         float(match.group(4)) if match.group(4) else 0.0

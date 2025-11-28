@@ -332,7 +332,7 @@ class DeepPacketSemanticAnalyzer:
             text = data[:100].decode('utf-8', errors='ignore')
             return any(text.startswith(method) for method in
                       ['GET ', 'POST ', 'PUT ', 'DELETE ', 'HEAD ', 'OPTIONS ', 'PATCH '])
-        except:
+        except (UnicodeDecodeError, AttributeError, TypeError):
             return False
 
     def _extract_http_method(self, data: bytes) -> Optional[str]:
@@ -342,7 +342,7 @@ class DeepPacketSemanticAnalyzer:
             for method in ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH']:
                 if text.startswith(method):
                     return method
-        except:
+        except (UnicodeDecodeError, AttributeError, TypeError):
             pass
         return None
 
@@ -352,7 +352,7 @@ class DeepPacketSemanticAnalyzer:
             text = data[:500].decode('utf-8', errors='ignore').lower()
             auth_patterns = ['/auth', '/login', '/oauth', '/token', '/signin', 'authenticate']
             return any(pattern in text for pattern in auth_patterns)
-        except:
+        except (UnicodeDecodeError, AttributeError, TypeError):
             return False
 
     def _is_tls_handshake(self, data: bytes) -> bool:

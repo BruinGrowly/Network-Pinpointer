@@ -24,7 +24,7 @@ from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTEN
 from starlette.responses import Response
 
 # Import Network Pinpointer modules
-from .semantic_engine import SemanticEngine, Coordinates
+from .semantic_engine import NetworkSemanticEngine, Coordinates
 from .config import ConfigManager, NetworkPinpointerConfig
 from .ljpw_baselines import LJPWBaselines, NumericalEquivalents, ReferencePoints
 
@@ -522,7 +522,7 @@ def _quick_analysis(target: str) -> AnalysisResult:
     # In production, this would use the actual analyzer
 
     # Simulate quick ping/connectivity check
-    engine = SemanticEngine()
+    engine = NetworkSemanticEngine()
     coords = Coordinates(love=0.8, justice=0.5, power=0.6, wisdom=0.7)
 
     # Calculate mathematical baselines metrics
@@ -563,7 +563,7 @@ def _full_analysis(request: AnalysisRequest) -> AnalysisResult:
     # Full analysis with semantic engine
     # In production, this would use the full analyzer pipeline
 
-    engine = SemanticEngine()
+    engine = NetworkSemanticEngine()
     coords = Coordinates(love=0.75, justice=0.6, power=0.7, wisdom=0.8)
 
     # Calculate mathematical baselines metrics

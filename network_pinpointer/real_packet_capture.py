@@ -314,7 +314,7 @@ class RealPacketCapture:
                             answers.append(str(rr.rdata))
                         if hasattr(rr, 'ttl'):
                             answer_ttls.append(rr.ttl)
-                    except:
+                    except (AttributeError, IndexError, TypeError):
                         pass
 
             return DNSMetadata(
