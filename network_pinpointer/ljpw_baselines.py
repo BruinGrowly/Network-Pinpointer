@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """
 LJPW Mathematical Baselines for Network Pinpointer
-Version 1.0
+Version 5.0 - "The Architect's Inversion"
 
-Provides objective, non-arbitrary baselines for LJPW framework implementations
-based on information-theoretic constants.
+CRITICAL PARADIGM SHIFT (v5.0): Semantic-First Ontology
+
+Reality is Semantic in nature. Meaning is the substrate.
+1. The Anchor Point (1,1,1,1) is the ORIGIN of Reality (not a goal).
+2. L, J, P, W are the four fundamental Principles of Meaning.
+3. Mathematics (φ, e, ln2) are the "shadows" these Semantic Principles cast.
+
+We do not use math to define meaning.
+We use math to MEASURE the echoes of meaning.
 
 References:
     - docs/LJPW-MATHEMATICAL-BASELINES.md
@@ -18,18 +25,32 @@ from typing import Dict, Tuple, Optional
 @dataclass
 class NumericalEquivalents:
     """
-    Fundamental constants for LJPW dimensions derived from information theory.
+    Mathematical Shadows of the Four Semantic Principles.
 
-    These are NOT arbitrary - they come from:
-    - Love (φ⁻¹): Golden ratio inverse - optimal resource distribution
-    - Justice (√2-1): Pythagorean ratio - structural constraint satisfaction
-    - Power (e-2): Exponential base - channel capacity minus overhead
-    - Wisdom (ln2): Natural log of 2 - bits of information per decision
+    SEMANTIC-FIRST INTERPRETATION (v5.0):
+    These are NOT the source - they are the ECHOES of meaning in mathematics.
+
+    The Four Principles (PRIMARY):
+    - Love (L): The Principle of Unity & Attraction
+      → Casts mathematical shadow: Golden Ratio (φ) - perfect organic growth
+      → Physical shadow: Gravity & Electromagnetism (forces that bind)
+
+    - Justice (J): The Principle of Balance & Truth
+      → Casts mathematical shadow: √2 - rigid geometry of structure
+      → Physical shadow: Pauli Exclusion (the space between things)
+
+    - Power (P): The Principle of Energy & Existence
+      → Casts mathematical shadow: e - exponential growth and change
+      → Physical shadow: Thermodynamics (the arrow of time)
+
+    - Wisdom (W): The Principle of Complexity & Insight
+      → Casts mathematical shadow: ln(2) - the fundamental bit
+      → Physical shadow: Quantum Mechanics (probability and observation)
     """
-    L: float = (math.sqrt(5) - 1) / 2  # φ⁻¹ ≈ 0.618034
-    J: float = math.sqrt(2) - 1        # √2 - 1 ≈ 0.414214
-    P: float = math.e - 2              # e - 2 ≈ 0.718282
-    W: float = math.log(2)             # ln(2) ≈ 0.693147
+    L: float = (math.sqrt(5) - 1) / 2  # φ⁻¹ ≈ 0.618034 (shadow of Love)
+    J: float = math.sqrt(2) - 1        # √2 - 1 ≈ 0.414214 (shadow of Justice)
+    P: float = math.e - 2              # e - 2 ≈ 0.718282 (shadow of Power)
+    W: float = math.log(2)             # ln(2) ≈ 0.693147 (shadow of Wisdom)
 
 
 @dataclass
@@ -37,37 +58,75 @@ class ReferencePoints:
     """
     Key reference points in LJPW space.
 
-    ANCHOR_POINT: Perfect, transcendent ideal (1.0, 1.0, 1.0, 1.0)
-                  Asymptotic goal, never fully achieved in physical systems
+    SEMANTIC-FIRST INTERPRETATION (v5.0):
 
-    NATURAL_EQUILIBRIUM: Physically achievable optimal balance point
-                        Derived from fundamental mathematical constants
-                        (0.618, 0.414, 0.718, 0.693)
+    ANCHOR_POINT (1.0, 1.0, 1.0, 1.0):
+        - NOT a goal to reach, but the SOURCE from which all reality flows
+        - The singularity of Perfect Meaning
+        - "God/Perfection" - the Origin of the four Principles
+        - All existence is an emanation FROM this point
+
+    NATURAL_EQUILIBRIUM (0.618, 0.414, 0.718, 0.693):
+        - NOT "optimal balance" but where the Anchor SETTLES in physical reality
+        - "Nature/Reality" - the interface between perfection and existence
+        - The state when Absolute Principles (1,1,1,1) enter our limited universe
+        - The GAP between Anchor and NE = "Cost of Existence"
+          (To exist physically, Love cannot be absolute 1.0; it must be specific 0.618)
     """
     ANCHOR_POINT: Tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
     NATURAL_EQUILIBRIUM: Tuple[float, float, float, float] = (
-        0.618034,  # L: Golden ratio inverse
-        0.414214,  # J: Pythagorean ratio
-        0.718282,  # P: Exponential base
-        0.693147   # W: Information unit
+        0.618034,  # L: Perfect Growth (Love settles at φ⁻¹)
+        0.414214,  # J: Perfect Structure (Justice settles at √2-1)
+        0.718282,  # P: Sustainable Energy (Power settles at e-2)
+        0.693147   # W: Maximum Information (Wisdom settles at ln(2))
     )
+
+
+@dataclass
+class HierarchyOfReality:
+    """
+    The Hierarchy of Reality (v5.0) - ordered by proximity to the Anchor Point.
+
+    Layer 1 (Semantic Realm - The Architect's Domain):
+        Constituents: L, J, P, W, Ψ (Harmony), ξ (Consciousness)
+        Nature: CAUSAL - this is where reality is "written"
+        Closest to Anchor: Consciousness is semantically closest to (1,1,1,1)
+
+    Layer 2 (Physical Realm - The Body):
+        Constituents: Light (c), Matter, Biology
+        Nature: MANIFESTED - the reflection of Semantic Principles
+        Distance: ~0.03 from Consciousness
+        Key Insight: "Dirt is Divine" - matter is the echo of meaning
+
+    Layer 3 (Mathematical Realm - The Blueprint):
+        Constituents: Numbers, Abstract Logic, Algorithms
+        Nature: DESCRIPTIVE - useful for describing structure, but "cold"
+        Distance: ~0.18 from Consciousness
+        Lacks the "warmth" (Love/Justice) of Semantic and Physical realms
+    """
+    SEMANTIC_LAYER: str = "semantic"  # L, J, P, W, Ψ, ξ
+    PHYSICAL_LAYER: str = "physical"  # c, matter, biology
+    MATHEMATICAL_LAYER: str = "mathematical"  # numbers, logic
 
 
 class LJPWBaselines:
     """
-    LJPW mathematical baselines and calculations.
+    LJPW mathematical baselines and calculations (v5.0 Semantic-First).
 
     Provides:
-    - Coupling matrix for dimension interactions
+    - Hierarchy of Reality classification
+    - Dynamic coupling matrix (state-dependent on Harmony)
     - Effective dimensions (coupling-adjusted)
     - Multiple mixing algorithms (harmonic, geometric, coupling-aware, harmony)
     - Distance metrics from reference points
     - Composite scores for overall assessment
+    - Void detection (unmapped semantic territories)
     """
 
-    # Coupling matrix: how dimensions amplify each other
+    # BASE Coupling matrix (at neutral Harmony = 0.5)
     # κ_ij represents the amplification of dimension i by dimension j
-    COUPLING_MATRIX = {
+    # In v5.0: These values are DYNAMIC based on Harmony
+    BASE_COUPLING_MATRIX = {
         'LL': 1.0, 'LJ': 1.4, 'LP': 1.3, 'LW': 1.5,  # Love amplifies J,P,W
         'JL': 0.9, 'JJ': 1.0, 'JP': 0.7, 'JW': 1.2,  # Justice interactions
         'PL': 0.6, 'PJ': 0.8, 'PP': 1.0, 'PW': 0.5,  # Power interactions
@@ -85,29 +144,143 @@ class LJPWBaselines:
         return ReferencePoints()
 
     @staticmethod
-    def effective_dimensions(L: float, J: float, P: float, W: float) -> Dict[str, float]:
+    def get_dynamic_coupling_multiplier(harmony: float) -> float:
         """
-        Calculate coupling-adjusted effective dimensions.
+        Calculate dynamic coupling multiplier based on Harmony (v5.0 Semantic Law).
 
-        Love acts as a force multiplier for all other dimensions:
+        The Semantic Law of Karma: "Meaning amplifies Reality"
+        - High Harmony (aligned with Semantic Flow) → Coupling > 1.0 (free energy)
+        - Low Harmony (misaligned) → Coupling < 1.0 (friction/loss)
+
+        Args:
+            harmony: Harmony score (0.0-1.0)
+
+        Returns:
+            Coupling multiplier (0.5-1.5)
+                - harmony = 0.0 → multiplier = 0.5 (high friction)
+                - harmony = 0.5 → multiplier = 1.0 (neutral)
+                - harmony = 1.0 → multiplier = 1.5 (free energy)
+        """
+        # Linear interpolation: harmony 0→1 maps to multiplier 0.5→1.5
+        return 0.5 + harmony
+
+    @staticmethod
+    def classify_hierarchy_layer(L: float, J: float, P: float, W: float) -> Tuple[str, float]:
+        """
+        Classify which layer of reality these coordinates belong to (v5.0).
+
+        The Hierarchy of Reality (ordered by proximity to Anchor):
+        1. Semantic Layer: Closest to (1,1,1,1) - Consciousness, Meaning
+        2. Physical Layer: ~0.4-0.8 from Anchor - Matter, Biology
+        3. Mathematical Layer: ~0.8-1.5 from Anchor - Abstract Logic
+
+        Args:
+            L, J, P, W: LJPW coordinates
+
+        Returns:
+            Tuple of (layer_name, distance_from_anchor)
+        """
+        d_anchor = math.sqrt((1-L)**2 + (1-J)**2 + (1-P)**2 + (1-W)**2)
+
+        if d_anchor < 0.4:
+            return (HierarchyOfReality.SEMANTIC_LAYER, d_anchor)
+        elif d_anchor < 0.8:
+            return (HierarchyOfReality.PHYSICAL_LAYER, d_anchor)
+        else:
+            return (HierarchyOfReality.MATHEMATICAL_LAYER, d_anchor)
+
+    @staticmethod
+    def detect_void(L: float, J: float, P: float, W: float) -> Optional[Dict]:
+        """
+        Detect if coordinates fall into a Semantic Void (v5.0).
+
+        Voids are regions of valid semantic space with NO corresponding physical law.
+        They represent emergent properties of Consciousness, not fundamental laws.
+
+        Known Voids:
+        1. Void of Mercy: High Love, High Justice, Low Power
+           - Physics has no law for "Forgiveness" (entropy is irreversible)
+           - Must be filled by conscious beings
+
+        2. Void of Judgement: High Love, High Power, Low Justice
+           - Raw, chaotic passion without structure
+           - The "Dark Energy" of semantic space
+
+        Args:
+            L, J, P, W: LJPW coordinates
+
+        Returns:
+            Dict with void info if detected, None otherwise
+        """
+        # Void of Mercy: High L (>0.6), High J (>0.6), Low P (<0.3)
+        if L > 0.6 and J > 0.6 and P < 0.3:
+            return {
+                'void_name': 'Void of Mercy',
+                'description': 'Forgiveness without power to execute - emerges from Consciousness',
+                'interpretation': 'Physics has no law for reversing entropy. Mercy must be enacted by conscious beings.',
+                'coordinates': (L, J, P, W),
+                'missing_physical_law': 'Entropy Reversal'
+            }
+
+        # Void of Judgement: High L (>0.6), High P (>0.6), Low J (<0.3)
+        if L > 0.6 and P > 0.6 and J < 0.3:
+            return {
+                'void_name': 'Void of Judgement',
+                'description': 'Chaotic passion without structure - Dark Energy',
+                'interpretation': 'Raw power with connection but no constraint. Dangerous without Justice.',
+                'coordinates': (L, J, P, W),
+                'missing_physical_law': 'Self-Organizing Constraint'
+            }
+
+        return None
+
+    @staticmethod
+    def effective_dimensions(L: float, J: float, P: float, W: float, harmony: Optional[float] = None) -> Dict[str, float]:
+        """
+        Calculate coupling-adjusted effective dimensions (v5.0 with dynamic coupling).
+
+        SEMANTIC LAW (v5.0): "Meaning amplifies Reality"
+        Love acts as a force multiplier, but the strength depends on Harmony:
+        - High Harmony → Stronger coupling (up to 1.5×)
+        - Low Harmony → Weaker coupling (down to 0.5×)
+
+        Base coupling (at Harmony = 0.5):
         - Justice effectiveness increased by 40% (κ_LJ = 1.4)
         - Power effectiveness increased by 30% (κ_LP = 1.3)
         - Wisdom effectiveness increased by 50% (κ_LW = 1.5, strongest coupling)
 
-        This explains why systems with high Love dramatically outperform
-        systems with equivalent J/P/W but low Love.
+        This explains why systems with high Love AND high Harmony dramatically
+        outperform systems with equivalent J/P/W but low Love or low Harmony.
 
         Args:
             L, J, P, W: LJPW coordinates (0.0-1.0)
+            harmony: Optional harmony score (0.0-1.0). If None, uses 0.5 (neutral)
 
         Returns:
             Dict with effective_L, effective_J, effective_P, effective_W
         """
+        # Dynamic coupling based on Harmony (v5.0)
+        if harmony is None:
+            harmony = 0.5  # Neutral default
+
+        coupling_multiplier = LJPWBaselines.get_dynamic_coupling_multiplier(harmony)
+
+        # Apply dynamic coupling to Love amplification
+        base_LJ = 1.4
+        base_LP = 1.3
+        base_LW = 1.5
+
+        dynamic_LJ = base_LJ * coupling_multiplier
+        dynamic_LP = base_LP * coupling_multiplier
+        dynamic_LW = base_LW * coupling_multiplier
+
         return {
             'effective_L': L,  # Love is the source, not amplified
-            'effective_J': J * (1 + 1.4 * L),  # Justice amplified by Love
-            'effective_P': P * (1 + 1.3 * L),  # Power amplified by Love
-            'effective_W': W * (1 + 1.5 * L),  # Wisdom amplified by Love (strongest)
+            'effective_J': J * (1 + dynamic_LJ * L),  # Justice amplified by Love (dynamic)
+            'effective_P': P * (1 + dynamic_LP * L),  # Power amplified by Love (dynamic)
+            'effective_W': W * (1 + dynamic_LW * L),  # Wisdom amplified by Love (dynamic, strongest)
+            'coupling_multiplier': coupling_multiplier,
+            'harmony_used': harmony
         }
 
     @staticmethod
@@ -160,12 +333,14 @@ class LJPWBaselines:
         return (L * J * P * W) ** 0.25
 
     @staticmethod
-    def coupling_aware_sum(L: float, J: float, P: float, W: float) -> float:
+    def coupling_aware_sum(L: float, J: float, P: float, W: float, harmony: Optional[float] = None) -> float:
         """
-        Coupling-aware weighted sum: growth potential with Love amplification.
+        Coupling-aware weighted sum: growth potential with Love amplification (v5.0 dynamic).
 
         Uses effective dimensions to account for Love's multiplier effect.
         Can exceed 1.0 when coupling amplification is active.
+
+        v5.0: Now harmony-dependent. High harmony → stronger coupling → higher growth potential.
 
         Use for: Growth potential, scalability, future performance
 
@@ -176,20 +351,19 @@ class LJPWBaselines:
 
         Weights:
         - Love: 35% (direct)
-        - Justice: 25% (effective, amplified by Love)
-        - Power: 20% (effective, amplified by Love)
-        - Wisdom: 20% (effective, amplified by Love)
+        - Justice: 25% (effective, amplified by Love dynamically)
+        - Power: 20% (effective, amplified by Love dynamically)
+        - Wisdom: 20% (effective, amplified by Love dynamically)
 
         Args:
             L, J, P, W: LJPW coordinates (0.0-1.0)
+            harmony: Optional harmony score (0.0-1.0). If None, uses 0.5
 
         Returns:
             Coupling-aware sum (can exceed 1.0)
         """
-        J_eff = J * (1 + 1.4 * L)
-        P_eff = P * (1 + 1.3 * L)
-        W_eff = W * (1 + 1.5 * L)
-        return 0.35 * L + 0.25 * J_eff + 0.20 * P_eff + 0.20 * W_eff
+        eff = LJPWBaselines.effective_dimensions(L, J, P, W, harmony)
+        return 0.35 * L + 0.25 * eff['effective_J'] + 0.20 * eff['effective_P'] + 0.20 * eff['effective_W']
 
     @staticmethod
     def harmony_index(L: float, J: float, P: float, W: float) -> float:
@@ -216,15 +390,17 @@ class LJPWBaselines:
         return 1.0 / (1.0 + d_anchor)
 
     @staticmethod
-    def composite_score(L: float, J: float, P: float, W: float) -> float:
+    def composite_score(L: float, J: float, P: float, W: float, harmony: Optional[float] = None) -> float:
         """
-        Composite score: overall system performance (weighted combination).
+        Composite score: overall system performance (v5.0 with dynamic coupling).
 
         Combines all four metrics for holistic assessment:
-        - 35% Growth potential (coupling-aware sum)
+        - 35% Growth potential (coupling-aware sum with dynamic coupling)
         - 25% Effectiveness (geometric mean)
         - 25% Robustness (harmonic mean)
         - 15% Harmony (balance)
+
+        v5.0: Now uses dynamic coupling based on harmony, implementing the Semantic Law.
 
         Use for: Overall system quality, comparing systems, executive summary
 
@@ -235,15 +411,20 @@ class LJPWBaselines:
 
         Args:
             L, J, P, W: LJPW coordinates (0.0-1.0)
+            harmony: Optional harmony score (0.0-1.0). If None, calculates it.
 
         Returns:
             Composite score (typically 0.5-1.3, can exceed 1.0)
         """
         baselines = LJPWBaselines
-        growth = baselines.coupling_aware_sum(L, J, P, W)
+
+        # Calculate harmony if not provided
+        if harmony is None:
+            harmony = baselines.harmony_index(L, J, P, W)
+
+        growth = baselines.coupling_aware_sum(L, J, P, W, harmony)
         effectiveness = baselines.geometric_mean(L, J, P, W)
         robustness = baselines.harmonic_mean(L, J, P, W)
-        harmony = baselines.harmony_index(L, J, P, W)
 
         return 0.35 * growth + 0.25 * effectiveness + 0.25 * robustness + 0.15 * harmony
 
@@ -342,12 +523,14 @@ class LJPWBaselines:
         }
 
     @staticmethod
-    def full_diagnostic(L: float, J: float, P: float, W: float) -> Dict:
+    def full_diagnostic(L: float, J: float, P: float, W: float, harmony: Optional[float] = None) -> Dict:
         """
-        Complete diagnostic analysis of LJPW coordinates.
+        Complete diagnostic analysis of LJPW coordinates (v5.0 Semantic-First).
 
         Provides comprehensive assessment including:
-        - Raw and effective dimensions
+        - Raw and effective dimensions (with dynamic coupling)
+        - Hierarchy of Reality classification (NEW v5.0)
+        - Void detection (NEW v5.0)
         - All distance metrics
         - All mixing algorithms
         - Improvement suggestions
@@ -355,33 +538,47 @@ class LJPWBaselines:
 
         Args:
             L, J, P, W: LJPW coordinates (0.0-1.0)
+            harmony: Optional harmony score for dynamic coupling (0.0-1.0)
 
         Returns:
             Dict with complete diagnostic information
         """
         baselines = LJPWBaselines
-        eff = baselines.effective_dimensions(L, J, P, W)
+
+        # Calculate harmony if not provided
+        if harmony is None:
+            harmony = baselines.harmony_index(L, J, P, W)
+
+        # v5.0: Dynamic effective dimensions
+        eff = baselines.effective_dimensions(L, J, P, W, harmony)
         improvements = baselines.suggest_improvements(L, J, P, W)
 
         # Distance from NE
         d_ne = baselines.distance_from_natural_equilibrium(L, J, P, W)
+        d_anchor = baselines.distance_from_anchor(L, J, P, W)
 
-        # Composite score
-        composite = baselines.composite_score(L, J, P, W)
+        # Composite score (using dynamic coupling)
+        composite = baselines.composite_score(L, J, P, W, harmony)
 
-        # Interpretation
+        # v5.0: Hierarchy of Reality classification
+        layer, layer_distance = baselines.classify_hierarchy_layer(L, J, P, W)
+
+        # v5.0: Void detection
+        void_info = baselines.detect_void(L, J, P, W)
+
+        # Interpretation (with v5.0 perspective)
         if d_ne < 0.2:
-            balance_status = "near-optimal"
-            balance_action = "Maintain current state, make minor refinements"
+            balance_status = "near-natural-equilibrium"
+            balance_action = "Aligned with physical reality's optimal state. Maintain and refine."
         elif d_ne < 0.5:
-            balance_status = "good"
-            balance_action = f"Focus on improving {improvements['primary_focus']}"
+            balance_status = "good-manifestation"
+            balance_action = f"Focus on improving {improvements['primary_focus']} to approach Natural Equilibrium"
         elif d_ne < 0.8:
-            balance_status = "moderate_imbalance"
-            balance_action = f"Systematic improvement needed, prioritize {improvements['primary_focus']} and {improvements['secondary_focus']}"
+            balance_status = "moderate_distortion"
+            balance_action = f"Systematic realignment needed, prioritize {improvements['primary_focus']} and {improvements['secondary_focus']}"
         else:
-            balance_status = "significant_dysfunction"
-            balance_action = "Major intervention required across multiple dimensions"
+            balance_status = "significant_distortion"
+            balance_action = "Major realignment required - far from Natural Equilibrium settlement"
 
         if composite < 0.8:
             performance_status = "needs_improvement"
@@ -392,6 +589,14 @@ class LJPWBaselines:
         else:
             performance_status = "excellent"
 
+        # v5.0: Interpret distance from Anchor
+        if d_anchor < 0.4:
+            anchor_interpretation = "Semantic Layer - Close to the Source. This represents Meaning/Consciousness."
+        elif d_anchor < 0.8:
+            anchor_interpretation = "Physical Layer - Manifested Reality. The Body of Semantic Principles."
+        else:
+            anchor_interpretation = "Mathematical Layer - Abstract Description. Furthest from the Source."
+
         return {
             'coordinates': {
                 'L': L,
@@ -401,14 +606,21 @@ class LJPWBaselines:
             },
             'effective_dimensions': eff,
             'distances': {
-                'from_anchor': baselines.distance_from_anchor(L, J, P, W),
+                'from_anchor': d_anchor,
                 'from_natural_equilibrium': d_ne,
+                'cost_of_existence': 1.0 - (L + J + P + W) / 4.0,  # Gap from perfection
             },
+            'hierarchy_v5': {
+                'layer': layer,
+                'layer_distance': layer_distance,
+                'interpretation': anchor_interpretation
+            },
+            'void_v5': void_info,
             'metrics': {
                 'harmonic_mean': baselines.harmonic_mean(L, J, P, W),
                 'geometric_mean': baselines.geometric_mean(L, J, P, W),
-                'coupling_aware_sum': baselines.coupling_aware_sum(L, J, P, W),
-                'harmony_index': baselines.harmony_index(L, J, P, W),
+                'coupling_aware_sum': baselines.coupling_aware_sum(L, J, P, W, harmony),
+                'harmony_index': harmony,
                 'composite_score': composite,
             },
             'improvements': improvements,
@@ -416,7 +628,9 @@ class LJPWBaselines:
                 'balance_status': balance_status,
                 'balance_action': balance_action,
                 'performance_status': performance_status,
-                'love_multiplier_effect': f"{(1 + 1.4 * L):.2f}× on Justice, {(1 + 1.5 * L):.2f}× on Wisdom"
+                'love_multiplier_effect': f"{eff['coupling_multiplier'] * 1.4:.2f}× on Justice, {eff['coupling_multiplier'] * 1.5:.2f}× on Wisdom (harmony-adjusted)",
+                'coupling_multiplier': eff['coupling_multiplier'],
+                'harmony_effect': f"Harmony {harmony:.2f} → Coupling {eff['coupling_multiplier']:.2f}× (Semantic Law of Karma)"
             }
         }
 
