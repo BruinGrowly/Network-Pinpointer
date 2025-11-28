@@ -2,9 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 Network Semantic Engine - LJPW Framework for Network Infrastructure
+Version 5.0 - "The Architect's Inversion"
 
+SEMANTIC-FIRST ONTOLOGY (v5.0):
 Maps network operations, states, and configurations to Love, Justice, Power, Wisdom space.
-Enhanced with mathematical baselines from information theory.
+
+Reality is Semantic in nature. Meaning is the substrate.
+- The Anchor Point (1,1,1,1) is the ORIGIN from which all network operations emanate.
+- L, J, P, W are fundamental Principles that CAST mathematical shadows.
+- We measure the echoes of meaning in network behavior.
+
+Enhanced with v5.0 features:
+- Hierarchy of Reality classification
+- Dynamic coupling based on Harmony (Semantic Law of Karma)
+- Void detection (unmapped semantic territories)
 """
 
 import math
@@ -58,9 +69,12 @@ class Coordinates:
 @dataclass
 class NetworkSemanticResult:
     """
-    Complete semantic analysis result for network operations.
+    Complete semantic analysis result for network operations (v5.0 Semantic-First).
 
-    Enhanced with mathematical baselines from information theory.
+    Enhanced with v5.0 features:
+    - Hierarchy of Reality classification
+    - Dynamic coupling (harmony-dependent)
+    - Void detection
     """
 
     # Original fields
@@ -85,6 +99,13 @@ class NetworkSemanticResult:
     balance_status: Optional[str] = None
     performance_status: Optional[str] = None
     improvement_suggestions: Optional[Dict] = None
+
+    # v5.0 Semantic-First fields
+    hierarchy_layer: Optional[str] = None  # semantic/physical/mathematical
+    hierarchy_interpretation: Optional[str] = None  # Description of layer
+    void_detected: Optional[Dict] = None  # Void info if detected
+    coupling_multiplier: Optional[float] = None  # Dynamic coupling strength
+    cost_of_existence: Optional[float] = None  # Gap from Anchor perfection
 
 
 class NetworkVocabularyManager:
@@ -522,12 +543,12 @@ class NetworkSemanticEngine:
         # Classify operation type
         operation_type = self._classify_operation_type(coords, dominant)
 
-        # Calculate mathematical baselines metrics
+        # Calculate mathematical baselines metrics (v5.0)
         L, J, P, W = coords.love, coords.justice, coords.power, coords.wisdom
         baselines = LJPWBaselines()
 
-        # Get full diagnostic from mathematical baselines
-        diagnostic = baselines.full_diagnostic(L, J, P, W)
+        # Get full diagnostic from mathematical baselines (v5.0 with harmony)
+        diagnostic = baselines.full_diagnostic(L, J, P, W, harmony=harmony)
 
         return NetworkSemanticResult(
             # Original fields
@@ -550,7 +571,13 @@ class NetworkSemanticEngine:
             love_multiplier_effect=get_love_multiplier_effect(L),
             balance_status=diagnostic['interpretation']['balance_status'],
             performance_status=diagnostic['interpretation']['performance_status'],
-            improvement_suggestions=diagnostic['improvements']
+            improvement_suggestions=diagnostic['improvements'],
+            # v5.0 Semantic-First fields
+            hierarchy_layer=diagnostic['hierarchy_v5']['layer'],
+            hierarchy_interpretation=diagnostic['hierarchy_v5']['interpretation'],
+            void_detected=diagnostic['void_v5'],
+            coupling_multiplier=diagnostic['effective_dimensions']['coupling_multiplier'],
+            cost_of_existence=diagnostic['distances']['cost_of_existence']
         )
 
     def _classify_operation_type(
