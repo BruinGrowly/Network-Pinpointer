@@ -143,8 +143,14 @@ class ConfigManager:
                     return json.load(f)
                 else:
                     raise ValueError(f"Unsupported config format: {path.suffix}")
+        except (FileNotFoundError, PermissionError) as e:
+            # File doesn't exist or permission denied - this is expected for optional configs
+            return {}
+        except (yaml.YAMLError, json.JSONDecodeError) as e:
+            print(f"Warning: Failed to parse config from {path}: {e}")
+            return {}
         except Exception as e:
-            print(f"Warning: Failed to load config from {path}: {e}")
+            print(f"Warning: Failed to load config from {path}: {type(e).__name__}: {e}")
             return {}
 
     def _apply_env_overrides(self, config_dict: Dict[str, Any]) -> Dict[str, Any]:

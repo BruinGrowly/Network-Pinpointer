@@ -1,0 +1,28 @@
+# Network Pinpointer - Python Dependencies
+# Core semantic analysis framework
+
+# Core dependencies
+pyyaml>=6.0
+
+# Optional: Packet capture (install separately if needed)
+# scapy>=2.5.0
+
+# API Server dependencies (optional, for API mode)
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+
+# Monitoring and metrics (optional, for production)
+prometheus-client>=0.18.0
+
+# Database connectors (optional, for production)
+influxdb-client>=1.37.0
+redis>=5.0.0
+psycopg2-binary>=2.9.0
+
+# Standard library dependencies (included in Python 3.8+)
+# - typing (3.8+)
+# - dataclasses (3.7+)
+# - pathlib (3.4+)
+# - asyncio (3.4+)
+# - subprocess, socket, platform, re, json, os (built-in)
