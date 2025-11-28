@@ -341,21 +341,37 @@ class FractalSemanticProfiler:
             }
         )
     
-    def aggregate_coordinates(self, coords_list: List[Coordinates]) -> Coordinates:
+    def aggregate_coordinates(self, coords_list: List[Coordinates], weights: Optional[List[float]] = None) -> Coordinates:
         """
         Aggregate coordinates from smaller scale to larger scale (bottom-up).
         
-        Uses weighted average based on semantic mass.
+        Uses weighted average based on semantic mass if weights provided,
+        otherwise uses simple average.
+        
+        Args:
+            coords_list: List of coordinates to aggregate
+            weights: Optional list of weights (semantic mass) for each coordinate.
+                     If None, uses uniform weighting.
         """
         if not coords_list:
             return Coordinates(0, 0, 0, 0)
         
-        # Simple average for now
-        # TODO: Weight by semantic mass
-        avg_l = sum(c.love for c in coords_list) / len(coords_list)
-        avg_j = sum(c.justice for c in coords_list) / len(coords_list)
-        avg_p = sum(c.power for c in coords_list) / len(coords_list)
-        avg_w = sum(c.wisdom for c in coords_list) / len(coords_list)
+        if weights is None:
+            # Simple average (uniform weighting)
+            weights = [1.0] * len(coords_list)
+        
+        # Normalize weights
+        total_weight = sum(weights)
+        if total_weight == 0:
+            # Fallback to uniform if all weights are zero
+            weights = [1.0] * len(coords_list)
+            total_weight = len(coords_list)
+        
+        # Weighted average
+        avg_l = sum(c.love * w for c, w in zip(coords_list, weights)) / total_weight
+        avg_j = sum(c.justice * w for c, w in zip(coords_list, weights)) / total_weight
+        avg_p = sum(c.power * w for c, w in zip(coords_list, weights)) / total_weight
+        avg_w = sum(c.wisdom * w for c, w in zip(coords_list, weights)) / total_weight
         
         return Coordinates(avg_l, avg_j, avg_p, avg_w)
     
@@ -369,10 +385,82 @@ class FractalSemanticProfiler:
         Decompose coordinates from larger scale to smaller scale (top-down).
         
         Predicts expected coordinates at smaller scale based on parent.
+        Applies context-based adjustments when context is provided.
+        
+        Args:
+            parent_coords: Parent scale coordinates
+            target_scale: Target scale to decompose to
+            context: Optional context string for adjustment (e.g., "security", "performance")
+        
+        Returns:
+            Predicted coordinates at target scale
         """
-        # For now, return parent coordinates as baseline
-        # TODO: Add context-based adjustment
-        return parent_coords
+        # Start with parent coordinates as baseline
+        coords = parent_coords
+        
+        # Apply context-based adjustments if context provided
+        if context:
+            context_lower = context.lower()
+            # Security context: increase Justice
+            if 'security' in context_lower or 'auth' in context_lower or 'encrypt' in context_lower:
+                coords = Coordinates(
+                    coords.love * 0.9,  # Slightly reduce connectivity
+                    min(1.0, coords.justice * 1.2),  # Increase security
+                    coords.power * 0.95,
+                    coords.wisdom * 1.05
+                )
+            # Performance context: increase Power
+            elif 'performance' in context_lower or 'speed' in context_lower or 'throughput' in context_lower:
+                coords = Coordinates(
+                    coords.love * 1.05,
+                    coords.justice * 0.95,
+                    min(1.0, coords.power * 1.2),  # Increase performance
+                    coords.wisdom * 0.95
+                )
+            # Monitoring context: increase Wisdom
+            elif 'monitor' in context_lower or 'diagnostic' in context_lower or 'log' in context_lower:
+                coords = Coordinates(
+                    coords.love * 0.95,
+                    coords.justice * 0.95,
+                    coords.power * 0.95,
+                    min(1.0, coords.wisdom * 1.2)  # Increase monitoring
+                )
+            # Connectivity context: increase Love
+            elif 'connect' in context_lower or 'network' in context_lower or 'communication' in context_lower:
+                coords = Coordinates(
+                    min(1.0, coords.love * 1.2),  # Increase connectivity
+                    coords.justice * 0.95,
+                    coords.power * 1.05,
+                    coords.wisdom * 0.95
+                )
+        
+        # Scale-based adjustments (smaller scales may have different characteristics)
+        if target_scale == Scale.PACKET:
+            # Packets are more Wisdom-heavy (metadata) and Power-light (small units)
+            coords = Coordinates(
+                coords.love * 0.9,
+                coords.justice * 1.0,
+                coords.power * 0.8,
+                min(1.0, coords.wisdom * 1.1)
+            )
+        elif target_scale == Scale.PORT:
+            # Ports are more Justice-heavy (access control)
+            coords = Coordinates(
+                coords.love * 0.95,
+                min(1.0, coords.justice * 1.1),
+                coords.power * 0.95,
+                coords.wisdom * 1.0
+            )
+        
+        # Ensure coordinates stay in valid range [0, 1]
+        coords = Coordinates(
+            max(0.0, min(1.0, coords.love)),
+            max(0.0, min(1.0, coords.justice)),
+            max(0.0, min(1.0, coords.power)),
+            max(0.0, min(1.0, coords.wisdom))
+        )
+        
+        return coords
     
     def check_scale_consistency(
         self, 

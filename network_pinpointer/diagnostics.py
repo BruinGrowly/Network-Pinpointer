@@ -92,7 +92,30 @@ class NetworkDiagnostics:
         Ping a host and analyze semantically
 
         Maps to: High Wisdom (diagnostic), Medium Love (connectivity test)
+        
+        Args:
+            host: Hostname or IP address to ping
+            count: Number of packets to send (1-100)
+            timeout: Timeout in seconds (1-60)
+        
+        Raises:
+            ValueError: If input parameters are invalid
         """
+        # Input validation
+        if not host or not isinstance(host, str):
+            raise ValueError("Host must be a non-empty string")
+        
+        # Sanitize hostname/IP to prevent command injection
+        # Allow only alphanumeric, dots, dashes, and colons (for IPv6)
+        if not re.match(r'^[a-zA-Z0-9.\-:]+$', host):
+            raise ValueError(f"Invalid host format: {host}")
+        
+        if not isinstance(count, int) or count < 1 or count > 100:
+            raise ValueError("Count must be an integer between 1 and 100")
+        
+        if not isinstance(timeout, int) or timeout < 1 or timeout > 60:
+            raise ValueError("Timeout must be an integer between 1 and 60 seconds")
+        
         # Determine ping command based on OS
         if self.system == "Windows":
             cmd = ["ping", "-n", str(count), "-w", str(timeout * 1000), host]
@@ -271,7 +294,29 @@ class NetworkDiagnostics:
         Scan a single port and analyze semantically
 
         Maps to: Medium Wisdom (discovery), Medium Justice (policy check)
+        
+        Args:
+            host: Hostname or IP address to scan
+            port: Port number to scan (1-65535)
+            timeout: Connection timeout in seconds (0.1-10.0)
+        
+        Raises:
+            ValueError: If input parameters are invalid
         """
+        # Input validation
+        if not host or not isinstance(host, str):
+            raise ValueError("Host must be a non-empty string")
+        
+        # Sanitize hostname/IP to prevent command injection
+        if not re.match(r'^[a-zA-Z0-9.\-:]+$', host):
+            raise ValueError(f"Invalid host format: {host}")
+        
+        if not isinstance(port, int) or port < 1 or port > 65535:
+            raise ValueError("Port must be an integer between 1 and 65535")
+        
+        if not isinstance(timeout, (int, float)) or timeout < 0.1 or timeout > 10.0:
+            raise ValueError("Timeout must be a number between 0.1 and 10.0 seconds")
+        
         is_open = False
         service_name = "unknown"
 
@@ -392,8 +437,11 @@ class NetworkDiagnostics:
                     )
                 )
 
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError, ValueError) as e:
             print(f"Error getting network interfaces: {e}")
+        except Exception as e:
+            # Catch-all for unexpected errors, but log them
+            print(f"Unexpected error getting network interfaces: {type(e).__name__}: {e}")
 
         return interfaces
 
