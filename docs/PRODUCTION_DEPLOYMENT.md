@@ -144,7 +144,16 @@ cp .env.example .env
 
 # Edit configuration
 nano .env
+
+# IMPORTANT: Change these default passwords in production:
+# - INFLUXDB_TOKEN
+# - POSTGRES_PASSWORD
+# - REDIS_PASSWORD
+# - GRAFANA_PASSWORD
+# - JWT_SECRET
 ```
+
+**Security Note**: The `.env.example` file includes 250+ configuration options with comprehensive security notes. Review all settings before deploying to production.
 
 **Step 3: Start services**
 
@@ -173,18 +182,47 @@ curl http://localhost:8080/health
 
 For local CLI usage without Docker:
 
+**Choose your installation tier:**
+
+See the main README for detailed installation options. Quick summary:
+
+**Minimal (Core CLI only)**:
 ```bash
-# Install Python dependencies
-pip install -r requirements.txt
+# Core functionality only
+pip install pyyaml
 
 # Make CLI executable
 chmod +x pinpoint
 
+# Skip first-run wizard for automation
+SKIP_FIRST_RUN=1 ./pinpoint version
+```
+
+**With Packet Capture**:
+```bash
+# Add real packet capture
+pip install pyyaml scapy
+
 # Run setup wizard
 ./pinpoint setup
+```
+
+**Full Installation**:
+```bash
+# Install all dependencies
+pip install -r requirements.txt
 
 # First analysis
 ./pinpoint quick-check 8.8.8.8
+```
+
+**Environment Variables**:
+```bash
+# Skip first-run wizard (useful for automation/CI)
+export SKIP_FIRST_RUN=1
+
+# Run tests in offline mode (useful for CI/CD)
+export OFFLINE_MODE=1
 ```
 
 ---
@@ -193,26 +231,60 @@ chmod +x pinpoint
 
 ### Environment Variables (.env)
 
+A complete `.env.example` template is provided with 250+ configuration options. Copy and customize it:
+
 ```bash
+cp .env.example .env
+nano .env
+```
+
+**Key settings to customize:**
+
+```bash
+# ============================================================================
+# CRITICAL: Change these before production deployment!
+# ============================================================================
+
 # InfluxDB
-INFLUXDB_TOKEN=your-super-secret-token-change-me
-INFLUXDB_ORG=network-pinpointer
-INFLUXDB_BUCKET=ljpw_metrics
+INFLUXDB_TOKEN=changeme_generate_secure_token  # Generate: openssl rand -base64 32
+INFLUXDB_PASSWORD=changeme123
 
 # PostgreSQL
-POSTGRES_USER=netpin
-POSTGRES_PASSWORD=change-me-in-production
-POSTGRES_DB=network_pinpointer
+POSTGRES_PASSWORD=changeme123
+
+# Redis
+REDIS_PASSWORD=changeme123
 
 # Grafana
-GRAFANA_ADMIN_PASSWORD=change-me-in-production
+GRAFANA_USER=admin
+GRAFANA_PASSWORD=admin123  # CHANGE THIS!
+
+# Security
+JWT_SECRET=changeme_generate_secure_random_string_here  # Generate: openssl rand -base64 32
 
 # Network Pinpointer
-NETWORK_TYPE=enterprise  # enterprise, data_center, cloud, edge
+NETWORK_TYPE=enterprise  # enterprise, datacenter, cloud, edge
 LOG_LEVEL=info
 ENABLE_API=true
 API_PORT=8080
+
+# Optional: Skip first-run wizard (for automation)
+SKIP_FIRST_RUN=0  # Set to 1 to skip
+
+# Optional: Alerting
+SLACK_WEBHOOK=  # Your Slack webhook URL
+ALERT_EMAIL=    # Email for alerts
 ```
+
+**Complete configuration**: See `.env.example` for all 250+ options including:
+- Database connections (InfluxDB, PostgreSQL, Redis)
+- Monitoring (Grafana, Prometheus)
+- Alerting (Slack, Email, PagerDuty)
+- Security (Rate limiting, JWT, IP whitelist)
+- LJPW baselines
+- Packet capture settings
+- Feature flags
+- Backup configuration
 
 ### Network Pinpointer Config (YAML)
 

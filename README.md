@@ -37,37 +37,147 @@ Every network operation can be mapped to coordinates (L, J, P, W) in this 4D spa
 
 ## Installation
 
-### Linux / macOS
+### Prerequisites
+- **Python 3.8+** (Python 3.10+ recommended)
+- **pip** (Python package installer)
+- **Npcap** (Windows only, for packet capture)
+
+### Installation Options
+
+Network-Pinpointer has **three installation modes** depending on your needs:
+
+#### Option 1: Core CLI Only (Minimal)
+Best for basic network diagnostics and semantic analysis.
 
 ```bash
 # Clone the repository
 git clone https://github.com/BruinGrowly/Network-Pinpointer.git
 cd Network-Pinpointer
 
-# Install dependencies (optional, for packet capture)
-pip install scapy pyyaml
+# Install core dependencies
+pip install pyyaml
 
-# Make the CLI executable
+# Make the CLI executable (Linux/macOS)
 chmod +x pinpoint
 
 # Run
 ./pinpoint --help
 ```
 
-### Windows
+**What you get:**
+- ✅ Semantic analysis engine
+- ✅ CLI tools (ping, traceroute, scan, analyze)
+- ✅ ICE framework analysis
+- ✅ Network topology mapping (using ping fallback)
+- ❌ Real packet capture (requires scapy)
+- ❌ API server (requires fastapi)
+- ❌ Monitoring stack (requires docker)
+
+#### Option 2: CLI with Packet Capture
+Adds real packet capture capabilities for deeper analysis.
+
+```bash
+# Install core + packet capture
+pip install pyyaml scapy
+
+# On Windows, also install Npcap from:
+# https://npcap.com/#download
+```
+
+**What you get:**
+- ✅ Everything from Core CLI
+- ✅ Real packet capture and analysis
+- ✅ Deep protocol inspection
+- ❌ API server
+- ❌ Monitoring stack
+
+#### Option 3: Full Production Stack
+Complete installation with API server, monitoring, and storage.
+
+```bash
+# Install all Python dependencies
+pip install -r requirements.txt
+
+# Or install specific feature sets:
+pip install pyyaml scapy fastapi uvicorn pydantic prometheus-client
+```
+
+**What you get:**
+- ✅ Everything from previous options
+- ✅ FastAPI REST API server
+- ✅ Prometheus metrics
+- ✅ Real-time monitoring
+- ✅ InfluxDB integration (with Docker)
+- ✅ PostgreSQL storage (with Docker)
+- ✅ Grafana dashboards (with Docker)
+
+**For Docker deployment:**
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env with your settings
+nano .env
+
+# Start the full stack
+docker-compose up -d
+
+# Access services:
+# - API: http://localhost:8080
+# - Grafana: http://localhost:3000 (admin/admin123)
+# - Prometheus: http://localhost:9090
+```
+
+### Linux / macOS Quick Start
+
+```bash
+git clone https://github.com/BruinGrowly/Network-Pinpointer.git
+cd Network-Pinpointer
+
+# Choose your installation option above, then:
+chmod +x pinpoint
+./pinpoint --help
+```
+
+### Windows Quick Start
 
 See **[Windows Installation Guide](docs/WINDOWS_INSTALLATION.md)** for complete instructions.
 
-**Quick start for Windows**:
+**Quick start:**
 ```powershell
-# Install dependencies
-pip install scapy pyyaml
+# Install dependencies (choose your option from above)
+pip install pyyaml
 
 # Run with Python
 python pinpoint --help
 ```
 
-**Requirements:** Python 3.8+, Npcap (Windows only)
+### Dependency Reference
+
+| Package | Required For | Install Command |
+|---------|-------------|-----------------|
+| `pyyaml` | **Core** - Configuration files | `pip install pyyaml` |
+| `scapy` | Packet capture | `pip install scapy` |
+| `fastapi` | API server | `pip install fastapi` |
+| `uvicorn` | API server | `pip install uvicorn[standard]` |
+| `pydantic` | API server | `pip install pydantic` |
+| `prometheus-client` | Metrics collection | `pip install prometheus-client` |
+| `influxdb-client` | Time-series storage | `pip install influxdb-client` |
+| `redis` | Caching | `pip install redis` |
+| `psycopg2-binary` | PostgreSQL storage | `pip install psycopg2-binary` |
+
+### Verifying Installation
+
+```bash
+# Check core installation
+./pinpoint version
+
+# Test semantic engine
+./pinpoint explain ljpw
+
+# Run a quick diagnostic (skip first-run wizard)
+SKIP_FIRST_RUN=1 ./pinpoint health
+```
 
 ## Quick Start
 
@@ -238,21 +348,62 @@ The `map` command scans a network range and clusters devices by semantic purpose
 ## Architecture
 
 ```
+┌─────────────────────────────────────────────────────────────┐
+│              Network Pinpointer Architecture                 │
+└─────────────────────────────────────────────────────────────┘
+
+                    Users
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+     ┌──▼──┐      ┌──▼──┐      ┌──▼────┐
+     │ CLI │      │ API │      │Grafana│
+     └──┬──┘      └──┬──┘      └───┬───┘
+        │            │             │
+        └────────┬───┴─────────────┘
+                 │
+        ┌────────▼─────────┐
+        │ Semantic Engine  │
+        │ • LJPW Framework │
+        │ • 355+ Keywords  │
+        │ • ICE Analysis   │
+        └────────┬─────────┘
+                 │
+        ┌────────▼─────────┐
+        │   Diagnostics    │
+        │ • Ping/Trace     │
+        │ • Packet Capture │
+        │ • Port Scanning  │
+        └────────┬─────────┘
+                 │
+     ┌───────────┼──────────┐
+     │           │          │
+  ┌──▼──┐    ┌──▼───┐   ┌──▼──┐
+  │Influx│    │Postgres   │Redis│
+  │DB    │    │       │   │     │
+  └──────┘    └───────┘   └─────┘
+```
+
+**For detailed architecture diagrams, see:** [ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)
+
+### Core Components
+
+**NetworkSemanticEngine**: Maps network operations to LJPW coordinates  
+**NetworkVocabularyManager**: 300+ network terms mapped to dimensions  
+**NetworkDiagnostics**: Traditional tools with semantic layer  
+**NetworkMapper**: Full network scanning and topology analysis
+
+**Full component details in:** [docs/ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)
+
+```
 network_pinpointer/
 ├── semantic_engine.py      # Core LJPW semantic engine
 ├── diagnostics.py          # Network diagnostic tools
 ├── network_mapper.py       # Topology mapping and analysis
-└── cli.py                  # Command-line interface
-
-pinpoint.py                 # Main entry point
+├── cli.py                  # Command-line interface
+├── api_server.py           # FastAPI REST API
+└── visualization/          # Grafana dashboards & charts
 ```
-
-### Key Components
-
-**NetworkSemanticEngine**: Maps network operations to LJPW coordinates
-**NetworkVocabularyManager**: 300+ network terms mapped to dimensions
-**NetworkDiagnostics**: Traditional tools with semantic layer
-**NetworkMapper**: Full network scanning and topology analysis
 
 ## Mathematical Foundation
 
@@ -425,6 +576,38 @@ This is experimental research. Contributions, feedback, and discussion are welco
 - Integration with existing network tools
 - Historical analysis and drift detection
 - Cross-network pattern recognition
+
+**For development setup:**
+- See [ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md) for system design
+- See [BACKUP_RESTORE.md](docs/BACKUP_RESTORE.md) for data management
+- Run tests: `python3 tests/test_semantic_engine.py`
+- Offline mode: `OFFLINE_MODE=1 python3 tests/test_real_packet_analysis.py`
+
+## Documentation
+
+### Getting Started
+- **[README.md](README.md)** - This file, overview and installation
+- **[USAGE_GUIDE.md](docs/USAGE_GUIDE.md)** - Complete usage guide with examples
+- **[WINDOWS_INSTALLATION.md](docs/WINDOWS_INSTALLATION.md)** - Windows-specific setup
+
+### Production Deployment
+- **[PRODUCTION_DEPLOYMENT.md](docs/PRODUCTION_DEPLOYMENT.md)** - Full production setup
+- **[BACKUP_RESTORE.md](docs/BACKUP_RESTORE.md)** - Backup & disaster recovery procedures
+- **[.env.example](.env.example)** - Environment configuration template (250+ options)
+
+### Technical Details
+- **[ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)** - System architecture & data flows
+- **[LJPW-MATHEMATICAL-BASELINES.md](docs/LJPW-MATHEMATICAL-BASELINES.md)** - Mathematical foundations
+- **[LJPW_SEMANTIC_PROBE.md](docs/LJPW_SEMANTIC_PROBE.md)** - Semantic probe guide
+
+### Reference
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
+- **[SECURITY.md](SECURITY.md)** - Security policy and reporting
+- **[LICENSE](LICENSE)** - License information
+
+### Reports & Analysis
+- **[ISSUES_REPORT.md](ISSUES_REPORT.md)** - Comprehensive repository analysis (v1.0.1)
+- **[FIXES_APPLIED.md](FIXES_APPLIED.md)** - Detailed fix documentation (v1.0.1)
 
 ## License
 

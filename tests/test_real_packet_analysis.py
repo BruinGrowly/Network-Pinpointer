@@ -4,6 +4,8 @@ Real-World Packet Analysis Test Scenarios
 
 Captures actual network packets and performs semantic analysis.
 Tests the complete pipeline: Capture → Parse → Analyze → Insights
+
+Set OFFLINE_MODE=1 environment variable to skip network tests.
 """
 
 import sys
@@ -20,11 +22,23 @@ from datetime import datetime
 import time
 
 
+# Check for offline mode
+OFFLINE_MODE = os.environ.get('OFFLINE_MODE', '0') == '1'
+
+
 def print_section(title: str):
     """Print a formatted section header"""
     print("\n" + "=" * 70)
     print(title)
     print("=" * 70)
+
+
+def skip_if_offline(test_name: str):
+    """Skip test if in offline mode"""
+    if OFFLINE_MODE:
+        print(f"\n⊘ SKIPPED: {test_name} (OFFLINE_MODE enabled)")
+        return True
+    return False
 
 
 def test_scenario_1_healthy_connection():
@@ -37,6 +51,9 @@ def test_scenario_1_healthy_connection():
     - High Wisdom (clear responses)
     - Low Justice (minimal filtering)
     """
+    if skip_if_offline("Healthy Connection Test"):
+        return True
+    
     print_section("SCENARIO 1: Healthy Connection Test")
     print("Target: 8.8.8.8 (Google DNS)")
     print("Expected: All dimensions healthy")
@@ -104,6 +121,9 @@ def test_scenario_2_route_instability():
     Captures packets over time to detect if TTL varies
     (indicating route changes)
     """
+    if skip_if_offline("Route Stability Analysis"):
+        return True
+    
     print_section("SCENARIO 2: Route Stability Analysis")
     print("Target: 1.1.1.1 (Cloudflare DNS)")
     print("Purpose: Detect routing stability")
@@ -170,6 +190,9 @@ def test_scenario_3_path_complexity():
 
     Compares TTL from multiple targets to infer path complexity
     """
+    if skip_if_offline("Path Complexity Comparison"):
+        return True
+    
     print_section("SCENARIO 3: Path Complexity Comparison")
 
     targets = [
@@ -246,6 +269,9 @@ def test_scenario_4_holistic_network_health():
 
     Combines multiple tests to assess overall network health
     """
+    if skip_if_offline("Holistic Network Health Assessment"):
+        return True
+    
     print_section("SCENARIO 4: Holistic Network Health Assessment")
 
     capture = get_packet_capture()
@@ -320,6 +346,10 @@ def run_all_scenarios():
     print("REAL-WORLD PACKET ANALYSIS TEST SUITE")
     print("=" * 70)
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    if OFFLINE_MODE:
+        print("\n⚠️  OFFLINE MODE ENABLED - Network tests will be skipped")
+        print("To run network tests, unset OFFLINE_MODE environment variable")
 
     scenarios = [
         ("Healthy Connection", test_scenario_1_healthy_connection),
@@ -348,7 +378,7 @@ def run_all_scenarios():
     total = len(results)
 
     for name, success in results:
-        status = "✅ PASS" if success else "❌ FAIL"
+        status = "✅ PASS" if success else ("⊘ SKIP" if OFFLINE_MODE else "❌ FAIL")
         print(f"{status}: {name}")
 
     print(f"\nRESULT: {passed}/{total} scenarios completed successfully")
