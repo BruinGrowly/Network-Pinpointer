@@ -69,9 +69,9 @@ class FirstRunExperience:
     def _show_welcome(self):
         """Show welcoming introduction (Love: warm greeting)"""
         print()
-        print(self.fmt.header("=" * 70))
-        print(self.fmt.header("  👋 Welcome to Network Pinpointer!"))
-        print(self.fmt.header("=" * 70))
+        print(self.fmt.bold("=" * 70))
+        print(self.fmt.bold("  👋 Welcome to Network Pinpointer!"))
+        print(self.fmt.bold("=" * 70))
         print()
 
         print(f"{self.fmt.success('Network Pinpointer')} helps you understand your network using "
@@ -201,9 +201,9 @@ class FirstRunExperience:
     def _show_next_steps(self, config: NetworkPinpointerConfig):
         """Show next steps after setup (Wisdom: guiding)"""
         print()
-        print(self.fmt.header("=" * 70))
-        print(self.fmt.header("  🎉 Setup Complete!"))
-        print(self.fmt.header("=" * 70))
+        print(self.fmt.bold("=" * 70))
+        print(self.fmt.bold("  🎉 Setup Complete!"))
+        print(self.fmt.bold("=" * 70))
         print()
 
         print(f"{self.fmt.success('You are all set!')} Here is what you can do next:")
