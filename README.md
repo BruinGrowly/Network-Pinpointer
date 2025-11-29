@@ -348,21 +348,62 @@ The `map` command scans a network range and clusters devices by semantic purpose
 ## Architecture
 
 ```
+┌─────────────────────────────────────────────────────────────┐
+│              Network Pinpointer Architecture                 │
+└─────────────────────────────────────────────────────────────┘
+
+                    Users
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+     ┌──▼──┐      ┌──▼──┐      ┌──▼────┐
+     │ CLI │      │ API │      │Grafana│
+     └──┬──┘      └──┬──┘      └───┬───┘
+        │            │             │
+        └────────┬───┴─────────────┘
+                 │
+        ┌────────▼─────────┐
+        │ Semantic Engine  │
+        │ • LJPW Framework │
+        │ • 355+ Keywords  │
+        │ • ICE Analysis   │
+        └────────┬─────────┘
+                 │
+        ┌────────▼─────────┐
+        │   Diagnostics    │
+        │ • Ping/Trace     │
+        │ • Packet Capture │
+        │ • Port Scanning  │
+        └────────┬─────────┘
+                 │
+     ┌───────────┼──────────┐
+     │           │          │
+  ┌──▼──┐    ┌──▼───┐   ┌──▼──┐
+  │Influx│    │Postgres   │Redis│
+  │DB    │    │       │   │     │
+  └──────┘    └───────┘   └─────┘
+```
+
+**For detailed architecture diagrams, see:** [ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)
+
+### Core Components
+
+**NetworkSemanticEngine**: Maps network operations to LJPW coordinates  
+**NetworkVocabularyManager**: 300+ network terms mapped to dimensions  
+**NetworkDiagnostics**: Traditional tools with semantic layer  
+**NetworkMapper**: Full network scanning and topology analysis
+
+**Full component details in:** [docs/ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)
+
+```
 network_pinpointer/
 ├── semantic_engine.py      # Core LJPW semantic engine
 ├── diagnostics.py          # Network diagnostic tools
 ├── network_mapper.py       # Topology mapping and analysis
-└── cli.py                  # Command-line interface
-
-pinpoint.py                 # Main entry point
+├── cli.py                  # Command-line interface
+├── api_server.py           # FastAPI REST API
+└── visualization/          # Grafana dashboards & charts
 ```
-
-### Key Components
-
-**NetworkSemanticEngine**: Maps network operations to LJPW coordinates
-**NetworkVocabularyManager**: 300+ network terms mapped to dimensions
-**NetworkDiagnostics**: Traditional tools with semantic layer
-**NetworkMapper**: Full network scanning and topology analysis
 
 ## Mathematical Foundation
 
@@ -535,6 +576,38 @@ This is experimental research. Contributions, feedback, and discussion are welco
 - Integration with existing network tools
 - Historical analysis and drift detection
 - Cross-network pattern recognition
+
+**For development setup:**
+- See [ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md) for system design
+- See [BACKUP_RESTORE.md](docs/BACKUP_RESTORE.md) for data management
+- Run tests: `python3 tests/test_semantic_engine.py`
+- Offline mode: `OFFLINE_MODE=1 python3 tests/test_real_packet_analysis.py`
+
+## Documentation
+
+### Getting Started
+- **[README.md](README.md)** - This file, overview and installation
+- **[USAGE_GUIDE.md](docs/USAGE_GUIDE.md)** - Complete usage guide with examples
+- **[WINDOWS_INSTALLATION.md](docs/WINDOWS_INSTALLATION.md)** - Windows-specific setup
+
+### Production Deployment
+- **[PRODUCTION_DEPLOYMENT.md](docs/PRODUCTION_DEPLOYMENT.md)** - Full production setup
+- **[BACKUP_RESTORE.md](docs/BACKUP_RESTORE.md)** - Backup & disaster recovery procedures
+- **[.env.example](.env.example)** - Environment configuration template (250+ options)
+
+### Technical Details
+- **[ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)** - System architecture & data flows
+- **[LJPW-MATHEMATICAL-BASELINES.md](docs/LJPW-MATHEMATICAL-BASELINES.md)** - Mathematical foundations
+- **[LJPW_SEMANTIC_PROBE.md](docs/LJPW_SEMANTIC_PROBE.md)** - Semantic probe guide
+
+### Reference
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
+- **[SECURITY.md](SECURITY.md)** - Security policy and reporting
+- **[LICENSE](LICENSE)** - License information
+
+### Reports & Analysis
+- **[ISSUES_REPORT.md](ISSUES_REPORT.md)** - Comprehensive repository analysis (v1.0.1)
+- **[FIXES_APPLIED.md](FIXES_APPLIED.md)** - Detailed fix documentation (v1.0.1)
 
 ## License
 
