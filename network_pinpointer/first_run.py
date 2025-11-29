@@ -7,9 +7,12 @@ Welcoming, delightful first-time setup following LJPW UX principles:
 - Justice: Clear structure, predictable steps
 - Power: Quick to first success
 - Wisdom: Educational, explains concepts
+
+Set SKIP_FIRST_RUN=1 environment variable to skip the wizard.
 """
 
 import sys
+import os
 import time
 from pathlib import Path
 from typing import Optional, Dict, Any
@@ -28,6 +31,10 @@ class FirstRunExperience:
 
     def is_first_run(self) -> bool:
         """Check if this is the first time running"""
+        # Check environment variable to skip first run
+        if os.environ.get('SKIP_FIRST_RUN', '0') == '1':
+            return False
+        
         # Check for existing config
         for config_path in self.config_manager.DEFAULT_CONFIG_LOCATIONS:
             if config_path.exists():

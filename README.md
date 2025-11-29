@@ -37,37 +37,147 @@ Every network operation can be mapped to coordinates (L, J, P, W) in this 4D spa
 
 ## Installation
 
-### Linux / macOS
+### Prerequisites
+- **Python 3.8+** (Python 3.10+ recommended)
+- **pip** (Python package installer)
+- **Npcap** (Windows only, for packet capture)
+
+### Installation Options
+
+Network-Pinpointer has **three installation modes** depending on your needs:
+
+#### Option 1: Core CLI Only (Minimal)
+Best for basic network diagnostics and semantic analysis.
 
 ```bash
 # Clone the repository
 git clone https://github.com/BruinGrowly/Network-Pinpointer.git
 cd Network-Pinpointer
 
-# Install dependencies (optional, for packet capture)
-pip install scapy pyyaml
+# Install core dependencies
+pip install pyyaml
 
-# Make the CLI executable
+# Make the CLI executable (Linux/macOS)
 chmod +x pinpoint
 
 # Run
 ./pinpoint --help
 ```
 
-### Windows
+**What you get:**
+- ✅ Semantic analysis engine
+- ✅ CLI tools (ping, traceroute, scan, analyze)
+- ✅ ICE framework analysis
+- ✅ Network topology mapping (using ping fallback)
+- ❌ Real packet capture (requires scapy)
+- ❌ API server (requires fastapi)
+- ❌ Monitoring stack (requires docker)
+
+#### Option 2: CLI with Packet Capture
+Adds real packet capture capabilities for deeper analysis.
+
+```bash
+# Install core + packet capture
+pip install pyyaml scapy
+
+# On Windows, also install Npcap from:
+# https://npcap.com/#download
+```
+
+**What you get:**
+- ✅ Everything from Core CLI
+- ✅ Real packet capture and analysis
+- ✅ Deep protocol inspection
+- ❌ API server
+- ❌ Monitoring stack
+
+#### Option 3: Full Production Stack
+Complete installation with API server, monitoring, and storage.
+
+```bash
+# Install all Python dependencies
+pip install -r requirements.txt
+
+# Or install specific feature sets:
+pip install pyyaml scapy fastapi uvicorn pydantic prometheus-client
+```
+
+**What you get:**
+- ✅ Everything from previous options
+- ✅ FastAPI REST API server
+- ✅ Prometheus metrics
+- ✅ Real-time monitoring
+- ✅ InfluxDB integration (with Docker)
+- ✅ PostgreSQL storage (with Docker)
+- ✅ Grafana dashboards (with Docker)
+
+**For Docker deployment:**
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env with your settings
+nano .env
+
+# Start the full stack
+docker-compose up -d
+
+# Access services:
+# - API: http://localhost:8080
+# - Grafana: http://localhost:3000 (admin/admin123)
+# - Prometheus: http://localhost:9090
+```
+
+### Linux / macOS Quick Start
+
+```bash
+git clone https://github.com/BruinGrowly/Network-Pinpointer.git
+cd Network-Pinpointer
+
+# Choose your installation option above, then:
+chmod +x pinpoint
+./pinpoint --help
+```
+
+### Windows Quick Start
 
 See **[Windows Installation Guide](docs/WINDOWS_INSTALLATION.md)** for complete instructions.
 
-**Quick start for Windows**:
+**Quick start:**
 ```powershell
-# Install dependencies
-pip install scapy pyyaml
+# Install dependencies (choose your option from above)
+pip install pyyaml
 
 # Run with Python
 python pinpoint --help
 ```
 
-**Requirements:** Python 3.8+, Npcap (Windows only)
+### Dependency Reference
+
+| Package | Required For | Install Command |
+|---------|-------------|-----------------|
+| `pyyaml` | **Core** - Configuration files | `pip install pyyaml` |
+| `scapy` | Packet capture | `pip install scapy` |
+| `fastapi` | API server | `pip install fastapi` |
+| `uvicorn` | API server | `pip install uvicorn[standard]` |
+| `pydantic` | API server | `pip install pydantic` |
+| `prometheus-client` | Metrics collection | `pip install prometheus-client` |
+| `influxdb-client` | Time-series storage | `pip install influxdb-client` |
+| `redis` | Caching | `pip install redis` |
+| `psycopg2-binary` | PostgreSQL storage | `pip install psycopg2-binary` |
+
+### Verifying Installation
+
+```bash
+# Check core installation
+./pinpoint version
+
+# Test semantic engine
+./pinpoint explain ljpw
+
+# Run a quick diagnostic (skip first-run wizard)
+SKIP_FIRST_RUN=1 ./pinpoint health
+```
 
 ## Quick Start
 
