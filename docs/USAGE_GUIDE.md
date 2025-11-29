@@ -17,16 +17,37 @@ Complete guide to using Network Pinpointer for network diagnostics using the LJP
 ## Quick Start
 
 ### Installation
+
+**Choose your installation tier** (see main README for full details):
+
+**Option 1: Core CLI Only (Minimal)**
 ```bash
 git clone https://github.com/BruinGrowly/Network-Pinpointer.git
 cd Network-Pinpointer
-pip install -r requirements.txt  # If scapy needed: pip install scapy
+pip install pyyaml
+chmod +x pinpoint
 ```
 
-### Your First Diagnostic
+**Option 2: With Packet Capture**
 ```bash
-# Quick 30-second health check
-./pinpoint quick-check google.com
+pip install pyyaml scapy
+```
+
+**Option 3: Full Production Stack**
+```bash
+pip install -r requirements.txt
+```
+
+**For Windows**: See [WINDOWS_INSTALLATION.md](WINDOWS_INSTALLATION.md)
+
+### Your First Diagnostic
+
+```bash
+# Skip first-run wizard for quick start
+SKIP_FIRST_RUN=1 ./pinpoint quick-check google.com
+
+# Or run the welcoming setup wizard
+./pinpoint setup
 
 # Interactive mode (recommended for beginners)
 ./pinpoint interactive
@@ -34,6 +55,10 @@ pip install -r requirements.txt  # If scapy needed: pip install scapy
 # Explain what Love means
 ./pinpoint explain love
 ```
+
+**Environment Variables**:
+- `SKIP_FIRST_RUN=1` - Skip setup wizard (useful for automation)
+- `OFFLINE_MODE=1` - Run tests without network access (CI/CD)
 
 ---
 
@@ -668,10 +693,24 @@ Great for understanding LJPW framework interactively.
 ## Troubleshooting
 
 ### "Scapy not available" Warning
+
+Network Pinpointer has **three installation tiers**:
+
 ```bash
-pip install scapy
+# Tier 1: Core only (no scapy)
+pip install pyyaml
+# ✅ CLI works, uses ping fallback for diagnostics
+
+# Tier 2: With packet capture
+pip install pyyaml scapy
+# ✅ Full packet capture and deep inspection
+
+# Tier 3: Full production
+pip install -r requirements.txt
+# ✅ Everything including API server and monitoring
 ```
-Scapy enables real packet capture. Without it, tool uses fallback mode.
+
+The warning is normal if you chose Tier 1. The tool works fine using ping-based fallback mode.
 
 ### No History Found
 History is only recorded when using watch mode:
@@ -694,6 +733,26 @@ Packet capture requires elevated privileges:
 ```bash
 sudo ./pinpoint ping 8.8.8.8
 ```
+
+### First-Run Wizard Appearing Every Time
+
+Skip it with environment variable:
+```bash
+# Temporary
+SKIP_FIRST_RUN=1 ./pinpoint health
+
+# Permanent (add to ~/.bashrc or ~/.zshrc)
+export SKIP_FIRST_RUN=1
+```
+
+### Running Tests in CI/CD Without Network
+
+Use offline mode:
+```bash
+OFFLINE_MODE=1 python3 tests/test_real_packet_analysis.py
+```
+
+This skips network-dependent tests, useful for CI/CD pipelines.
 
 ---
 
