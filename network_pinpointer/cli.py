@@ -582,6 +582,18 @@ def cmd_ice(args, engine: NetworkSemanticEngine):
     print("\n" + "=" * 70)
 
 
+def cmd_explain(args, engine: NetworkSemanticEngine):
+    """Explain LJPW dimensions and network semantics"""
+    from .quick_commands import QuickCommands
+
+    # Initialize QuickCommands (it creates its own formatter)
+    quick = QuickCommands()
+
+    # Call the explain function with the topic
+    topic = args.topic if hasattr(args, 'topic') else 'ljpw'
+    quick.explain(topic)
+
+
 def cmd_baseline(args, engine: NetworkSemanticEngine):
     """Handle baseline management commands"""
     from .semantic_storage import SemanticStorage
@@ -1037,15 +1049,104 @@ def cmd_visualize(args, engine: NetworkSemanticEngine):
 
 def main():
     """Main CLI entry point"""
+    description_text = """
+Network-Pinpointer: Semantic Network Diagnostic Tool (LJPW Framework)
+
+Maps network operations to a 4-dimensional semantic space using:
+  • Love (L):    Connectivity, communication, relationships
+  • Justice (J): Rules, policies, security, compliance
+  • Power (P):   Performance, control, execution
+  • Wisdom (W):  Visibility, monitoring, diagnostics
+
+QUICK START:
+  pinpoint.py ping google.com              # Test connectivity with semantic analysis
+  pinpoint.py ljpw 8.8.8.8                 # Comprehensive semantic profiling
+  pinpoint.py scan 192.168.1.1 --common    # Scan common ports
+  pinpoint.py explain ljpw                 # Learn about LJPW dimensions
+"""
+
+    epilog_text = """
+COMMON USAGE EXAMPLES:
+
+  Basic Diagnostics:
+    pinpoint.py ping google.com -c 10                    # Ping with 10 packets
+    pinpoint.py traceroute api.example.com               # Trace network path
+    pinpoint.py scan 192.168.1.1 -p 22,80,443           # Scan specific ports
+
+  Semantic Analysis:
+    pinpoint.py ljpw google.com --quick                  # Quick semantic profile
+    pinpoint.py ljpw api.example.com --deep --export     # Deep scan + JSON export
+    pinpoint.py analyze "configure firewall rules"       # Analyze operation semantics
+
+  Network Mapping:
+    pinpoint.py map 192.168.1.0/24                       # Scan entire network
+    pinpoint.py map 10.0.0.0/24 --export-json topo.json  # Export topology
+
+  Drift Detection:
+    pinpoint.py baseline set google.com                  # Create baseline snapshot
+    pinpoint.py drift check google.com                   # Check for changes
+    pinpoint.py drift history google.com                 # View drift over time
+
+  Visualization:
+    pinpoint.py visualize clusters                       # 3D semantic clusters
+    pinpoint.py visualize drift google.com               # Drift timeline
+    pinpoint.py visualize dashboard                      # Unified dashboard
+
+  Learn More:
+    pinpoint.py explain ljpw                             # Learn LJPW framework
+    pinpoint.py explain love                             # Connectivity dimension
+    pinpoint.py explain justice                          # Policy dimension
+    pinpoint.py explain power                            # Performance dimension
+    pinpoint.py explain wisdom                           # Visibility dimension
+
+UNDERSTANDING OUTPUT:
+  Coordinates shown as (L, J, P, W) with values 0.0-1.0
+  - High Love (0.7+): Good connectivity
+  - High Justice (0.7+): Strong policy enforcement
+  - High Power (0.7+): Good performance
+  - High Wisdom (0.7+): Good visibility
+
+  Example: Coordinates(0.85, 0.35, 0.70, 0.90)
+    → Excellent connectivity, minimal restrictions, good performance, great visibility
+
+For detailed help on any command: pinpoint.py <command> --help
+Documentation: https://github.com/BruinGrowly/Network-Pinpointer
+"""
+
     parser = argparse.ArgumentParser(
-        description="Network-Pinpointer: Semantic Network Diagnostic Tool (LJPW Framework)",
+        description=description_text,
+        epilog=epilog_text,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Ping command
-    ping_parser = subparsers.add_parser("ping", help="Ping a host with semantic analysis")
+    ping_parser = subparsers.add_parser(
+        "ping",
+        help="Ping a host with semantic analysis",
+        description="""
+Ping a host and analyze connectivity through the LJPW semantic framework.
+
+This extends traditional ping with semantic coordinates that reveal:
+  • Love: Connection quality and reliability
+  • Justice: Route policy and restrictions
+  • Power: Network performance and latency
+  • Wisdom: Visibility and diagnostic clarity
+
+EXAMPLES:
+  pinpoint.py ping google.com                    # Basic semantic ping
+  pinpoint.py ping 8.8.8.8 -c 10                 # Send 10 packets
+  pinpoint.py ping api.example.com --ljpw-profile # Include full profile
+
+OUTPUT:
+  • Packet statistics (sent, received, loss %)
+  • Average RTT (round-trip time)
+  • LJPW coordinates if --ljpw-profile is used
+  • Semantic interpretation of connectivity
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ping_parser.add_argument("host", help="Target host (IP or hostname)")
     ping_parser.add_argument(
         "-c", "--count", type=int, default=4, help="Number of packets (default: 4)"
@@ -1071,7 +1172,34 @@ def main():
 
     # Scan command
     scan_parser = subparsers.add_parser(
-        "scan", help="Scan ports with semantic analysis"
+        "scan",
+        help="Scan ports with semantic analysis",
+        description="""
+Scan network ports and classify discovered services in LJPW semantic space.
+
+Each open port is analyzed to understand its semantic purpose:
+  • Service identification (HTTP, SSH, DNS, etc.)
+  • Semantic archetype matching
+  • LJPW coordinates for each service
+  • Security posture assessment
+
+EXAMPLES:
+  pinpoint.py scan 192.168.1.1 --common          # Scan well-known ports
+  pinpoint.py scan api.example.com -p 80,443     # Scan specific ports
+  pinpoint.py scan 10.0.0.1 -p 1-1024            # Scan port range
+  pinpoint.py scan server.local -p 22,80,443,3306 # Multiple ports
+
+OUTPUT:
+  • List of open ports with service names
+  • LJPW coordinates for each service
+  • Dominant semantic dimension
+  • Service archetype (if matched)
+  • Overall semantic profile of the host
+
+NOTE: Port scanning requires appropriate permissions. Only scan hosts you own
+      or have explicit authorization to test.
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     scan_parser.add_argument("target", help="Target host (IP or hostname)")
     scan_parser.add_argument(
@@ -1083,7 +1211,44 @@ def main():
 
     # Map command
     map_parser = subparsers.add_parser(
-        "map", help="Map entire network with semantic topology analysis"
+        "map",
+        help="Map entire network with semantic topology analysis",
+        description="""
+Discover and map all hosts in a network, analyze topology, and detect issues.
+
+Performs network-wide discovery and semantic analysis including:
+  • Host discovery (active hosts in subnet)
+  • Semantic clustering (grouping by purpose)
+  • Security issue detection
+  • Topology analysis
+  • Network-wide LJPW profiling
+
+EXAMPLES:
+  pinpoint.py map 192.168.1.0/24                 # Map home network
+  pinpoint.py map 10.0.0.0/24 --export-json net.json # Export results
+  pinpoint.py map 172.16.0.0/16 -q               # Quiet mode
+
+OUTPUT INCLUDES:
+  • List of discovered hosts
+  • DNS resolution for each host
+  • Semantic clusters (groups of similar hosts)
+  • Security issues detected
+  • Network topology summary
+  • Overall network health assessment
+
+EXPORT FORMAT (JSON):
+  Contains complete network graph with:
+  - All discovered hosts
+  - Connections between hosts
+  - Semantic coordinates for each
+  - Cluster assignments
+  - Security findings
+
+WARNING: Network scanning can be slow for large subnets
+         /24 network (254 hosts) may take 5-10 minutes
+         Consider using smaller subnets or -q for minimal output
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     map_parser.add_argument("network", help="Network CIDR (e.g., 192.168.1.0/24)")
     map_parser.add_argument(
@@ -1095,7 +1260,39 @@ def main():
 
     # Analyze command
     analyze_parser = subparsers.add_parser(
-        "analyze", help="Analyze a network operation description"
+        "analyze",
+        help="Analyze a network operation description",
+        description="""
+Analyze any network operation or task and map it to LJPW semantic coordinates.
+
+This command takes natural language descriptions of network operations and
+determines their semantic fingerprint, revealing the fundamental nature of
+the operation across all four dimensions.
+
+EXAMPLES:
+  pinpoint.py analyze "configure firewall rules"
+  pinpoint.py analyze "monitor network traffic"
+  pinpoint.py analyze "establish VPN connection"
+  pinpoint.py analyze "optimize database queries"
+  pinpoint.py analyze "deploy load balancer"
+
+OUTPUT:
+  • Operation type classification
+  • Dominant semantic dimension
+  • LJPW coordinates (L, J, P, W)
+  • Semantic clarity score (how well-defined the operation is)
+  • Harmony score (balance across dimensions)
+  • Visual bar chart of dimension breakdown
+  • Distance from semantic anchor
+  • Concept count (semantic complexity)
+
+USE CASES:
+  • Understand the semantic nature of tasks
+  • Plan operations by understanding their dimensional impact
+  • Identify what dimensions an operation primarily affects
+  • Compare semantic similarity of different operations
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     analyze_parser.add_argument(
         "operation", help="Operation description (e.g., 'configure firewall rules')"
@@ -1103,7 +1300,43 @@ def main():
 
     # ICE analysis command
     ice_parser = subparsers.add_parser(
-        "ice", help="Analyze Intent-Context-Execution harmony"
+        "ice",
+        help="Analyze Intent-Context-Execution harmony",
+        description="""
+Analyze the harmony between Intent, Context, and Execution using ICE framework.
+
+The ICE framework measures alignment between:
+  • Intent: What you want to achieve
+  • Context: Current network state/situation
+  • Execution: What is actually being done
+
+This reveals misalignments, conflicts, and opportunities for optimization.
+
+EXAMPLES:
+  pinpoint.py ice "fast connection" "limited bandwidth" "enable caching"
+  pinpoint.py ice "secure access" "public network" "enforce VPN"
+  pinpoint.py ice "low latency" "complex routing" "optimize paths"
+  pinpoint.py ice "high availability" "single server" "add redundancy"
+
+OUTPUT INCLUDES:
+  • ICE Coherence: How well intent/context/execution align
+  • ICE Balance: Equilibrium between components
+  • Overall Harmony Score: Combined alignment measure
+  • Harmony Level: verbal rating (Poor/Fair/Good/Excellent)
+  • Benevolence Score: Positive intent assessment
+  • Intent-Execution Disharmony: Direct gap between goal and action
+  • Component coordinates: LJPW profile of each component
+  • Recommendations: Suggested improvements
+
+UNDERSTANDING RESULTS:
+  Harmony > 0.7:  Excellent alignment, proceed with confidence
+  Harmony 0.5-0.7: Moderate alignment, minor adjustments needed
+  Harmony < 0.5:  Poor alignment, review approach
+
+  High disharmony suggests execution doesn't match intent
+  Low balance suggests context conflicts with intent/execution
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     ice_parser.add_argument("intent", help="Intended operation")
     ice_parser.add_argument("context", help="Current network context")
@@ -1111,7 +1344,53 @@ def main():
     
     # LJPW semantic probe command
     ljpw_parser = subparsers.add_parser(
-        "ljpw", help="Comprehensive LJPW semantic probe and profiling"
+        "ljpw",
+        help="Comprehensive LJPW semantic probe and profiling",
+        description="""
+Perform comprehensive semantic profiling of a network host or service.
+
+This is the most powerful diagnostic command, combining multiple analysis
+techniques to build a complete LJPW semantic profile including:
+  • Connectivity analysis (ping, DNS)
+  • Service discovery (port scanning)
+  • Service archetype classification
+  • Semantic mass and density calculations
+  • Security posture assessment
+  • Configuration anti-pattern detection
+
+SCAN DEPTHS:
+  Default: Balanced scan (ping + DNS + common ports)
+  --quick: Fast scan (ping + DNS + top 4 ports, ~5 seconds)
+  --deep:  Comprehensive (all common ports + extended analysis, ~30-60 seconds)
+
+EXAMPLES:
+  pinpoint.py ljpw google.com                    # Standard profile
+  pinpoint.py ljpw 8.8.8.8 --quick               # Fast profile
+  pinpoint.py ljpw api.example.com --deep        # Comprehensive profile
+  pinpoint.py ljpw 192.168.1.1 --export prof.json # Export to JSON
+
+OUTPUT INCLUDES:
+  • Target identification (hostname, IP, DNS)
+  • LJPW coordinates (Love, Justice, Power, Wisdom)
+  • Dominant semantic dimension
+  • Semantic mass (overall presence/capability)
+  • Semantic clarity (how well-defined the profile is)
+  • Service archetype (if matched: web_server, dns_server, etc.)
+  • Security posture (open/moderate/strict)
+  • Open ports and services discovered
+  • Configuration smells (anti-patterns)
+  • Recommendations for improvement
+
+UNDERSTANDING RESULTS:
+  High Love (0.7+):    Good connectivity, reliable
+  High Justice (0.7+): Strong security/policies (may be restrictive)
+  High Power (0.7+):   Good performance
+  High Wisdom (0.7+):  Good visibility/monitoring
+
+  Semantic Mass:       Higher = more services/complexity
+  Semantic Clarity:    Higher = more well-defined purpose
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     ljpw_parser.add_argument("target", help="Target host (IP or hostname)")
     ljpw_parser.add_argument(
@@ -1126,7 +1405,41 @@ def main():
     
     # Baseline management commands
     baseline_parser = subparsers.add_parser(
-        "baseline", help="Manage semantic baselines"
+        "baseline",
+        help="Manage semantic baselines",
+        description="""
+Manage semantic baselines for drift detection and change tracking.
+
+Baselines are snapshots of a host's semantic profile at a point in time.
+They serve as reference points to detect configuration drift, security
+changes, or unexpected modifications.
+
+SUBCOMMANDS:
+  set     - Create a baseline snapshot for a target
+  show    - Display stored baseline for a target
+  list    - List all stored baselines
+  delete  - Remove a baseline
+
+WORKFLOW:
+  1. Create baseline when system is in known-good state
+  2. Periodically check for drift using 'drift check' command
+  3. Update baseline when intentional changes are made
+
+EXAMPLES:
+  pinpoint.py baseline set google.com            # Create baseline
+  pinpoint.py baseline set 8.8.8.8 --quick       # Quick baseline
+  pinpoint.py baseline show google.com           # View baseline
+  pinpoint.py baseline list                      # List all baselines
+  pinpoint.py baseline delete google.com         # Remove baseline
+
+USE CASES:
+  • Detect unauthorized changes
+  • Track configuration drift over time
+  • Monitor service evolution
+  • Compliance verification
+  • Change management
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     baseline_subparsers = baseline_parser.add_subparsers(dest="baseline_command", help="Baseline operations")
     
@@ -1148,7 +1461,51 @@ def main():
     
     # Drift detection commands
     drift_parser = subparsers.add_parser(
-        "drift", help="Detect semantic drift"
+        "drift",
+        help="Detect semantic drift",
+        description="""
+Detect and analyze semantic drift from established baselines.
+
+Semantic drift occurs when a host's LJPW profile changes over time due to:
+  • Configuration changes
+  • Service additions/removals
+  • Security policy updates
+  • Performance degradation
+  • Network topology changes
+
+SUBCOMMANDS:
+  check   - Compare current state to baseline
+  history - Show historical drift records
+
+DRIFT SEVERITY LEVELS:
+  < 0.2: Negligible (normal variance)
+  0.2-0.4: Low (minor changes)
+  0.4-0.7: Moderate (significant changes)
+  > 0.7: High (major changes)
+
+EXAMPLES:
+  pinpoint.py drift check google.com             # Check for drift
+  pinpoint.py drift check 8.8.8.8 --quick        # Quick drift check
+  pinpoint.py drift check api.example.com --threshold 0.2  # Custom threshold
+  pinpoint.py drift history google.com           # View drift history
+  pinpoint.py drift history 8.8.8.8 --limit 20   # Last 20 records
+
+OUTPUT INCLUDES:
+  • Drift magnitude (distance between profiles)
+  • Drift severity (Low/Moderate/High)
+  • Dimensional breakdown (which dimensions changed)
+  • Mass change (service additions/removals)
+  • Affected dimensions
+  • Recommendations
+
+USE CASES:
+  • Change detection and alerting
+  • Compliance monitoring
+  • Security incident detection
+  • Troubleshooting performance issues
+  • Audit trails
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     drift_subparsers = drift_parser.add_subparsers(dest="drift_command", help="Drift operations")
     
@@ -1200,7 +1557,64 @@ def main():
 
     # Visualization command
     viz_parser = subparsers.add_parser(
-        "visualize", help="Visualize semantic data"
+        "visualize",
+        help="Visualize semantic data",
+        description="""
+Generate interactive HTML visualizations of semantic data.
+
+Creates rich, interactive web-based visualizations using Plotly for
+exploring semantic relationships, drift over time, network topology,
+and overall system health.
+
+VISUALIZATION TYPES:
+  clusters  - 3D scatter plot of semantic space with clusters
+  mass      - Distribution of semantic mass across systems
+  drift     - Timeline showing semantic drift for a host
+  topology  - 3D network graph with semantic coloring
+  dashboard - Unified view combining multiple visualizations
+
+EXAMPLES:
+  pinpoint.py visualize clusters                 # 3D semantic clusters
+  pinpoint.py visualize clusters --output viz.html
+  pinpoint.py visualize mass                     # Mass distribution
+  pinpoint.py visualize drift google.com         # Drift timeline
+  pinpoint.py visualize topology                 # Network topology 3D
+  pinpoint.py visualize dashboard                # Unified dashboard
+
+OUTPUT:
+  All visualizations generate interactive HTML files that can be:
+  • Opened in any web browser
+  • Rotated, zoomed, panned (3D visualizations)
+  • Hovered for detailed information
+  • Saved as static images
+  • Shared with others
+
+VISUALIZATION DETAILS:
+  clusters:  Shows all profiled hosts in 3D LJPW space
+             - Color-coded by cluster
+             - Size indicates semantic mass
+             - Hover shows full details
+
+  mass:      Histogram of semantic mass distribution
+             - Shows host count by mass range
+             - Identifies outliers
+
+  drift:     Timeline of LJPW coordinates over time
+             - Separate line for each dimension
+             - Shows trend and changes
+             - Highlights anomalies
+
+  topology:  3D network graph
+             - Nodes colored by semantic properties
+             - Edges show connections
+             - Interactive exploration
+
+  dashboard: Combined view with multiple panels
+             - Overview of entire network
+             - Key metrics and trends
+             - Quick health assessment
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     viz_subparsers = viz_parser.add_subparsers(dest="viz_command", help="Visualization type")
     
@@ -1224,7 +1638,42 @@ def main():
     # visualize dashboard
     viz_dash = viz_subparsers.add_parser("dashboard", help="Visualize unified dashboard")
     viz_dash.add_argument("--output", default="dashboard.html", help="Output HTML file (default: dashboard.html)")
-    
+
+    # Explain command - Educational tool for LJPW dimensions
+    explain_parser = subparsers.add_parser(
+        "explain",
+        help="Learn about LJPW dimensions and network semantics",
+        description="""
+Learn about the LJPW Framework and semantic dimensions.
+
+Available topics:
+  ljpw    - Overview of the LJPW framework
+  love    - Connectivity and relationship dimension
+  justice - Policy, security, and boundary dimension
+  power   - Performance and capability dimension
+  wisdom  - Visibility and monitoring dimension
+
+The explain command provides detailed explanations of each dimension including:
+  • What the dimension represents
+  • What high/low values mean
+  • What factors affect it
+  • How to improve it
+  • Real-world examples
+
+You can also ask questions with keywords like:
+  "Why is my network slow?"       → Explains Power dimension
+  "How do I improve monitoring?"  → Explains Wisdom dimension
+  "Firewall blocking traffic"     → Explains Justice dimension
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    explain_parser.add_argument(
+        "topic",
+        nargs="?",
+        default="ljpw",
+        help="Topic to explain: ljpw, love, justice, power, wisdom, or ask a question (default: ljpw)"
+    )
+
     args = parser.parse_args()
 
     if not args.command:
@@ -1248,6 +1697,8 @@ def main():
         cmd_analyze(args, engine)
     elif args.command == "ice":
         cmd_ice(args, engine)
+    elif args.command == "explain":
+        cmd_explain(args, engine)
     elif args.command == "ljpw":
         cmd_ljpw(args, engine)
     elif args.command == "baseline":
