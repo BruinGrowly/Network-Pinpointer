@@ -195,74 +195,446 @@ SKIP_FIRST_RUN=1 ./pinpoint health
 - ✅ LocalStorage persistence
 - ✅ No server required - works offline
 
-### Available Visualizations
+---
 
-#### 1. **Cluster Map** - 3D Semantic Topology
-Interactive 3D visualization of network devices in LJPW space.
+### 1. **Cluster Map** - 3D Semantic Topology
 
-**Features:**
-- Filter by all LJPW dimensions with sliders
-- Search targets in real-time
-- Multiple export formats
-- Statistics panel with live updates
+**CLI Command:**
+```bash
+# Generate 3D cluster visualization
+./pinpoint map 192.168.1.0/24
 
-**Generate:** `./pinpoint visualize clusters`
+# Output includes HTML file
+# ✓ Network mapped and visualized: output/cluster_map.html
+```
+
+**CLI Output:**
+```
+🔍 Scanning network: 192.168.1.0/24
+======================================================================
+✅ Scanned 254 hosts, 12 reachable
+
+💛 Love Cluster (5 devices) - Cohesion: 87%
+⚖️  Justice Cluster (3 devices) - Cohesion: 92%
+⚡ Power Cluster (2 devices) - Cohesion: 78%
+🧠 Wisdom Cluster (2 devices) - Cohesion: 95%
+
+📊 Visualization saved: output/cluster_map.html
+```
+
+**HTML Visualization Mockup:**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ 🎯 Semantic Cluster Map                    [🌙 Theme] [💾 Export] │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Control Panel              │        3D Visualization              │
+│  ┌──────────────┐          │                                       │
+│  │ 🔍 Search    │          │         ●                             │
+│  │ [          ] │          │    ●        ● (google.com)            │
+│  ├──────────────┤          │              ↗ Love: 0.65            │
+│  │ 🎚️ Filters   │          │         ●        ● Justice: 0.12     │
+│  │ Love:   █▓░░ │          │                  ● Power: 0.10       │
+│  │ Justice:█░░░ │          │    ●                Wisdom: 0.13     │
+│  │ Power:  ▓░░░ │          │         ●                             │
+│  │ Wisdom: ██▓░ │          │              ●                        │
+│  │ Mass:   █▓▓░ │          │                   ● (firewall)       │
+│  ├──────────────┤          │    ●         ●                        │
+│  │ 📊 Stats     │          │         Color-coded by dimension:     │
+│  │ Nodes:    12 │          │         Red=Love  Blue=Justice       │
+│  │ Filtered: 12 │          │         Orange=Power  Purple=Wisdom  │
+│  │ Love:      5 │          │                                       │
+│  │ Justice:   3 │          │         [Interactive 3D - Drag to    │
+│  │ Power:     2 │          │          rotate, scroll to zoom]     │
+│  │ Wisdom:    2 │          │                                       │
+│  └──────────────┘          │                                       │
+│                             │                                       │
+│  Keyboard: F=Fullscreen R=Reset H=Hide E=Export T=Theme           │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Interactive Features:**
+- Drag to rotate the 3D space
+- Click nodes to see details
+- Use sliders to filter dimensions in real-time
+- Search for specific targets
+- Export filtered data or screenshot
 
 ---
 
-#### 2. **Dashboard** - Unified Overview
-Comprehensive table view with AI-powered insights.
+### 2. **Dashboard** - Unified Overview
 
-**Features:**
-- Import/export custom data
-- Sortable columns (click headers)
-- AI insights generation
-- Filter by posture and dimension
-- Config persistence across sessions
+**CLI Command:**
+```bash
+# Generate comprehensive dashboard
+./pinpoint map 192.168.1.0/24
 
-**Generate:** `./pinpoint visualize dashboard`
+# Or analyze specific targets
+./pinpoint ljpw google.com github.com api.example.com
+./pinpoint visualize dashboard
+
+# Output: output/dashboard.html
+```
+
+**CLI Output:**
+```
+✓ Dashboard created with 12 targets
+✓ AI insights generated: 5 recommendations
+📊 Visualization saved: output/dashboard.html
+```
+
+**HTML Visualization Mockup:**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ 📊 Network Semantic Dashboard          [💡 Insights] [💾 Export]   │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  [🔍 Search: ____] [Posture: All ▼] [Dimension: All ▼] [⚙️ Config] │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────────┐│
+│  │Target ▲    │ L   │ J   │ P   │ W   │ Mass │ Posture │Dimension││
+│  ├─────────────┼─────┼─────┼─────┼─────┼──────┼─────────┼─────────┤│
+│  │google.com  │0.65 │0.12 │0.10 │0.13 │ 842  │Proactive│Love     ││
+│  │firewall.lo │0.05 │0.75 │0.15 │0.05 │ 1205 │Defensive│Justice  ││
+│  │db-server   │0.08 │0.10 │0.72 │0.10 │ 956  │Proactive│Power    ││
+│  │monitor.sys │0.10 │0.08 │0.05 │0.77 │ 634  │Reactive │Wisdom   ││
+│  │web-lb      │0.68 │0.10 │0.18 │0.04 │ 789  │Proactive│Love     ││
+│  │auth-server │0.12 │0.70 │0.12 │0.06 │ 1050 │Defensive│Justice  ││
+│  │...         │...  │...  │...  │...  │ ...  │...      │...      ││
+│  └─────────────────────────────────────────────────────────────────┘│
+│                                                                     │
+│  💡 AI Insights:                                                   │
+│  ┌─────────────────────────────────────────────────────────────────┐│
+│  │ • Security Gap: firewall.lo has high Justice but cluster lacks ││
+│  │   redundancy. Consider backup security gateway.                ││
+│  │ • Performance: db-server shows high Power but mass suggests    ││
+│  │   opportunity for load distribution.                           ││
+│  │ • Balance: Network shows 42% Love dominance - well-connected   ││
+│  │   but monitor security coverage.                               ││
+│  └─────────────────────────────────────────────────────────────────┘│
+│                                                                     │
+│  [Import Data] [Export JSON] [Export CSV] [Generate Report]       │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Interactive Features:**
+- Click column headers to sort (ascending/descending)
+- Filter by posture or dominant dimension
+- Generate AI-powered insights
+- Import/export data for custom analysis
+- Config auto-saves to localStorage
 
 ---
 
-#### 3. **Drift Timeline** - Temporal Analysis
-Track semantic changes over time with annotations.
+### 3. **Drift Timeline** - Temporal Analysis
 
-**Features:**
-- Date range selection
-- Custom annotations with persistence
-- Trend lines and drift velocity
-- Statistical analysis (drift rate, severity)
-- Multiple view modes (LJPW/Mass/Harmony)
+**CLI Commands:**
+```bash
+# Establish baseline for a target
+./pinpoint baseline google.com
+# ✓ Baseline established for google.com
 
-**Generate:** `./pinpoint baseline <target>` then track drift
+# Wait some time (hours/days), then check drift
+./pinpoint drift google.com
+
+# Generate timeline visualization
+./pinpoint visualize drift google.com
+# Output: output/drift_timeline_google.com.html
+```
+
+**CLI Output:**
+```
+🔍 Analyzing drift for: google.com
+======================================================================
+Baseline:  2025-12-01 10:00:00 | L=0.65 J=0.12 P=0.10 W=0.13
+Current:   2025-12-03 14:30:00 | L=0.62 J=0.15 P=0.12 W=0.11
+
+📊 DRIFT ANALYSIS
+Total drift distance: 0.052
+Drift velocity: 0.021/day
+Severity: Low (Normal)
+
+Dimension changes:
+  Love:    -0.03 (↓ 4.6%)
+  Justice: +0.03 (↑ 25.0%)
+  Power:   +0.02 (↑ 20.0%)
+  Wisdom:  -0.02 (↓ 15.4%)
+
+📊 Timeline visualization: output/drift_timeline_google.com.html
+```
+
+**HTML Visualization Mockup:**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ 📈 Drift Timeline: google.com              [📝 Annotate] [💾 Export]│
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  [📅 From: 2025-12-01] [To: 2025-12-03] [View: All ▼] [Analysis ✓]│
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────────┐│
+│  │ 1.0│                                                            ││
+│  │    │   ━━━ Love    ┄┄┄ Justice                                 ││
+│  │0.8 │   ─ ─ Power   ··· Wisdom                                  ││
+│  │    │                                                            ││
+│  │0.6 │━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ (Love)        ││
+│  │    │            ↘                                               ││
+│  │0.4 │                                                            ││
+│  │    │                                                            ││
+│  │0.2 │       ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄↗┄┄┄┄ (Justice)                ││
+│  │    │    ···················· (Wisdom)                           ││
+│  │0.0 │─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ (Power)               ││
+│  │    └────────────────────────────────────────────────────────────││
+│  │        12/01      12/02  📍  12/03                             ││
+│  │                         Annotation: "Config change"            ││
+│  └─────────────────────────────────────────────────────────────────┘│
+│                                                                     │
+│  📊 Statistics:                    🎯 Analysis:                    │
+│  Total Drift:  0.052               Trend: Increasing Justice      │
+│  Velocity:     0.021/day           Pattern: Security enhancement  │
+│  Duration:     2.2 days            Severity: Low                  │
+│  Data Points:  48                  Confidence: High               │
+│                                                                     │
+│  📝 Annotations:                                                   │
+│  • 12/02 10:30 - "Firewall rules updated"                         │
+│  • 12/03 09:15 - "Load balancer added"                            │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Interactive Features:**
+- Select date range with interactive pickers
+- Add custom annotations (saved to localStorage)
+- Toggle different view modes (All/LJPW/Mass/Harmony)
+- Enable trend lines and moving averages
+- Export timeline with annotations
 
 ---
 
-#### 4. **Mass Distribution** - Statistical Analysis
-Analyze semantic mass distribution with outlier detection.
+### 4. **Mass Distribution** - Statistical Analysis
 
-**Features:**
-- Multiple chart types (histogram, pie, scatter, box plot)
-- Comprehensive statistics (mean, median, std dev, correlation)
-- IQR-based outlier detection
-- Recommendations engine
-- Distribution skew analysis
+**CLI Commands:**
+```bash
+# Analyze mass distribution across network
+./pinpoint map 192.168.1.0/24
+./pinpoint visualize mass
 
-**Generate:** `./pinpoint visualize mass`
+# Or for specific targets
+./pinpoint ljpw google.com github.com api.example.com
+./pinpoint visualize mass
+
+# Output: output/mass_distribution.html
+```
+
+**CLI Output:**
+```
+📊 Mass Distribution Analysis
+======================================================================
+Targets analyzed: 12
+
+Statistics:
+  Mean:        856.3
+  Median:      842.0
+  Std Dev:     198.4
+  Min:         634.0 (monitor.sys)
+  Max:         1205.0 (firewall.lo)
+
+Outliers detected: 2
+  • firewall.lo (1205.0) - High outlier
+  • monitor.sys (634.0) - Low outlier
+
+Correlation (mass vs harmony): 0.34 (weak positive)
+
+📊 Visualization saved: output/mass_distribution.html
+```
+
+**HTML Visualization Mockup:**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ 📊 Mass Distribution Analysis         [📈 Chart Type ▼] [💾 Export]│
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  [Mass: 0─────────█████─────1200] [Category: All ▼] [Harmony: ●]  │
+│                                                                     │
+│  Chart: [Histogram ▼] (Pie | Scatter | Box Plot)                  │
+│  ┌─────────────────────────────────────────────────────────────────┐│
+│  │     ┌───┐                                                       ││
+│  │  6  │   │                                                       ││
+│  │  5  │   │    ┌───┐                                             ││
+│  │  4  │   │    │   │                                             ││
+│  │  3  │   │    │   │    ┌───┐                                    ││
+│  │  2  │   │    │   │    │   │    ┌───┐         ┌───┐            ││
+│  │  1  │   │    │   │    │   │    │   │         │   │            ││
+│  │  0  └───┴────┴───┴────┴───┴────┴───┴─────────┴───┴────────────││
+│  │    600-700  700-800  800-900  900-1000  ...  1100-1200        ││
+│  │    Low      Medium          High                Outliers       ││
+│  └─────────────────────────────────────────────────────────────────┘│
+│                                                                     │
+│  📊 Statistics:                    🔍 Outliers (2):                │
+│  Mean:      856.3                  • firewall.lo    1205  ⚠️ High │
+│  Median:    842.0                  • monitor.sys    634   ⚠️ Low  │
+│  Std Dev:   198.4                                                  │
+│  Correlation: 0.34                 💡 Recommendations:             │
+│                                    • High-mass targets may benefit │
+│  Distribution: Normal                from load distribution        │
+│  Skew: 0.12 (slight right)         • Consider consolidating low-  │
+│  CV: 23.2%                           mass monitoring services      │
+│                                                                     │
+│  [1] Histogram [2] Pie Chart [3] Scatter [4] Box Plot             │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Interactive Features:**
+- Switch between 4 chart types (histogram, pie, scatter, box)
+- Filter by mass range, category, or harmony level
+- Automatic outlier detection with IQR method
+- Get AI-powered recommendations
+- Export statistics and visualizations
 
 ---
 
-#### 5. **Topology Graph** - Network Relationships
-3D network graph with pathfinding and metrics.
+### 5. **Topology Graph** - Network Relationships
 
-**Features:**
-- **Dijkstra pathfinding**: Click nodes to find shortest paths
-- **Multiple layouts**: LJPW Space, Force-Directed, Circular, Hierarchical
-- **Network metrics**: Density, average degree, clustering coefficient
-- **Interactive filtering**: By dimension, connection strength, mass
-- **Path highlighting**: Visual shortest path display
+**CLI Commands:**
+```bash
+# Generate network topology graph
+./pinpoint map 192.168.1.0/24
+./pinpoint visualize topology
 
-**Generate:** `./pinpoint visualize topology`
+# Graph includes all discovered devices and their relationships
+# Output: output/topology_graph.html
+```
+
+**CLI Output:**
+```
+🗺️  Generating network topology graph...
+======================================================================
+Nodes: 12 devices
+Edges: 18 connections (similarity > 0.8)
+
+Network Metrics:
+  Density:         0.273
+  Avg Degree:      3.00
+  Clustering:      0.418
+
+📊 Topology visualization: output/topology_graph.html
+```
+
+**HTML Visualization Mockup:**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ 🌐 Network Topology                    [🔀 Layout ▼] [💾 Export]   │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Control Panel         │         3D Network Graph                  │
+│  ┌─────────────────┐  │                                            │
+│  │ 🔍 Search       │  │         ● web-lb                           │
+│  │ [           ]   │  │        ╱│╲                                 │
+│  ├─────────────────┤  │       ╱ │ ╲                                │
+│  │ 🎯 Filters      │  │      ●  │  ●  app-1                        │
+│  │ Dimension: All▼ │  │     ╱   │   ╲                              │
+│  │ Threshold: 0.80 │  │    ●────●────● db-server                   │
+│  │ Min Mass: 0     │  │   ╱     │  firewall                        │
+│  ├─────────────────┤  │  ●      │                                  │
+│  │ 📐 Layout       │  │  │      ●  monitor                         │
+│  │ [LJPW Space▼]   │  │  │     ╱│╲                                 │
+│  │ • Force         │  │  │    ╱ │ ╲                                │
+│  │ • Circular      │  │  │   ●  │  ●                               │
+│  │ • Hierarchical  │  │  │      │                                  │
+│  ├─────────────────┤  │  ●──────●  auth                            │
+│  │ 🗺️  Path        │  │                                            │
+│  │ Source: web-lb  │  │  [Interactive 3D - drag to rotate]        │
+│  │ Target: db      │  │  Green edges = shortest path              │
+│  │ [Find Path]     │  │  Node size = semantic mass                │
+│  │ Path: 3 hops    │  │  Color = dominant dimension               │
+│  │ 1. web-lb       │  │                                            │
+│  │ 2. firewall     │  │  Legend: 🔴 Love  🔵 Justice              │
+│  │ 3. db-server    │  │         🟠 Power  🟣 Wisdom              │
+│  ├─────────────────┤  │                                            │
+│  │ 📊 Metrics      │  │                                            │
+│  │ Nodes:      12  │  │                                            │
+│  │ Edges:      18  │  │                                            │
+│  │ Density:  0.273 │  │                                            │
+│  │ Avg Deg:  3.00  │  │                                            │
+│  │ Cluster:  0.418 │  │                                            │
+│  └─────────────────┘  │                                            │
+│                        │                                            │
+│  Keyboard: F=Full R=Reset H=Hide E=Export T=Theme P=Path          │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Interactive Features:**
+- **Pathfinding**: Click two nodes to find shortest path (Dijkstra algorithm)
+- **Multiple Layouts**: Switch between LJPW Space, Force-Directed, Circular, Hierarchical
+- **Network Metrics**: Real-time calculation of density, degree, clustering
+- **Filter by Dimension**: Show only Love, Justice, Power, or Wisdom nodes
+- **Connection Threshold**: Adjust similarity threshold for edges
+- **Path Highlighting**: Shortest paths shown with bright green edges
+
+**Layout Examples:**
+
+```
+LJPW Space (3D):          Force-Directed:         Circular:
+Nodes positioned by       Physics-based           Evenly distributed
+semantic coordinates      organic layout          around circle
+
+     W                         ●──●                    ●
+     │                        ╱│  │╲                 ╱   ╲
+   ● │ ●                     ●─┼──┼─●              ●       ●
+L────●────J                   │╲│╱│              ●           ●
+     │                        ● ● ●               │           │
+     P                         ╲│╱                 ●         ●
+                                ●                   ╲       ╱
+                                                      ●───●
+```
+
+---
+
+### CLI Examples for All Visualizations
+
+**Complete Workflow Example:**
+```bash
+# 1. Scan your network
+./pinpoint map 192.168.1.0/24
+
+# Outputs:
+# ✓ output/cluster_map.html      - 3D semantic clusters
+# ✓ output/dashboard.html         - Comprehensive overview
+# ✓ output/topology_graph.html    - Network relationships
+# ✓ output/mass_distribution.html - Statistical analysis
+
+# 2. Establish baselines for key targets
+./pinpoint baseline 192.168.1.1    # Gateway
+./pinpoint baseline 192.168.1.10   # Web server
+./pinpoint baseline 192.168.1.50   # Database
+
+# 3. Later, check for drift and visualize
+./pinpoint drift 192.168.1.1
+./pinpoint visualize drift 192.168.1.1
+# ✓ output/drift_timeline_192.168.1.1.html
+
+# 4. Analyze specific targets
+./pinpoint ljpw google.com --deep
+./pinpoint ljpw github.com --deep
+
+# 5. Generate comprehensive report
+./pinpoint map 192.168.1.0/24 --export-json network_report.json
+```
+
+**Quick Analysis Commands:**
+```bash
+# Single target analysis with all visualizations
+./pinpoint ljpw api.example.com --deep --visualize
+
+# Compare multiple targets
+./pinpoint ljpw google.com github.com cloudflare.com
+./pinpoint visualize dashboard
+
+# Network health check
+./pinpoint map 192.168.1.0/24 --health-check
+
+# Export everything
+./pinpoint map 192.168.1.0/24 --export-all
+```
 
 ---
 
