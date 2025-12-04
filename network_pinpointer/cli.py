@@ -117,16 +117,16 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
     else:
         ports = [int(p) for p in args.ports.split(",")]
 
-    print(f"\n🔍 Scanning {args.host} ports {args.ports}...")
+    print(f"\n🔍 Scanning {args.target} ports {args.ports}...")
     print("=" * 70)
 
-    results = diagnostics.scan_ports(args.host, ports, timeout=args.timeout)
+    results = diagnostics.scan_ports(args.target, ports)
 
     # Print results
     open_ports = [r for r in results if r.is_open]
     closed_ports = [r for r in results if not r.is_open]
 
-    print(f"\nHost: {args.host}")
+    print(f"\nHost: {args.target}")
     print(f"Open Ports: {len(open_ports)}/{len(results)}")
 
     if open_ports:
@@ -136,7 +136,7 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
                 f"  {result.port:5d}/tcp - {result.service_name:15s} - {result.semantic_coords}"
             )
 
-    if args.verbose and closed_ports:
+    if hasattr(args, 'verbose') and args.verbose and closed_ports:
         print(f"\n✗ CLOSED PORTS:")
         for result in closed_ports[:10]:  # Limit output
             print(f"  {result.port:5d}/tcp - closed")
@@ -157,6 +157,23 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
         print(f"  Wisdom (Discovery):   {'█' * int(avg_w * 20):20s} {avg_w:.0%}")
 
     print("\n" + "=" * 70)
+
+
+def cmd_map(args, engine: NetworkSemanticEngine):
+    """Handle network mapping command"""
+    mapper = NetworkMapper(engine, quiet=args.quiet if hasattr(args, 'quiet') else False)
+
+    # Scan the network
+    report = mapper.scan_network(args.network)
+
+    # Print the report if not in quiet mode
+    if not (hasattr(args, 'quiet') and args.quiet):
+        mapper.print_report(report)
+
+    # Export to JSON if requested
+    if hasattr(args, 'export_json') and args.export_json:
+        mapper.export_topology_json(args.export_json)
+        print(f"\n✓ Topology exported to: {args.export_json}")
 
 
 def print_ljpw_profile_summary(profile):
