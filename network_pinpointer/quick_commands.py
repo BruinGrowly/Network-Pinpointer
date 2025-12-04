@@ -122,7 +122,14 @@ class QuickCommands:
         print(self.fmt.section_header(f"Enhanced Ping: {target}"))
 
         try:
-            if hasattr(self.capture, 'capture_icmp_via_ping'):
+            # Check if we have real packet capture (not fallback)
+            from .real_packet_capture import FallbackPacketCapture
+            use_packet_capture = (
+                hasattr(self.capture, 'capture_icmp_via_ping') and
+                not isinstance(self.capture, FallbackPacketCapture)
+            )
+
+            if use_packet_capture:
                 print(self.fmt.progress_bar(0, count, prefix="Pinging"))
 
                 packets = self.capture.capture_icmp_via_ping(target, count=count)
@@ -161,11 +168,37 @@ class QuickCommands:
                 return True
 
             else:
-                print_error("Ping capability not available")
-                return False
+                # Fallback to standard diagnostics ping when packet capture unavailable
+                print_info("Using standard ping (packet capture not available)")
+                from .diagnostics import NetworkDiagnostics
+                from .semantic_engine import NetworkSemanticEngine
+
+                engine = NetworkSemanticEngine()
+                diagnostics = NetworkDiagnostics(engine)
+
+                result = diagnostics.ping(target, count=count, timeout=2.0)
+
+                # Print results
+                print(f"\nHost: {result.host}")
+                print(f"Status: {self.fmt.success('Reachable') if result.success else self.fmt.error('Unreachable')}")
+
+                if result.success:
+                    print(f"Packets: {result.packets_received}/{result.packets_sent} received")
+                    print(f"Packet Loss: {result.packet_loss:.1f}%")
+                    print(f"Average Latency: {result.avg_latency:.1f}ms")
+
+                # Semantic analysis
+                if show_details and result.semantic_coords:
+                    print(f"\n{self.fmt.subsection_header('Semantic Analysis')}")
+                    print(self.fmt.coordinates_display(result.semantic_coords, show_labels=False))
+                    print(f"\n{result.semantic_analysis}")
+
+                return result.success
 
         except Exception as e:
             print_error(f"Ping failed: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
     def show_health(self) -> bool:
