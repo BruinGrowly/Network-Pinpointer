@@ -244,7 +244,8 @@ class FirstRunExperience:
 
         # Show keyboard shortcut tip (Power: efficient)
         print(self.fmt.dim("💡 Pro tip: Create an alias for quick access:"))
-        print(f"   {self.fmt.code('alias npp=\"network-pinpointer\"')}")
+        alias_cmd = 'alias npp="network-pinpointer"'
+        print(f"   {self.fmt.code(alias_cmd)}")
         print()
 
         # Show documentation link (Wisdom: resources)

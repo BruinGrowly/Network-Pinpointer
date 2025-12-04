@@ -159,51 +159,6 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
     print("\n" + "=" * 70)
 
 
-def cmd_ljpw(args, engine: NetworkSemanticEngine):
-    """Handle LJPW semantic probe command"""
-    probe = SemanticProbe(engine)
-    
-    print(f"\n🔍 LJPW Semantic Probe: {args.target}")
-    print("=" * 70)
-    
-    # Perform probe
-    profile = probe.probe(args.target, quick=args.quick, deep=args.deep)
-    
-    # Print full profile
-    print_ljpw_profile(profile)
-    
-    # Export if requested
-    if args.export:
-        import json
-        export_data = {
-            'target': profile.target,
-            'ip_address': profile.ip_address,
-            'timestamp': profile.timestamp.isoformat(),
-            'scan_duration': profile.scan_duration,
-            'ljpw_coordinates': {
-                'love': profile.ljpw_coordinates.love if profile.ljpw_coordinates else 0,
-                'justice': profile.ljpw_coordinates.justice if profile.ljpw_coordinates else 0,
-                'power': profile.ljpw_coordinates.power if profile.ljpw_coordinates else 0,
-                'wisdom': profile.ljpw_coordinates.wisdom if profile.ljpw_coordinates else 0,
-            },
-            'dominant_dimension': profile.dominant_dimension,
-            'harmony_score': profile.harmony_score,
-            'service_classification': profile.service_classification,
-            'security_posture': profile.security_posture,
-            'matched_archetypes': [
-                {'name': arch.name, 'confidence': conf}
-                for arch, conf in profile.matched_archetypes
-            ],
-            'open_ports': [p.port for p in profile.open_ports if p.is_open],
-            'recommendations': profile.recommendations,
-            'warnings': profile.warnings,
-        }
-        
-        with open(args.export, 'w') as f:
-            json.dump(export_data, f, indent=2)
-        print(f"\n✅ Profile exported to {args.export}")
-
-
 def print_ljpw_profile_summary(profile):
     """Print summary LJPW profile (for --ljpw-profile flag)"""
     if not profile.ljpw_coordinates:
