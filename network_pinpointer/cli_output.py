@@ -100,6 +100,12 @@ class OutputFormatter:
             return text
         return f"{Colors.DIM}{text}{Colors.RESET}"
 
+    def code(self, text: str) -> str:
+        """Format text as inline code"""
+        if not self.use_colors:
+            return f"`{text}`"
+        return self.color(f"`{text}`", Colors.CYAN)
+
     def success(self, text: str) -> str:
         """Format success message"""
         symbol = Symbols.CHECK if self.use_emoji else "[OK]"
@@ -128,6 +134,13 @@ class OutputFormatter:
     def subsection_header(self, text: str) -> str:
         """Format a subsection header"""
         return f"\n{self.bold(text)}"
+
+    def step_header(self, text: str) -> str:
+        """Format a step header for wizard/setup steps"""
+        arrow = Symbols.RIGHT_ARROW if self.use_emoji else ">"
+        separator = "─" * 60
+        header_line = f"{arrow} {text}"
+        return f"\n{self.color(separator, Colors.CYAN)}\n{self.bold(self.color(header_line, Colors.BRIGHT_CYAN))}\n{self.color(separator, Colors.CYAN)}"
 
     def progress_bar(
         self,
