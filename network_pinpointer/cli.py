@@ -159,6 +159,23 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
     print("\n" + "=" * 70)
 
 
+def cmd_map(args, engine: NetworkSemanticEngine):
+    """Handle network mapping command"""
+    mapper = NetworkMapper(engine, quiet=args.quiet if hasattr(args, 'quiet') else False)
+
+    # Scan the network
+    report = mapper.scan_network(args.network)
+
+    # Print the report if not in quiet mode
+    if not (hasattr(args, 'quiet') and args.quiet):
+        mapper.print_report(report)
+
+    # Export to JSON if requested
+    if hasattr(args, 'export_json') and args.export_json:
+        mapper.export_topology_json(args.export_json)
+        print(f"\n✓ Topology exported to: {args.export_json}")
+
+
 def print_ljpw_profile_summary(profile):
     """Print summary LJPW profile (for --ljpw-profile flag)"""
     if not profile.ljpw_coordinates:
