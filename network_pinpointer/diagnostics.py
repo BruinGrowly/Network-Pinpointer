@@ -10,6 +10,7 @@ import subprocess
 import socket
 import platform
 import re
+import time
 from dataclasses import dataclass
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
@@ -85,6 +86,89 @@ class NetworkDiagnostics:
         self.engine = semantic_engine
         self.system = platform.system()
 
+    def _ping_fallback(self, host: str, count: int = 4, timeout: float = 2.0) -> PingResult:
+        """
+        Fallback ping implementation using socket connections
+        Used when system ping command is not available
+        """
+        successful_pings = 0
+        total_latency = 0.0
+        latencies = []
+
+        # Try to resolve hostname
+        try:
+            ip_address = socket.gethostbyname(host)
+        except socket.gaierror:
+            # DNS resolution failed
+            operation_desc = f"ping test connectivity dns failure {host}"
+            semantic_result = self.engine.analyze_operation(operation_desc)
+
+            return PingResult(
+                host=host,
+                success=False,
+                packets_sent=count,
+                packets_received=0,
+                packet_loss=100.0,
+                avg_latency=0.0,
+                semantic_coords=semantic_result.coordinates,
+                semantic_analysis=f"DNS resolution failed - {semantic_result.operation_type}",
+                timestamp=datetime.now(),
+            )
+
+        # Perform TCP connection attempts to port 80 (HTTP) as ping substitute
+        for i in range(count):
+            try:
+                start_time = time.time()
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(timeout)
+                sock.connect((ip_address, 80))
+                elapsed = (time.time() - start_time) * 1000  # Convert to ms
+                sock.close()
+
+                successful_pings += 1
+                latencies.append(elapsed)
+                total_latency += elapsed
+
+            except (socket.timeout, socket.error, ConnectionRefusedError):
+                # Connection failed, but we still count it as a ping attempt
+                pass
+
+        packets_received = successful_pings
+        packet_loss = ((count - packets_received) / count) * 100
+        avg_latency = total_latency / packets_received if packets_received > 0 else 0.0
+
+        # Semantic analysis
+        operation_desc = f"ping test connectivity diagnose monitor {host}"
+        semantic_result = self.engine.analyze_operation(operation_desc)
+
+        # Analyze result quality
+        if packet_loss == 0:
+            quality = "excellent connectivity (via socket)"
+        elif packet_loss < 25:
+            quality = "good connectivity with minor loss (via socket)"
+        elif packet_loss < 75:
+            quality = "poor connectivity with significant loss (via socket)"
+        else:
+            quality = "critical connectivity failure (via socket)"
+
+        semantic_analysis = (
+            f"Operation: {semantic_result.operation_type} "
+            f"({semantic_result.dominant_dimension}-dominant) | "
+            f"Quality: {quality}"
+        )
+
+        return PingResult(
+            host=host,
+            success=packets_received > 0,
+            packets_sent=count,
+            packets_received=packets_received,
+            packet_loss=packet_loss,
+            avg_latency=avg_latency,
+            semantic_coords=semantic_result.coordinates,
+            semantic_analysis=semantic_analysis,
+            timestamp=datetime.now(),
+        )
+
     def ping(
         self, host: str, count: int = 4, timeout: int = 5
     ) -> PingResult:
@@ -112,10 +196,13 @@ class NetworkDiagnostics:
         
         if not isinstance(count, int) or count < 1 or count > 100:
             raise ValueError("Count must be an integer between 1 and 100")
-        
-        if not isinstance(timeout, int) or timeout < 1 or timeout > 60:
-            raise ValueError("Timeout must be an integer between 1 and 60 seconds")
-        
+
+        if not isinstance(timeout, (int, float)) or timeout < 1 or timeout > 60:
+            raise ValueError("Timeout must be a number between 1 and 60 seconds")
+
+        # Convert timeout to int for command
+        timeout = int(timeout)
+
         # Determine ping command based on OS
         if self.system == "Windows":
             cmd = ["ping", "-n", str(count), "-w", str(timeout * 1000), host]
@@ -192,6 +279,10 @@ class NetworkDiagnostics:
                 timestamp=datetime.now(),
             )
 
+        except FileNotFoundError:
+            # Ping command not available, use fallback
+            return self._ping_fallback(host, count, float(timeout))
+
         except subprocess.TimeoutExpired:
             operation_desc = f"ping test connectivity timeout failure {host}"
             semantic_result = self.engine.analyze_operation(operation_desc)
@@ -209,13 +300,16 @@ class NetworkDiagnostics:
             )
 
     def traceroute(
-        self, target: str, max_hops: int = 30, timeout: int = 5
+        self, target: str, max_hops: int = 30, timeout: float = 5.0
     ) -> TracerouteResult:
         """
         Traceroute to target and analyze path semantically
 
         Maps to: High Wisdom (path analysis), High Love (route discovery)
         """
+        # Convert timeout to int for command
+        timeout = int(timeout)
+
         # Determine traceroute command
         if self.system == "Windows":
             cmd = ["tracert", "-h", str(max_hops), "-w", str(timeout * 1000), target]
