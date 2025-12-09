@@ -698,12 +698,15 @@ class NetworkVocabularyManager:
             Dimension.BENEVOLENCE: Dimension.LOVE,
         }
 
-        import sys
-
-        print(
-            f"NetworkVocabularyManager: Initialized with {len(self._keyword_map)} network keywords.",
-            file=sys.stderr,
-        )
+        # Initialization message suppressed for cleaner UX
+        # Enable with PINPOINT_DEBUG=1 environment variable if needed
+        import os
+        if os.environ.get('PINPOINT_DEBUG'):
+            import sys
+            print(
+                f"NetworkVocabularyManager: Initialized with {len(self._keyword_map)} network keywords.",
+                file=sys.stderr,
+            )
 
     def _apply_custom_vocabulary(self, custom_vocabulary: Dict[str, str]) -> None:
         """Apply user-defined vocabulary"""
