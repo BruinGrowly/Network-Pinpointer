@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional, Dict, Tuple
 
-from .semantic_storage import SemanticDatabase
+from .semantic_storage import SemanticStorage
 from .semantic_probe import SemanticProfile
 from .semantic_engine import Coordinates
 
@@ -60,7 +60,7 @@ class SemanticDriftDetector:
         'CRITICAL': 0.5,
     }
     
-    def __init__(self, db: SemanticDatabase):
+    def __init__(self, db: SemanticStorage):
         self.db = db
     
     def analyze_drift(
