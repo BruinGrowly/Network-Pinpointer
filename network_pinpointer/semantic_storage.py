@@ -246,17 +246,29 @@ class SemanticStorage:
         """Delete history for target (optionally keeping baseline)"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
+
         if keep_baseline:
             cursor.execute('''
-                DELETE FROM profiles 
+                DELETE FROM profiles
                 WHERE target = ? AND is_baseline = 0
             ''', (target,))
         else:
             cursor.execute('''
                 DELETE FROM profiles WHERE target = ?
             ''', (target,))
-        
+
+        conn.commit()
+        conn.close()
+
+    def clear_baseline(self, target: str):
+        """Clear baseline flag for a target (removes baseline status)"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            UPDATE profiles SET is_baseline = 0 WHERE target = ?
+        ''', (target,))
+
         conn.commit()
         conn.close()
     
