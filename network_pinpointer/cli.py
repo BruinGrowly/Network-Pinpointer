@@ -13,6 +13,7 @@ from .semantic_engine import NetworkSemanticEngine, Coordinates
 from .diagnostics import NetworkDiagnostics
 from .network_mapper import NetworkMapper
 from .semantic_probe import SemanticProbe
+from .simple_output import format_ping_simple, format_scan_simple, format_analyze_simple
 
 
 class ProfileWrapper:
@@ -62,13 +63,27 @@ Love, Justice, Power, Wisdom - The Four Dimensions of Network Operations
 def cmd_ping(args, engine: NetworkSemanticEngine):
     """Handle ping command"""
     diagnostics = NetworkDiagnostics(engine)
+    simple_mode = hasattr(args, 'simple') and args.simple
 
-    print(f"\n🔍 Pinging {args.host}...")
-    print("=" * 70)
+    if not simple_mode:
+        print(f"\n🔍 Pinging {args.host}...")
+        print("=" * 70)
 
     result = diagnostics.ping(args.host, count=args.count, timeout=args.timeout)
 
-    # Print results
+    # Simple output mode
+    if simple_mode:
+        print(format_ping_simple(
+            result.host,
+            result.success,
+            result.avg_latency,
+            result.packet_loss,
+            (result.semantic_coords.love, result.semantic_coords.justice,
+             result.semantic_coords.power, result.semantic_coords.wisdom)
+        ))
+        return
+
+    # Detailed output (original behavior)
     print(f"\nHost: {result.host}")
     print(f"Status: {'✓ Reachable' if result.success else '✗ Unreachable'}")
 
@@ -140,6 +155,7 @@ def cmd_traceroute(args, engine: NetworkSemanticEngine):
 def cmd_scan(args, engine: NetworkSemanticEngine):
     """Handle port scan command"""
     diagnostics = NetworkDiagnostics(engine)
+    simple_mode = hasattr(args, 'simple') and args.simple
 
     # Common ports list for --common flag
     common_ports = [21, 22, 23, 25, 53, 80, 110, 143, 443, 993, 995, 3306, 3389, 5432, 8080, 8443]
@@ -158,15 +174,22 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
     else:
         ports = [int(p) for p in args.ports.split(",")]
 
-    ports_display = args.ports if args.ports else f"common ({len(ports)} ports)"
-    print(f"\n🔍 Scanning {args.target} ports {ports_display}...")
-    print("=" * 70)
+    if not simple_mode:
+        ports_display = args.ports if args.ports else f"common ({len(ports)} ports)"
+        print(f"\n🔍 Scanning {args.target} ports {ports_display}...")
+        print("=" * 70)
 
     results = diagnostics.scan_ports(args.target, ports)
 
     # Print results
     open_ports = [r for r in results if r.is_open]
     closed_ports = [r for r in results if not r.is_open]
+
+    # Simple output mode
+    if simple_mode:
+        open_port_tuples = [(r.port, r.service_name) for r in open_ports]
+        print(format_scan_simple(args.target, open_port_tuples, len(results)))
+        return
 
     print(f"\nHost: {args.target}")
     print(f"Open Ports: {len(open_ports)}/{len(results)}")
@@ -1181,6 +1204,9 @@ OUTPUT:
     ping_parser.add_argument(
         "--ljpw-profile", action="store_true", help="Include LJPW semantic profile"
     )
+    ping_parser.add_argument(
+        "-s", "--simple", action="store_true", help="Simple, human-friendly output"
+    )
 
     # Traceroute command
     traceroute_parser = subparsers.add_parser(
@@ -1231,6 +1257,9 @@ NOTE: Port scanning requires appropriate permissions. Only scan hosts you own
     )
     scan_parser.add_argument(
         "--common", action="store_true", help="Scan common ports"
+    )
+    scan_parser.add_argument(
+        "-s", "--simple", action="store_true", help="Simple, human-friendly output"
     )
 
     # Map command
