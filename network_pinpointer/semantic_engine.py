@@ -111,10 +111,152 @@ class NetworkSemanticResult:
 class NetworkVocabularyManager:
     """Network-specific vocabulary mapping to LJPW space"""
 
+    # Common network admin abbreviations and synonyms
+    SYNONYMS = {
+        # Firewall & Security
+        "fw": "firewall",
+        "acls": "acl",
+        "ipsec": "vpn",
+        "waf": "firewall",
+        "ids": "intrusion",
+        "ips": "intrusion",
+        "mfa": "authentication",
+        "2fa": "authentication",
+        "sso": "authentication",
+        "rbac": "authorization",
+        "pki": "certificate",
+        "ssl": "tls",
+        "certs": "certificate",
+        "cert": "certificate",
+        # Networking
+        "lb": "loadbalancer",
+        "elb": "loadbalancer",
+        "alb": "loadbalancer",
+        "nlb": "loadbalancer",
+        "gw": "gateway",
+        "rt": "route",
+        "bgp": "routing",
+        "ospf": "routing",
+        "eigrp": "routing",
+        "nic": "interface",
+        "eth": "interface",
+        "lo": "interface",
+        "vip": "virtual",
+        "ha": "availability",
+        "dr": "disaster",
+        "bw": "bandwidth",
+        "qos": "quality",
+        "mtu": "packet",
+        "ttl": "packet",
+        "arp": "network",
+        "icmp": "ping",
+        # Connectivity
+        "conn": "connection",
+        "conns": "connection",
+        "sess": "session",
+        "sock": "socket",
+        "sockets": "socket",
+        "dc": "datacenter",
+        "az": "availability",
+        "cdn": "distribute",
+        "cname": "dns",
+        "fqdn": "dns",
+        "ptr": "dns",
+        "mx": "dns",
+        "ns": "dns",
+        # Performance & Monitoring
+        "rtt": "latency",
+        "ms": "latency",
+        "iops": "performance",
+        "tps": "throughput",
+        "qps": "throughput",
+        "rps": "throughput",
+        "cpu": "performance",
+        "mem": "memory",
+        "ram": "memory",
+        "io": "performance",
+        "sla": "availability",
+        "slo": "availability",
+        "sli": "monitoring",
+        "apm": "monitoring",
+        "obs": "observability",
+        "o11y": "observability",
+        # Infrastructure
+        "k8s": "kubernetes",
+        "kube": "kubernetes",
+        "eks": "kubernetes",
+        "aks": "kubernetes",
+        "gke": "kubernetes",
+        "vm": "virtual",
+        "vms": "virtual",
+        "ec2": "server",
+        "ami": "server",
+        "ecs": "container",
+        "ecr": "container",
+        "cfg": "config",
+        "conf": "config",
+        "env": "environment",
+        "vars": "variable",
+        "tf": "terraform",
+        "iac": "infrastructure",
+        "ci": "integration",
+        "cd": "deployment",
+        "cicd": "deployment",
+        # Databases
+        "db": "database",
+        "dbs": "database",
+        "rds": "database",
+        "pg": "postgresql",
+        "psql": "postgresql",
+        "mongo": "mongodb",
+        "es": "elasticsearch",
+        "msg": "message",
+        "mq": "queue",
+        "sqs": "queue",
+        "sns": "notification",
+        "pub": "publish",
+        "sub": "subscribe",
+        # Logs & Metrics
+        "logs": "log",
+        "err": "error",
+        "errs": "error",
+        "warn": "warning",
+        "crit": "critical",
+        "info": "information",
+        "dbg": "debug",
+        "auth": "authentication",
+        "authz": "authorization",
+        "authn": "authentication",
+        "perms": "permission",
+        "priv": "privilege",
+        "sudo": "privilege",
+        "root": "privilege",
+        # Actions
+        "rm": "delete",
+        "del": "delete",
+        "mv": "move",
+        "cp": "copy",
+        "chk": "check",
+        "val": "validate",
+        "ver": "verify",
+        "upd": "update",
+        "mod": "modify",
+        "cfg": "configure",
+        "init": "initialize",
+        "term": "terminate",
+        "req": "request",
+        "res": "response",
+        "resp": "response",
+        "ack": "acknowledge",
+        "syn": "synchronize",
+        "async": "asynchronous",
+    }
+
     def __init__(self, custom_vocabulary: Optional[Dict[str, str]] = None):
         self._keyword_map: Dict[str, Dimension] = {}
         self._word_cache: Dict[str, Tuple[Coordinates, int]] = {}
         self._ice_dimension_map: Dict[Dimension, Dimension] = {}
+        self._synonyms = self.SYNONYMS.copy()
         self._build_network_vocabulary()
         if custom_vocabulary:
             self._apply_custom_vocabulary(custom_vocabulary)
@@ -584,6 +726,10 @@ class NetworkVocabularyManager:
                 file=sys.stderr,
             )
 
+    def _expand_synonym(self, word: str) -> str:
+        """Expand abbreviation/synonym to canonical form"""
+        return self._synonyms.get(word, word)
+
     def analyze_text(self, text: str) -> Tuple[Coordinates, int]:
         """Analyze text and return LJPW coordinates"""
         cache_key = text.lower().strip()
@@ -595,10 +741,19 @@ class NetworkVocabularyManager:
         concept_count = 0
 
         for word in words:
-            dimension = self._keyword_map.get(word)
+            # Expand synonyms/abbreviations before lookup
+            expanded = self._expand_synonym(word)
+            dimension = self._keyword_map.get(expanded)
             if dimension:
                 counts[dimension] += 1.0
                 concept_count += 1
+            elif word != expanded:
+                # Original word didn't match, but we expanded it -
+                # try the original too in case it's in the vocabulary
+                dimension = self._keyword_map.get(word)
+                if dimension:
+                    counts[dimension] += 1.0
+                    concept_count += 1
 
         if concept_count == 0:
             result = (Coordinates(0.0, 0.0, 0.0, 0.0), 0)
