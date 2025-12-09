@@ -20,7 +20,7 @@ try:
     SCAPY_AVAILABLE = True
 except ImportError:
     SCAPY_AVAILABLE = False
-    print("WARNING: scapy not available. Install with: pip install scapy")
+    # Suppress warning during normal operation - scapy is optional
 
 
 @dataclass
@@ -419,7 +419,7 @@ def get_packet_capture() -> Any:
             print("Falling back to command-based capture")
             return FallbackPacketCapture()
     else:
-        print("Scapy not available, using fallback capture")
+        # Silently use fallback - scapy is optional
         return FallbackPacketCapture()
 
 

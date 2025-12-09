@@ -235,10 +235,20 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
         print("   Example: pinpoint scan localhost --common")
         return
     elif "-" in args.ports:
-        start, end = map(int, args.ports.split("-"))
-        ports = list(range(start, end + 1))
+        try:
+            start, end = map(int, args.ports.split("-"))
+            ports = list(range(start, end + 1))
+        except ValueError:
+            print(f"❌ Error: Invalid port range '{args.ports}'")
+            print("   Example: pinpoint scan localhost -p 1-1024")
+            return
     else:
-        ports = [int(p) for p in args.ports.split(",")]
+        try:
+            ports = [int(p) for p in args.ports.split(",")]
+        except ValueError:
+            print(f"❌ Error: Invalid port(s) '{args.ports}'")
+            print("   Example: pinpoint scan localhost -p 22,80,443")
+            return
 
     results = diagnostics.scan_ports(args.target, ports)
 
