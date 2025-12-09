@@ -9,10 +9,41 @@ import argparse
 import sys
 from typing import Optional
 
-from .semantic_engine import NetworkSemanticEngine
+from .semantic_engine import NetworkSemanticEngine, Coordinates
 from .diagnostics import NetworkDiagnostics
 from .network_mapper import NetworkMapper
 from .semantic_probe import SemanticProbe
+
+
+class ProfileWrapper:
+    """Lightweight wrapper to convert profile dict to object-like access"""
+    def __init__(self, profile_dict, coordinates=None):
+        self.target = profile_dict.get('target', '')
+        self.ip_address = profile_dict.get('ip_address', '')
+        self.timestamp = profile_dict.get('timestamp', '')
+        self.dominant_dimension = profile_dict.get('dominant_dimension', 'Unknown')
+        self.harmony_score = profile_dict.get('harmony_score', 0.0) or 0.0
+        self.semantic_clarity = profile_dict.get('semantic_clarity', 0.0) or 0.0
+        self.semantic_mass = profile_dict.get('semantic_mass', 0.0) or 0.0
+        self.semantic_density = profile_dict.get('semantic_density', 0.0) or 0.0
+        self.semantic_influence = profile_dict.get('semantic_influence', 0.0) or 0.0
+        self.service_classification = profile_dict.get('service_classification', '')
+        self.security_posture = profile_dict.get('security_posture', 'UNKNOWN')
+        self.inferred_purpose = profile_dict.get('inferred_purpose', '')
+        self.matched_archetypes = []  # Not stored in DB, so empty list
+        self.open_ports = []  # Not easily reconstructed from JSON
+        self.warnings = []
+        self.recommendations = []
+
+        # Build coordinates from dict or use provided
+        if coordinates:
+            self.ljpw_coordinates = coordinates
+        else:
+            l = profile_dict.get('love', 0.0) or 0.0
+            j = profile_dict.get('justice', 0.0) or 0.0
+            p = profile_dict.get('power', 0.0) or 0.0
+            w = profile_dict.get('wisdom', 0.0) or 0.0
+            self.ljpw_coordinates = Coordinates(love=l, justice=j, power=p, wisdom=w)
 
 
 def print_banner():
@@ -110,14 +141,25 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
     """Handle port scan command"""
     diagnostics = NetworkDiagnostics(engine)
 
+    # Common ports list for --common flag
+    common_ports = [21, 22, 23, 25, 53, 80, 110, 143, 443, 993, 995, 3306, 3389, 5432, 8080, 8443]
+
     # Parse port range
-    if "-" in args.ports:
+    if hasattr(args, 'common') and args.common:
+        ports = common_ports
+    elif args.ports is None:
+        print("❌ Error: Please specify ports with -p or use --common for common ports")
+        print("   Example: pinpoint.py scan localhost -p 22,80,443")
+        print("   Example: pinpoint.py scan localhost --common")
+        return
+    elif "-" in args.ports:
         start, end = map(int, args.ports.split("-"))
         ports = list(range(start, end + 1))
     else:
         ports = [int(p) for p in args.ports.split(",")]
 
-    print(f"\n🔍 Scanning {args.target} ports {args.ports}...")
+    ports_display = args.ports if args.ports else f"common ({len(ports)} ports)"
+    print(f"\n🔍 Scanning {args.target} ports {ports_display}...")
     print("=" * 70)
 
     results = diagnostics.scan_ports(args.target, ports)
@@ -583,7 +625,7 @@ def cmd_baseline(args, engine: NetworkSemanticEngine):
         
         # Store as baseline
         storage.store_profile(profile)
-        storage.set_baseline(args.target, profile)
+        storage.set_baseline(args.target)
         
         print(f"✅ Baseline set for {args.target}")
         print(f"   Mass: {profile.semantic_mass:.1f}")
@@ -599,14 +641,14 @@ def cmd_baseline(args, engine: NetworkSemanticEngine):
             print(f"❌ No baseline found for {args.target}")
     
     elif args.baseline_command == "list":
-        baselines = storage.list_baselines()
+        baselines = storage.get_targets_with_baselines()
         print(f"\n📋 Baselines ({len(baselines)} total)")
         print("=" * 70)
         for target in baselines:
             print(f"  • {target}")
     
     elif args.baseline_command == "delete":
-        storage.delete_baseline(args.target)
+        storage.clear_baseline(args.target)
         print(f"✅ Baseline deleted for {args.target}")
 
 
@@ -662,7 +704,7 @@ def cmd_drift(args, engine: NetworkSemanticEngine):
         storage.store_profile(current)
     
     elif args.drift_command == "history":
-        profiles = storage.get_history(args.target, limit=args.limit)
+        profiles = storage.get_profile_history(args.target, hours=24*365, limit=args.limit)
         print(f"\n📈 Drift History for {args.target}")
         print("=" * 70)
         
@@ -671,10 +713,15 @@ def cmd_drift(args, engine: NetworkSemanticEngine):
             return
         
         for i, profile in enumerate(profiles, 1):
-            print(f"\n{i}. {profile.timestamp}")
-            print(f"   Mass: {profile.semantic_mass:.1f}, Clarity: {profile.semantic_clarity:.0%}")
-            print(f"   L={profile.ljpw_coordinates.love:.2f}, J={profile.ljpw_coordinates.justice:.2f}, "
-                  f"P={profile.ljpw_coordinates.power:.2f}, W={profile.ljpw_coordinates.wisdom:.2f}")
+            print(f"\n{i}. {profile['timestamp']}")
+            mass = profile.get('semantic_mass', 0.0) or 0.0
+            clarity = profile.get('semantic_clarity', 0.0) or 0.0
+            print(f"   Mass: {mass:.1f}, Clarity: {clarity:.0%}")
+            l = profile.get('love', 0.0) or 0.0
+            j = profile.get('justice', 0.0) or 0.0
+            p = profile.get('power', 0.0) or 0.0
+            w = profile.get('wisdom', 0.0) or 0.0
+            print(f"   L={l:.2f}, J={j:.2f}, P={p:.2f}, W={w:.2f}")
 
 
 def cmd_similar(args, engine: NetworkSemanticEngine):
@@ -682,18 +729,19 @@ def cmd_similar(args, engine: NetworkSemanticEngine):
     from .semantic_storage import SemanticStorage
     from .semantic_relationships import SemanticRelationshipAnalyzer
     from .semantic_probe import SemanticProbe
-    
+
     storage = SemanticStorage()
     analyzer = SemanticRelationshipAnalyzer()
-    
+
     print(f"\n🔍 Finding systems similar to {args.target}...")
     print("=" * 70)
-    
+
     # Load all profiles
-    all_targets = storage.list_all_targets()
+    all_targets = storage.get_all_targets()
     for target in all_targets:
-        profile = storage.get_latest_profile(target)
-        if profile:
+        profile_dict = storage.get_profile(target)
+        if profile_dict:
+            profile = ProfileWrapper(profile_dict)
             analyzer.add_profile(profile)
     
     # Find similar
@@ -712,18 +760,19 @@ def cmd_outliers(args, engine: NetworkSemanticEngine):
     """Handle outlier detection command"""
     from .semantic_storage import SemanticStorage
     from .semantic_relationships import SemanticRelationshipAnalyzer
-    
+
     storage = SemanticStorage()
     analyzer = SemanticRelationshipAnalyzer()
-    
+
     print(f"\n🔍 Detecting semantic outliers...")
     print("=" * 70)
-    
+
     # Load all profiles
-    all_targets = storage.list_all_targets()
+    all_targets = storage.get_all_targets()
     for target in all_targets:
-        profile = storage.get_latest_profile(target)
-        if profile:
+        profile_dict = storage.get_profile(target)
+        if profile_dict:
+            profile = ProfileWrapper(profile_dict)
             analyzer.add_profile(profile)
     
     # Detect outliers
@@ -732,10 +781,12 @@ def cmd_outliers(args, engine: NetworkSemanticEngine):
     if outliers:
         print(f"\n⚠️  Outliers Detected ({len(outliers)})")
         for outlier in outliers:
-            print(f"\n  • {outlier.target}")
+            print(f"\n  • {outlier.system}")
             print(f"    Isolation Score: {outlier.isolation_score:.2f}")
-            print(f"    Neighbors: {outlier.neighbor_count}")
-            print(f"    Reason: {outlier.reason}")
+            if outlier.nearest_neighbor:
+                print(f"    Nearest Neighbor: {outlier.nearest_neighbor} (distance: {outlier.nearest_distance:.2f})")
+            if outlier.reasons:
+                print(f"    Reason: {outlier.reasons[0]}")
             if outlier.recommendations:
                 print(f"    → {outlier.recommendations[0]}")
     else:
@@ -746,18 +797,19 @@ def cmd_cluster(args, engine: NetworkSemanticEngine):
     """Handle clustering command"""
     from .semantic_storage import SemanticStorage
     from .semantic_relationships import SemanticRelationshipAnalyzer
-    
+
     storage = SemanticStorage()
     analyzer = SemanticRelationshipAnalyzer()
-    
+
     print(f"\n🔍 Clustering systems semantically...")
     print("=" * 70)
-    
+
     # Load all profiles
-    all_targets = storage.list_all_targets()
+    all_targets = storage.get_all_targets()
     for target in all_targets:
-        profile = storage.get_latest_profile(target)
-        if profile:
+        profile_dict = storage.get_profile(target)
+        if profile_dict:
+            profile = ProfileWrapper(profile_dict)
             analyzer.add_profile(profile)
     
     # Cluster
