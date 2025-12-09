@@ -687,31 +687,38 @@ def cmd_drift(args, engine: NetworkSemanticEngine):
         print(f"\n🔍 Checking drift for {args.target}...")
         print("=" * 70)
         
-        # Get baseline
+        # Check baseline exists
         baseline = storage.get_baseline(args.target)
         if not baseline:
             print(f"❌ No baseline found for {args.target}")
             print(f"   Run: pinpoint baseline set {args.target}")
             return
-        
+
         # Probe current state
         probe = SemanticProbe(engine)
         current = probe.probe(args.target, quick=args.quick)
-        
+
         # Detect drift
-        detector = SemanticDriftDetector()
-        drift = detector.detect_drift(baseline, current)
-        
+        detector = SemanticDriftDetector(storage)
+        drift = detector.analyze_drift(args.target, current)
+
+        if not drift:
+            print(f"✅ No significant drift detected for {args.target}")
+            return
+
         # Display results
         print(f"\n📊 DRIFT ANALYSIS")
-        print(f"  Magnitude: {drift.magnitude:.2f}")
+        print(f"  Magnitude: {drift.drift_magnitude:.2f}")
+        print(f"  Percentage: {drift.drift_percentage:.1f}%")
         print(f"  Severity:  {drift.severity}")
         print(f"  Type:      {drift.drift_type}")
-        
+
         if drift.affected_dimensions:
             print(f"\n  Affected Dimensions:")
-            for dim in drift.affected_dimensions:
-                print(f"    • {dim}")
+            for dim_name, old_val, new_val in drift.affected_dimensions:
+                change = new_val - old_val
+                direction = "↑" if change > 0 else "↓"
+                print(f"    • {dim_name}: {old_val:.2f} → {new_val:.2f} ({direction}{abs(change):.2f})")
         
         if drift.possible_causes:
             print(f"\n  Possible Causes:")
@@ -842,12 +849,12 @@ def cmd_cluster(args, engine: NetworkSemanticEngine):
         print(f"\n📊 Clusters Found ({len(clusters)})")
         for i, cluster in enumerate(clusters, 1):
             print(f"\n  Cluster {i}: {cluster.name}")
-            print(f"    Size: {cluster.size} systems")
+            print(f"    Size: {len(cluster.systems)} systems")
             print(f"    Cohesion: {cluster.cohesion:.0%}")
             print(f"    Radius: {cluster.radius:.2f}")
-            print(f"    Dominant: {cluster.dominant_characteristic}")
+            print(f"    Dominant: {cluster.dominant_dimension}")
             print(f"    Members:")
-            for member in cluster.members:
+            for member in cluster.systems:
                 print(f"      • {member}")
     else:
         print(f"No clusters found (max distance: {args.max_distance})")

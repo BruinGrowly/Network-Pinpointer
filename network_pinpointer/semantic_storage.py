@@ -311,10 +311,11 @@ class SemanticStorage:
         """Convert profile dict to Coordinates object"""
         if not all(k in profile_dict for k in ['love', 'justice', 'power', 'wisdom']):
             return None
-        
+
+        # Handle None values by defaulting to 0.0
         return Coordinates(
-            love=profile_dict['love'],
-            justice=profile_dict['justice'],
-            power=profile_dict['power'],
-            wisdom=profile_dict['wisdom']
+            love=profile_dict['love'] or 0.0,
+            justice=profile_dict['justice'] or 0.0,
+            power=profile_dict['power'] or 0.0,
+            wisdom=profile_dict['wisdom'] or 0.0
         )
