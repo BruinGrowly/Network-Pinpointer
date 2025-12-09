@@ -1204,11 +1204,11 @@ COMMON USAGE EXAMPLES:
     pinpoint.py visualize dashboard                      # Unified dashboard
 
   Learn More:
-    pinpoint.py explain ljpw                             # Learn LJPW framework
-    pinpoint.py explain love                             # Connectivity dimension
-    pinpoint.py explain justice                          # Policy dimension
-    pinpoint.py explain power                            # Performance dimension
-    pinpoint.py explain wisdom                           # Visibility dimension
+    pinpoint.py explain ljpw                             # Learn the framework
+    pinpoint.py explain connectivity                     # Reachability dimension
+    pinpoint.py explain security                         # Access control dimension
+    pinpoint.py explain performance                      # Speed/capacity dimension
+    pinpoint.py explain visibility                       # Monitoring dimension
 
 UNDERSTANDING OUTPUT:
   Coordinates shown as (L, J, P, W) with values 0.0-1.0

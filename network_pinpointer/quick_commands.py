@@ -254,41 +254,60 @@ class QuickCommands:
         Explain a network concept or dimension
 
         Args:
-            topic: What to explain (love, justice, power, wisdom, or a question)
+            topic: What to explain (connectivity, security, performance, visibility, or a question)
         """
         topic_lower = topic.lower()
+
+        # Map user-friendly names to internal names
+        aliases = {
+            "connectivity": "love",
+            "connect": "love",
+            "reachability": "love",
+            "security": "justice",
+            "policy": "justice",
+            "access": "justice",
+            "performance": "power",
+            "speed": "power",
+            "capacity": "power",
+            "visibility": "wisdom",
+            "monitoring": "wisdom",
+            "observability": "wisdom",
+        }
+
+        # Resolve alias if present
+        if topic_lower in aliases:
+            topic_lower = aliases[topic_lower]
 
         explanations = {
             "love": """
 {header}
-LOVE Dimension - Connectivity & Relationships
-{header}
+CONNECTIVITY - Reachability & Relationships
 
-What is Love?
-  Love represents the connectivity and relationship dimension of your network.
-  It measures how well network components connect and communicate with each other.
+What is Connectivity?
+  Connectivity represents how well network components can reach and
+  communicate with each other.
 
   Think of it as: "Can things reach each other?"
 
-High Love (0.7+) means:
-  ✓ Strong, reliable connectivity
+High Connectivity (0.7+) means:
+  ✓ Strong, reliable reachability
   ✓ Low packet loss
   ✓ Stable routes
   ✓ Services can reach each other
 
-Low Love (<0.5) means:
-  ✗ Connectivity problems
+Low Connectivity (<0.5) means:
+  ✗ Reachability problems
   ✗ High packet loss
   ✗ Route failures
   ✗ Services isolated
 
-What affects Love:
-  • Packet loss (drops Love)
-  • Route stability (stable = higher Love)
-  • Link quality (good links = higher Love)
-  • Network topology (well-connected = higher Love)
+What affects Connectivity:
+  • Packet loss (drops Connectivity)
+  • Route stability (stable = higher Connectivity)
+  • Link quality (good links = higher Connectivity)
+  • Network topology (well-connected = higher Connectivity)
 
-How to improve Love:
+How to improve Connectivity:
   1. Fix packet loss (check physical links)
   2. Optimize routing (reduce complexity)
   3. Add redundant paths (failover capability)
@@ -297,76 +316,73 @@ How to improve Love:
 
             "justice": """
 {header}
-JUSTICE Dimension - Policy & Boundaries
-{header}
+SECURITY - Access Control & Policies
 
-What is Justice?
-  Justice represents policy enforcement, security boundaries, and control
-  mechanisms in your network. It measures how much rules and restrictions
-  are being applied.
+What is Security?
+  Security represents policy enforcement, access control, and boundaries
+  in your network. It measures how much rules and restrictions are applied.
 
-  Think of it as: "What rules govern the network?"
+  Think of it as: "What rules govern access?"
 
-High Justice (0.7+) means:
-  • Active security enforcement
+High Security (0.7+) means:
+  • Active access control enforcement
   • Strict firewall rules
-  • Route policy changes
-  • Heavy access control
+  • Policy enforcement
+  • Heavy restrictions
 
-Low Justice (<0.3) means:
+Low Security (<0.3) means:
   • Minimal restrictions
   • Open network
   • Few policies
-  • May need more security
+  • May need more protection
 
-What affects Justice:
-  • Firewall rules (more rules = higher Justice)
-  • Route changes (instability = higher Justice)
-  • ACLs and filters (restrictions = higher Justice)
-  • Security policies (enforcement = higher Justice)
+What affects Security:
+  • Firewall rules (more rules = higher Security)
+  • ACLs and filters (restrictions = higher Security)
+  • Authentication requirements (stricter = higher Security)
+  • Policy enforcement (active = higher Security)
 
-When is high Justice good?
+When is high Security good?
   ✓ High-security environments
   ✓ Compliance requirements
   ✓ DMZ or public-facing networks
 
-When is high Justice bad?
+When is high Security bad?
   ✗ Blocking legitimate traffic
-  ✗ Over-securitization
-  ✗ Unstable routing (flapping)
+  ✗ Over-restrictive policies
+  ✗ Impeding productivity
 """,
 
             "power": """
 {header}
-POWER Dimension - Performance & Capability
-{header}
+PERFORMANCE - Speed & Capacity
 
-What is Power?
-  Power represents the performance and capacity of your network.
-  It measures how efficiently data can flow and how much throughput
+What is Performance?
+  Performance represents the speed and capacity of your network.
+  It measures how efficiently data flows and how much throughput
   is available.
 
   Think of it as: "How fast and capable is the network?"
 
-High Power (0.7+) means:
+High Performance (0.7+) means:
   ✓ Low latency
   ✓ Simple, direct paths
   ✓ High bandwidth available
   ✓ Efficient routing
 
-Low Power (<0.5) means:
+Low Performance (<0.5) means:
   ✗ High latency
   ✗ Complex paths (many hops)
   ✗ Bandwidth saturation
-  ✗ Performance bottlenecks
+  ✗ Bottlenecks
 
-What affects Power:
-  • Path complexity (more hops = lower Power)
-  • Bandwidth (saturation = lower Power)
-  • Latency (high latency = lower Power)
-  • Congestion (traffic = lower Power)
+What affects Performance:
+  • Path complexity (more hops = lower Performance)
+  • Bandwidth (saturation = lower Performance)
+  • Latency (high latency = lower Performance)
+  • Congestion (traffic = lower Performance)
 
-How to improve Power:
+How to improve Performance:
   1. Optimize routing (reduce hops)
   2. Increase bandwidth (upgrade links)
   3. Add caching/CDN (reduce distance)
@@ -376,62 +392,61 @@ How to improve Power:
 
             "wisdom": """
 {header}
-WISDOM Dimension - Visibility & Information
-{header}
+VISIBILITY - Monitoring & Observability
 
-What is Wisdom?
-  Wisdom represents how well you can observe and understand your network.
+What is Visibility?
+  Visibility represents how well you can observe and understand your network.
   It measures the quality and completeness of information you have about
   network state.
 
   Think of it as: "How clearly can I see what's happening?"
 
-High Wisdom (0.7+) means:
-  ✓ Clear visibility
+High Visibility (0.7+) means:
+  ✓ Clear observability
   ✓ Good monitoring
   ✓ Complete information
   ✓ Few blind spots
 
-Low Wisdom (<0.5) means:
-  ✗ Limited visibility
+Low Visibility (<0.5) means:
+  ✗ Limited observability
   ✗ Poor monitoring
   ✗ Information gaps
   ✗ Blind spots in network
 
-What affects Wisdom:
-  • Packet loss (loss = less visibility)
-  • Monitoring tools (more tools = higher Wisdom)
-  • Logging (good logs = higher Wisdom)
-  • Protocol details (richer data = higher Wisdom)
+What affects Visibility:
+  • Monitoring tools (more tools = higher Visibility)
+  • Logging (good logs = higher Visibility)
+  • Metrics collection (richer data = higher Visibility)
+  • Alerting systems (active = higher Visibility)
 
-How to improve Wisdom:
+How to improve Visibility:
   1. Deploy monitoring tools (NetFlow, SNMP, etc.)
   2. Enable comprehensive logging
-  3. Reduce packet loss (improves signal clarity)
+  3. Set up alerting and dashboards
   4. Add visibility at key points
   5. Implement network analytics
 """,
 
             "ljpw": """
 {header}
-LJPW Framework - The Four Dimensions of Network Operations
+The Four Dimensions of Network Operations
 
 The four dimensions work together to describe any network state:
 
-Love (L):
-  Connectivity, relationships, how things connect
+Connectivity (L):
+  Reachability, relationships, how things connect
   Example: Can services reach each other?
 
-Justice (J):
-  Policy, boundaries, rules, security
+Security (J):
+  Access control, policies, rules
   Example: Are firewalls blocking traffic?
 
-Power (P):
-  Performance, capacity, throughput
+Performance (P):
+  Speed, capacity, throughput
   Example: Is the network fast enough?
 
-Wisdom (W):
-  Visibility, monitoring, information quality
+Visibility (W):
+  Monitoring, observability, diagnostics
   Example: Can we see what's happening?
 
 Why these four?
@@ -445,7 +460,7 @@ How to read coordinates:
 
   This means:
   - Excellent connectivity (L=0.85)
-  - Minimal restrictions (J=0.35)
+  - Minimal security restrictions (J=0.35)
   - Good performance (P=0.70)
   - Excellent visibility (W=0.90)
 
@@ -473,10 +488,10 @@ How to read coordinates:
                 print(self.fmt.section_header("Help Topics"))
                 print("\nAvailable topics to explain:")
                 print(self.fmt.bullet_list([
-                    "love - Connectivity dimension",
-                    "justice - Policy/security dimension",
-                    "power - Performance dimension",
-                    "wisdom - Visibility dimension",
+                    "connectivity - Reachability dimension",
+                    "security - Access control dimension",
+                    "performance - Speed/capacity dimension",
+                    "visibility - Monitoring dimension",
                     "ljpw - Overview of all dimensions"
                 ], indent=2))
 
