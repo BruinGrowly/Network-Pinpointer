@@ -13,7 +13,7 @@ from .semantic_engine import NetworkSemanticEngine, Coordinates
 from .diagnostics import NetworkDiagnostics
 from .network_mapper import NetworkMapper
 from .semantic_probe import SemanticProbe
-from .simple_output import format_ping_simple, format_scan_simple, format_analyze_simple
+from .simple_output import format_ping_simple, format_scan_simple, format_analyze_simple, get_health_summary, translate_coordinates, get_system_type
 
 
 class ProfileWrapper:
@@ -63,16 +63,12 @@ Love, Justice, Power, Wisdom - The Four Dimensions of Network Operations
 def cmd_ping(args, engine: NetworkSemanticEngine):
     """Handle ping command"""
     diagnostics = NetworkDiagnostics(engine)
-    simple_mode = hasattr(args, 'simple') and args.simple
-
-    if not simple_mode:
-        print(f"\n🔍 Pinging {args.host}...")
-        print("=" * 70)
+    verbose_mode = hasattr(args, 'verbose') and args.verbose
 
     result = diagnostics.ping(args.host, count=args.count, timeout=args.timeout)
 
-    # Simple output mode
-    if simple_mode:
+    # Simple output (default)
+    if not verbose_mode:
         print(format_ping_simple(
             result.host,
             result.success,
@@ -83,7 +79,9 @@ def cmd_ping(args, engine: NetworkSemanticEngine):
         ))
         return
 
-    # Detailed output (original behavior)
+    # Verbose/detailed output
+    print(f"\n🔍 Pinging {args.host}...")
+    print("=" * 70)
     print(f"\nHost: {result.host}")
     print(f"Status: {'✓ Reachable' if result.success else '✗ Unreachable'}")
 
@@ -113,6 +111,74 @@ def cmd_ping(args, engine: NetworkSemanticEngine):
         print_ljpw_profile_summary(profile)
 
     print("\n" + "=" * 70)
+
+
+def cmd_check(args, engine: NetworkSemanticEngine):
+    """Handle check command - quick health check combining ping + scan"""
+    diagnostics = NetworkDiagnostics(engine)
+
+    # Common ports for quick scan
+    common_ports = [22, 80, 443, 8080]
+
+    print(f"\nChecking {args.host}...")
+
+    # Run ping
+    ping_result = diagnostics.ping(args.host, count=3, timeout=2.0)
+
+    # Run quick port scan
+    scan_results = diagnostics.scan_ports(args.host, common_ports)
+    open_ports = [(r.port, r.service_name) for r in scan_results if r.is_open]
+
+    # Calculate aggregate coordinates
+    if ping_result.success:
+        coords = ping_result.semantic_coords
+        l, j, p, w = coords.love, coords.justice, coords.power, coords.wisdom
+    else:
+        l, j, p, w = 0.0, 0.5, 0.0, 0.3
+
+    # Boost coordinates based on open ports
+    if open_ports:
+        l = min(1.0, l + 0.2)  # More connectivity
+        p = min(1.0, p + 0.1)  # Services running
+
+    # Get health summary
+    status_icon, summary = get_health_summary(l, j, p, w, ping_result.success, len(open_ports))
+
+    # Print results
+    print(f"\n{'='*50}")
+    print(f"  {args.host}")
+    print(f"{'='*50}")
+    print(f"\n{status_icon} {summary}")
+
+    # Ping result
+    if ping_result.success:
+        latency_desc = "fast" if ping_result.avg_latency < 50 else "normal" if ping_result.avg_latency < 200 else "slow"
+        print(f"\n   Ping: {ping_result.avg_latency:.0f}ms ({latency_desc})")
+        if ping_result.packet_loss > 0:
+            print(f"   ⚠ {ping_result.packet_loss:.0f}% packet loss")
+    else:
+        print(f"\n   Ping: Failed (host may be down or blocking ICMP)")
+
+    # Open ports
+    if open_ports:
+        ports_str = ", ".join(f"{p}({s})" for p, s in open_ports)
+        print(f"   Open: {ports_str}")
+    else:
+        print(f"   Open: No common ports detected")
+
+    # System type inference
+    system_type = get_system_type(l, j, p, w)
+    print(f"\n   Type: {system_type}")
+
+    # Key insights (brief)
+    insights = translate_coordinates(l, j, p, w)
+    warnings = [i for i in insights if i.severity in ('warning', 'critical')]
+    if warnings:
+        print(f"\n   Concerns:")
+        for insight in warnings[:2]:
+            print(f"   {insight.icon} {insight.message}")
+
+    print("")
 
 
 def cmd_traceroute(args, engine: NetworkSemanticEngine):
@@ -155,7 +221,7 @@ def cmd_traceroute(args, engine: NetworkSemanticEngine):
 def cmd_scan(args, engine: NetworkSemanticEngine):
     """Handle port scan command"""
     diagnostics = NetworkDiagnostics(engine)
-    simple_mode = hasattr(args, 'simple') and args.simple
+    verbose_mode = hasattr(args, 'verbose') and args.verbose
 
     # Common ports list for --common flag
     common_ports = [21, 22, 23, 25, 53, 80, 110, 143, 443, 993, 995, 3306, 3389, 5432, 8080, 8443]
@@ -165,8 +231,8 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
         ports = common_ports
     elif args.ports is None:
         print("❌ Error: Please specify ports with -p or use --common for common ports")
-        print("   Example: pinpoint.py scan localhost -p 22,80,443")
-        print("   Example: pinpoint.py scan localhost --common")
+        print("   Example: pinpoint scan localhost -p 22,80,443")
+        print("   Example: pinpoint scan localhost --common")
         return
     elif "-" in args.ports:
         start, end = map(int, args.ports.split("-"))
@@ -174,23 +240,22 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
     else:
         ports = [int(p) for p in args.ports.split(",")]
 
-    if not simple_mode:
-        ports_display = args.ports if args.ports else f"common ({len(ports)} ports)"
-        print(f"\n🔍 Scanning {args.target} ports {ports_display}...")
-        print("=" * 70)
-
     results = diagnostics.scan_ports(args.target, ports)
 
     # Print results
     open_ports = [r for r in results if r.is_open]
     closed_ports = [r for r in results if not r.is_open]
 
-    # Simple output mode
-    if simple_mode:
+    # Simple output (default)
+    if not verbose_mode:
         open_port_tuples = [(r.port, r.service_name) for r in open_ports]
         print(format_scan_simple(args.target, open_port_tuples, len(results)))
         return
 
+    # Verbose/detailed output
+    ports_display = args.ports if args.ports else f"common ({len(ports)} ports)"
+    print(f"\n🔍 Scanning {args.target} ports {ports_display}...")
+    print("=" * 70)
     print(f"\nHost: {args.target}")
     print(f"Open Ports: {len(open_ports)}/{len(results)}")
 
@@ -1212,8 +1277,36 @@ OUTPUT:
         "--ljpw-profile", action="store_true", help="Include LJPW semantic profile"
     )
     ping_parser.add_argument(
-        "-s", "--simple", action="store_true", help="Simple, human-friendly output"
+        "-v", "--verbose", action="store_true", help="Verbose output with LJPW details"
     )
+
+    # Check command - the "one command to rule them all"
+    check_parser = subparsers.add_parser(
+        "check",
+        help="Quick health check (ping + scan in one command)",
+        description="""
+Quick health check that combines ping and port scan into a single command.
+
+This is the simplest way to check if a host is healthy. It will:
+  • Ping the host to check connectivity
+  • Scan common ports (22, 80, 443, 8080)
+  • Give you a simple health verdict
+
+EXAMPLES:
+  pinpoint check google.com
+  pinpoint check 192.168.1.1
+  pinpoint check api.example.com
+
+OUTPUT:
+  • Health status (green/yellow/red)
+  • Latency (if reachable)
+  • Open ports found
+  • System type inference
+  • Any concerns detected
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    check_parser.add_argument("host", help="Target host (IP or hostname)")
 
     # Traceroute command
     traceroute_parser = subparsers.add_parser(
@@ -1266,7 +1359,7 @@ NOTE: Port scanning requires appropriate permissions. Only scan hosts you own
         "--common", action="store_true", help="Scan common ports"
     )
     scan_parser.add_argument(
-        "-s", "--simple", action="store_true", help="Simple, human-friendly output"
+        "-v", "--verbose", action="store_true", help="Verbose output with LJPW details"
     )
 
     # Map command
@@ -1747,6 +1840,8 @@ You can also ask questions with keywords like:
     # Route to appropriate command handler
     if args.command == "ping":
         cmd_ping(args, engine)
+    elif args.command == "check":
+        cmd_check(args, engine)
     elif args.command == "traceroute":
         cmd_traceroute(args, engine)
     elif args.command == "scan":
