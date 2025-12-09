@@ -414,8 +414,7 @@ How to improve Wisdom:
 
             "ljpw": """
 {header}
-LJPW Framework - Universal Semantic Dimensions
-{header}
+LJPW Framework - The Four Dimensions of Network Operations
 
 The four dimensions work together to describe any network state:
 
