@@ -1,8 +1,8 @@
 # Network-Pinpointer
 
-**Semantic Network Diagnostic Tool using LJPW Framework**
+**Semantic Network Diagnostic Tool**
 
-Network-Pinpointer maps network operations to a four-dimensional semantic space (Love, Justice, Power, Wisdom), enabling unprecedented insights into network infrastructure through semantic analysis.
+Network-Pinpointer maps network operations to a four-dimensional semantic space (Connectivity, Security, Performance, Visibility), enabling unprecedented insights into network infrastructure through semantic analysis.
 
 ## Table of Contents
 - [Quick Start](#quick-start)
@@ -81,20 +81,20 @@ pip install pyyaml
 
 ## Core Concepts
 
-### LJPW Framework
+### The Four Dimensions
 
 Every network operation maps to four dimensions:
 
-| Dimension | Network Meaning | Examples |
-|-----------|----------------|----------|
-| **Love (L)** | Connectivity, communication, service sharing | Web servers, VPNs, load balancers |
-| **Justice (J)** | Security, policies, rules, compliance | Firewalls, auth servers, ACLs |
-| **Power (P)** | Performance, control, execution | App servers, databases, compute nodes |
-| **Wisdom (W)** | Monitoring, diagnostics, information | SNMP, log servers, monitoring tools |
+| Dimension | What It Measures | Examples |
+|-----------|------------------|----------|
+| **Connectivity (L)** | Reachability, communication, service sharing | Web servers, VPNs, load balancers |
+| **Security (J)** | Access control, policies, rules, compliance | Firewalls, auth servers, ACLs |
+| **Performance (P)** | Speed, capacity, execution | App servers, databases, compute nodes |
+| **Visibility (W)** | Monitoring, diagnostics, observability | SNMP, log servers, monitoring tools |
 
 **Example coordinates:**
-- `ping 8.8.8.8` → `(L=0.29, J=0.14, P=0.00, W=0.57)` → **Wisdom-dominant** (monitoring)
-- `configure firewall deny all` → `(L=0.05, J=0.60, P=0.30, W=0.05)` → **Justice-dominant** (security)
+- `ping 8.8.8.8` → `(L=0.29, J=0.14, P=0.00, W=0.57)` → **Visibility-dominant** (monitoring operation)
+- `configure firewall deny all` → `(L=0.05, J=0.60, P=0.30, W=0.05)` → **Security-dominant** (access control)
 
 ### ICE Framework
 
@@ -214,10 +214,10 @@ SKIP_FIRST_RUN=1 ./pinpoint health
 ======================================================================
 ✅ Scanned 254 hosts, 12 reachable
 
-💛 Love Cluster (5 devices) - Cohesion: 87%
-⚖️  Justice Cluster (3 devices) - Cohesion: 92%
-⚡ Power Cluster (2 devices) - Cohesion: 78%
-🧠 Wisdom Cluster (2 devices) - Cohesion: 95%
+🔗 Connectivity Cluster (5 devices) - Cohesion: 87%
+🔒 Security Cluster (3 devices) - Cohesion: 92%
+⚡ Performance Cluster (2 devices) - Cohesion: 78%
+👁 Visibility Cluster (2 devices) - Cohesion: 95%
 
 📊 Visualization saved: output/cluster_map.html
 ```
@@ -232,21 +232,21 @@ SKIP_FIRST_RUN=1 ./pinpoint health
 │  ┌──────────────┐          │                                       │
 │  │ 🔍 Search    │          │         ●                             │
 │  │ [          ] │          │    ●        ● (google.com)            │
-│  ├──────────────┤          │              ↗ Love: 0.65            │
-│  │ 🎚️ Filters   │          │         ●        ● Justice: 0.12     │
-│  │ Love:   █▓░░ │          │                  ● Power: 0.10       │
-│  │ Justice:█░░░ │          │    ●                Wisdom: 0.13     │
-│  │ Power:  ▓░░░ │          │         ●                             │
-│  │ Wisdom: ██▓░ │          │              ●                        │
+│  ├──────────────┤          │              ↗ Connectivity: 0.65   │
+│  │ 🎚️ Filters   │          │         ●        ● Security: 0.12    │
+│  │ Connect:█▓░░ │          │                  ● Performance: 0.10 │
+│  │ Security█░░░ │          │    ●                Visibility: 0.13 │
+│  │ Perform:▓░░░ │          │         ●                             │
+│  │ Visible:██▓░ │          │              ●                        │
 │  │ Mass:   █▓▓░ │          │                   ● (firewall)       │
 │  ├──────────────┤          │    ●         ●                        │
 │  │ 📊 Stats     │          │         Color-coded by dimension:     │
-│  │ Nodes:    12 │          │         Red=Love  Blue=Justice       │
-│  │ Filtered: 12 │          │         Orange=Power  Purple=Wisdom  │
-│  │ Love:      5 │          │                                       │
-│  │ Justice:   3 │          │         [Interactive 3D - Drag to    │
-│  │ Power:     2 │          │          rotate, scroll to zoom]     │
-│  │ Wisdom:    2 │          │                                       │
+│  │ Nodes:    12 │          │         Red=Connectivity Blue=Security│
+│  │ Filtered: 12 │          │         Orange=Perform Purple=Visible │
+│  │ Connect:   5 │          │                                       │
+│  │ Security:  3 │          │         [Interactive 3D - Drag to    │
+│  │ Perform:   2 │          │          rotate, scroll to zoom]     │
+│  │ Visible:   2 │          │                                       │
 │  └──────────────┘          │                                       │
 │                             │                                       │
 │  Keyboard: F=Fullscreen R=Reset H=Hide E=Export T=Theme           │
@@ -294,22 +294,22 @@ SKIP_FIRST_RUN=1 ./pinpoint health
 │  ┌─────────────────────────────────────────────────────────────────┐│
 │  │Target ▲    │ L   │ J   │ P   │ W   │ Mass │ Posture │Dimension││
 │  ├─────────────┼─────┼─────┼─────┼─────┼──────┼─────────┼─────────┤│
-│  │google.com  │0.65 │0.12 │0.10 │0.13 │ 842  │Proactive│Love     ││
-│  │firewall.lo │0.05 │0.75 │0.15 │0.05 │ 1205 │Defensive│Justice  ││
-│  │db-server   │0.08 │0.10 │0.72 │0.10 │ 956  │Proactive│Power    ││
-│  │monitor.sys │0.10 │0.08 │0.05 │0.77 │ 634  │Reactive │Wisdom   ││
-│  │web-lb      │0.68 │0.10 │0.18 │0.04 │ 789  │Proactive│Love     ││
-│  │auth-server │0.12 │0.70 │0.12 │0.06 │ 1050 │Defensive│Justice  ││
+│  │google.com  │0.65 │0.12 │0.10 │0.13 │ 842  │Proactive│Connect  ││
+│  │firewall.lo │0.05 │0.75 │0.15 │0.05 │ 1205 │Defensive│Security ││
+│  │db-server   │0.08 │0.10 │0.72 │0.10 │ 956  │Proactive│Perform  ││
+│  │monitor.sys │0.10 │0.08 │0.05 │0.77 │ 634  │Reactive │Visible  ││
+│  │web-lb      │0.68 │0.10 │0.18 │0.04 │ 789  │Proactive│Connect  ││
+│  │auth-server │0.12 │0.70 │0.12 │0.06 │ 1050 │Defensive│Security ││
 │  │...         │...  │...  │...  │...  │ ...  │...      │...      ││
 │  └─────────────────────────────────────────────────────────────────┘│
 │                                                                     │
 │  💡 AI Insights:                                                   │
 │  ┌─────────────────────────────────────────────────────────────────┐│
-│  │ • Security Gap: firewall.lo has high Justice but cluster lacks ││
+│  │ • Security Gap: firewall.lo has high Security but cluster lacks││
 │  │   redundancy. Consider backup security gateway.                ││
-│  │ • Performance: db-server shows high Power but mass suggests    ││
+│  │ • Performance: db-server shows high Performance, suggesting    ││
 │  │   opportunity for load distribution.                           ││
-│  │ • Balance: Network shows 42% Love dominance - well-connected   ││
+│  │ • Balance: Network shows 42% Connectivity focus - well-linked  ││
 │  │   but monitor security coverage.                               ││
 │  └─────────────────────────────────────────────────────────────────┘│
 │                                                                     │
@@ -355,10 +355,10 @@ Drift velocity: 0.021/day
 Severity: Low (Normal)
 
 Dimension changes:
-  Love:    -0.03 (↓ 4.6%)
-  Justice: +0.03 (↑ 25.0%)
-  Power:   +0.02 (↑ 20.0%)
-  Wisdom:  -0.02 (↓ 15.4%)
+  Connectivity: -0.03 (↓ 4.6%)
+  Security:     +0.03 (↑ 25.0%)
+  Performance:  +0.02 (↑ 20.0%)
+  Visibility:   -0.02 (↓ 15.4%)
 
 📊 Timeline visualization: output/drift_timeline_google.com.html
 ```
@@ -373,23 +373,23 @@ Dimension changes:
 │                                                                     │
 │  ┌─────────────────────────────────────────────────────────────────┐│
 │  │ 1.0│                                                            ││
-│  │    │   ━━━ Love    ┄┄┄ Justice                                 ││
-│  │0.8 │   ─ ─ Power   ··· Wisdom                                  ││
+│  │    │   ━━━ Connectivity ┄┄┄ Security                           ││
+│  │0.8 │   ─ ─ Performance  ··· Visibility                         ││
 │  │    │                                                            ││
-│  │0.6 │━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ (Love)        ││
+│  │0.6 │━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ (Connectivity)   ││
 │  │    │            ↘                                               ││
 │  │0.4 │                                                            ││
 │  │    │                                                            ││
-│  │0.2 │       ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄↗┄┄┄┄ (Justice)                ││
-│  │    │    ···················· (Wisdom)                           ││
-│  │0.0 │─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ (Power)               ││
+│  │0.2 │       ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄↗┄┄┄┄ (Security)              ││
+│  │    │    ···················· (Visibility)                       ││
+│  │0.0 │─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ (Performance)         ││
 │  │    └────────────────────────────────────────────────────────────││
 │  │        12/01      12/02  📍  12/03                             ││
 │  │                         Annotation: "Config change"            ││
 │  └─────────────────────────────────────────────────────────────────┘│
 │                                                                     │
 │  📊 Statistics:                    🎯 Analysis:                    │
-│  Total Drift:  0.052               Trend: Increasing Justice      │
+│  Total Drift:  0.052               Trend: Increasing Security     │
 │  Velocity:     0.021/day           Pattern: Security enhancement  │
 │  Duration:     2.2 days            Severity: Low                  │
 │  Data Points:  48                  Confidence: High               │
@@ -547,8 +547,8 @@ Network Metrics:
 │  │ [Find Path]     │  │  Node size = semantic mass                │
 │  │ Path: 3 hops    │  │  Color = dominant dimension               │
 │  │ 1. web-lb       │  │                                            │
-│  │ 2. firewall     │  │  Legend: 🔴 Love  🔵 Justice              │
-│  │ 3. db-server    │  │         🟠 Power  🟣 Wisdom              │
+│  │ 2. firewall     │  │  Legend: 🔴 Connect 🔵 Security           │
+│  │ 3. db-server    │  │         🟠 Perform 🟣 Visible            │
 │  ├─────────────────┤  │                                            │
 │  │ 📊 Metrics      │  │                                            │
 │  │ Nodes:      12  │  │                                            │
@@ -566,7 +566,7 @@ Network Metrics:
 - **Pathfinding**: Click two nodes to find shortest path (Dijkstra algorithm)
 - **Multiple Layouts**: Switch between LJPW Space, Force-Directed, Circular, Hierarchical
 - **Network Metrics**: Real-time calculation of density, degree, clustering
-- **Filter by Dimension**: Show only Love, Justice, Power, or Wisdom nodes
+- **Filter by Dimension**: Show only Connectivity, Security, Performance, or Visibility nodes
 - **Connection Threshold**: Adjust similarity threshold for edges
 - **Path Highlighting**: Shortest paths shown with bright green edges
 
@@ -714,19 +714,19 @@ $ ./pinpoint map 192.168.1.0/24
 
 🗺️  TOPOLOGY CLUSTERS
 
-💛 Love Cluster (5 devices) - Cohesion: 87%
-   Connectivity-focused: Web servers, communication hubs
+🔗 Connectivity Cluster (5 devices) - Cohesion: 87%
+   Communication-focused: Web servers, communication hubs
    • 192.168.1.10 - Web Service | Ports: 3 | Latency: 2.1ms
 
-⚖️  Justice Cluster (3 devices) - Cohesion: 92%
-   Security-focused: Firewalls, authentication
+🔒 Security Cluster (3 devices) - Cohesion: 92%
+   Access control-focused: Firewalls, authentication
    • 192.168.1.1 - Security Gateway | Ports: 2 | Latency: 0.9ms
 
-⚡ Power Cluster (2 devices) - Cohesion: 78%
-   Performance-focused: Application servers, databases
+⚡ Performance Cluster (2 devices) - Cohesion: 78%
+   Speed/capacity-focused: Application servers, databases
    • 192.168.1.50 - Database Server | Ports: 1 | Latency: 1.5ms
 
-🧠 Wisdom Cluster (2 devices) - Cohesion: 95%
+👁 Visibility Cluster (2 devices) - Cohesion: 95%
    Monitoring-focused: SNMP agents, log servers
    • 192.168.1.100 - Monitoring System | Ports: 2 | Latency: 3.2ms
 
@@ -811,7 +811,7 @@ InfluxDB / PostgreSQL / Redis
 |----------|----------------------------|
 | **Troubleshooting** | Identify semantic mismatches between intent and execution |
 | **Security Audits** | Find insecure services and overly complex attack surfaces |
-| **Performance Analysis** | Locate Power-dominant bottlenecks, optimize resource allocation |
+| **Performance Analysis** | Locate performance bottlenecks, optimize resource allocation |
 | **Documentation** | Generate semantic topology maps, verify architecture matches docs |
 | **Network Design** | Plan infrastructure using LJPW framework for coherent design |
 | **Compliance** | Track configuration drift, ensure policy enforcement |
@@ -873,11 +873,11 @@ See [LICENSE](LICENSE) file.
 
 ```
 Network-Pinpointer: Semantic Network Diagnostic Tool
-Using Love-Justice-Power-Wisdom (LJPW) Framework
+Using LJPW (Connectivity-Security-Performance-Visibility) Framework
 2025
 ```
 
 ---
 
 **Built with the LJPW Semantic Framework**
-*Love • Justice • Power • Wisdom*
+*Connectivity • Security • Performance • Visibility*
