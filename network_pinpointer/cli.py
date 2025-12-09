@@ -95,13 +95,13 @@ def cmd_ping(args, engine: NetworkSemanticEngine):
     print(f"Coordinates: {result.semantic_coords}")
     print(f"Analysis: {result.semantic_analysis}")
 
-    # Visual representation
+    # Visual representation (using user-friendly names)
     l, j, p, w = result.semantic_coords
     print(f"\nDimension Breakdown:")
-    print(f"  Love (Connectivity):  {'█' * int(l * 20):20s} {l:.0%}")
-    print(f"  Justice (Validation): {'█' * int(j * 20):20s} {j:.0%}")
-    print(f"  Power (Execution):    {'█' * int(p * 20):20s} {p:.0%}")
-    print(f"  Wisdom (Diagnostic):  {'█' * int(w * 20):20s} {w:.0%}")
+    print(f"  Connectivity:  {'█' * int(l * 20):20s} {l:.0%}")
+    print(f"  Security:      {'█' * int(j * 20):20s} {j:.0%}")
+    print(f"  Performance:   {'█' * int(p * 20):20s} {p:.0%}")
+    print(f"  Visibility:    {'█' * int(w * 20):20s} {w:.0%}")
 
     # LJPW Profile if requested
     if hasattr(args, 'ljpw_profile') and args.ljpw_profile:
@@ -129,54 +129,36 @@ def cmd_check(args, engine: NetworkSemanticEngine):
     scan_results = diagnostics.scan_ports(args.host, common_ports)
     open_ports = [(r.port, r.service_name) for r in scan_results if r.is_open]
 
-    # Calculate aggregate coordinates
+    # Determine status based on facts only
     if ping_result.success:
-        coords = ping_result.semantic_coords
-        l, j, p, w = coords.love, coords.justice, coords.power, coords.wisdom
+        if open_ports:
+            status = ("🟢", "Reachable, services responding")
+        else:
+            status = ("🟢", "Reachable (no common ports open)")
     else:
-        l, j, p, w = 0.0, 0.5, 0.0, 0.3
+        if open_ports:
+            status = ("🟡", "Ping blocked but services responding")
+        else:
+            status = ("🔴", "Unreachable")
 
-    # Boost coordinates based on open ports
-    if open_ports:
-        l = min(1.0, l + 0.2)  # More connectivity
-        p = min(1.0, p + 0.1)  # Services running
+    # Print simple factual output
+    print(f"\n{status[0]} {args.host}: {status[1]}")
 
-    # Get health summary
-    status_icon, summary = get_health_summary(l, j, p, w, ping_result.success, len(open_ports))
-
-    # Print results
-    print(f"\n{'='*50}")
-    print(f"  {args.host}")
-    print(f"{'='*50}")
-    print(f"\n{status_icon} {summary}")
-
-    # Ping result
+    # Ping facts
     if ping_result.success:
         latency_desc = "fast" if ping_result.avg_latency < 50 else "normal" if ping_result.avg_latency < 200 else "slow"
-        print(f"\n   Ping: {ping_result.avg_latency:.0f}ms ({latency_desc})")
+        print(f"   Ping: {ping_result.avg_latency:.0f}ms ({latency_desc})")
         if ping_result.packet_loss > 0:
             print(f"   ⚠ {ping_result.packet_loss:.0f}% packet loss")
     else:
-        print(f"\n   Ping: Failed (host may be down or blocking ICMP)")
+        print(f"   Ping: No response")
 
-    # Open ports
+    # Port facts
     if open_ports:
         ports_str = ", ".join(f"{p}({s})" for p, s in open_ports)
-        print(f"   Open: {ports_str}")
+        print(f"   Ports: {ports_str}")
     else:
-        print(f"   Open: No common ports detected")
-
-    # System type inference
-    system_type = get_system_type(l, j, p, w)
-    print(f"\n   Type: {system_type}")
-
-    # Key insights (brief)
-    insights = translate_coordinates(l, j, p, w)
-    warnings = [i for i in insights if i.severity in ('warning', 'critical')]
-    if warnings:
-        print(f"\n   Concerns:")
-        for insight in warnings[:2]:
-            print(f"   {insight.icon} {insight.message}")
+        print(f"   Ports: None open (checked 22, 80, 443, 8080)")
 
     print("")
 
@@ -210,10 +192,10 @@ def cmd_traceroute(args, engine: NetworkSemanticEngine):
 
     l, j, p, w = result.semantic_coords
     print(f"\nDimension Breakdown:")
-    print(f"  Love (Path Discovery): {'█' * int(l * 20):20s} {l:.0%}")
-    print(f"  Justice (Validation):  {'█' * int(j * 20):20s} {j:.0%}")
-    print(f"  Power (Execution):     {'█' * int(p * 20):20s} {p:.0%}")
-    print(f"  Wisdom (Analysis):     {'█' * int(w * 20):20s} {w:.0%}")
+    print(f"  Connectivity:  {'█' * int(l * 20):20s} {l:.0%}")
+    print(f"  Security:      {'█' * int(j * 20):20s} {j:.0%}")
+    print(f"  Performance:   {'█' * int(p * 20):20s} {p:.0%}")
+    print(f"  Visibility:    {'█' * int(w * 20):20s} {w:.0%}")
 
     print("\n" + "=" * 70)
 
@@ -291,10 +273,10 @@ def cmd_scan(args, engine: NetworkSemanticEngine):
         avg_w = sum(r.semantic_coords.wisdom for r in open_ports) / len(open_ports)
 
         print(f"\n📊 AGGREGATE SEMANTIC ANALYSIS")
-        print(f"  Love (Services):      {'█' * int(avg_l * 20):20s} {avg_l:.0%}")
-        print(f"  Justice (Security):   {'█' * int(avg_j * 20):20s} {avg_j:.0%}")
-        print(f"  Power (Capability):   {'█' * int(avg_p * 20):20s} {avg_p:.0%}")
-        print(f"  Wisdom (Discovery):   {'█' * int(avg_w * 20):20s} {avg_w:.0%}")
+        print(f"  Connectivity:  {'█' * int(avg_l * 20):20s} {avg_l:.0%}")
+        print(f"  Security:      {'█' * int(avg_j * 20):20s} {avg_j:.0%}")
+        print(f"  Performance:   {'█' * int(avg_p * 20):20s} {avg_p:.0%}")
+        print(f"  Visibility:    {'█' * int(avg_w * 20):20s} {avg_w:.0%}")
 
     print("\n" + "=" * 70)
 
@@ -383,10 +365,10 @@ def print_ljpw_profile(profile):
             if val > 0.2: return "LOW"
             return "VERY LOW"
         
-        print(f"    Love (Connectivity):  {'█' * int(l * 20):20s} {l:.0%}  {get_rating(l)}")
-        print(f"    Justice (Security):   {'█' * int(j * 20):20s} {j:.0%}  {get_rating(j)}")
-        print(f"    Power (Performance):  {'█' * int(p * 20):20s} {p:.0%}  {get_rating(p)}")
-        print(f"    Wisdom (Monitoring):  {'█' * int(w * 20):20s} {w:.0%}  {get_rating(w)}")
+        print(f"    Connectivity:   {'█' * int(l * 20):20s} {l:.0%}  {get_rating(l)}")
+        print(f"    Security:       {'█' * int(j * 20):20s} {j:.0%}  {get_rating(j)}")
+        print(f"    Performance:    {'█' * int(p * 20):20s} {p:.0%}  {get_rating(p)}")
+        print(f"    Visibility:     {'█' * int(w * 20):20s} {w:.0%}  {get_rating(w)}")
         print(f"")
         print(f"  Dominant Dimension: {profile.dominant_dimension}")
         print(f"  Harmony Score: {profile.harmony_score:.0%} ({get_rating(profile.harmony_score)})")
@@ -485,18 +467,18 @@ def print_ljpw_profile(profile):
             l, j, p, w = profile.ljpw_coordinates
             
             if l > 0.6:
-                print(f"\n  This target exhibits strong Love (connectivity) characteristics,")
+                print(f"\n  This target exhibits strong connectivity characteristics,")
                 print(f"  indicating it's designed for accessibility and service delivery.")
             
             if j > 0.6:
-                print(f"\n  High Justice score suggests strong security measures and")
+                print(f"\n  High security score suggests strong security measures and")
                 print(f"  policy enforcement are in place.")
             elif j < 0.3:
-                print(f"\n  Low Justice indicates minimal security restrictions,")
+                print(f"\n  Low security indicates minimal restrictions,")
                 print(f"  appropriate for public services but requiring careful monitoring.")
-            
+
             if p > 0.6:
-                print(f"\n  High Power indicates robust performance capabilities,")
+                print(f"\n  High performance indicates robust capabilities,")
                 print(f"  consistent with a production service.")
     
     # Security Posture
@@ -617,10 +599,10 @@ def cmd_analyze(args, engine: NetworkSemanticEngine):
 
     l, j, p, w = result.coordinates
     print(f"\nDimension Breakdown:")
-    print(f"  Love (Connectivity):  {'█' * int(l * 40):40s} {l:.0%}")
-    print(f"  Justice (Policy):     {'█' * int(j * 40):40s} {j:.0%}")
-    print(f"  Power (Execution):    {'█' * int(p * 40):40s} {p:.0%}")
-    print(f"  Wisdom (Information): {'█' * int(w * 40):40s} {w:.0%}")
+    print(f"  Connectivity:  {'█' * int(l * 40):40s} {l:.0%}")
+    print(f"  Security:      {'█' * int(j * 40):40s} {j:.0%}")
+    print(f"  Performance:   {'█' * int(p * 40):40s} {p:.0%}")
+    print(f"  Visibility:    {'█' * int(w * 40):40s} {w:.0%}")
 
     print(f"\nDistance from Anchor: {result.distance_from_anchor:.3f}")
     print(f"Concept Count: {result.concept_count}")
@@ -1181,11 +1163,11 @@ def main():
     description_text = """
 Network-Pinpointer: Semantic Network Diagnostic Tool (LJPW Framework)
 
-Maps network operations to a 4-dimensional semantic space using:
-  • Love (L):    Connectivity, communication, relationships
-  • Justice (J): Rules, policies, security, compliance
-  • Power (P):   Performance, control, execution
-  • Wisdom (W):  Visibility, monitoring, diagnostics
+Maps network operations to a 4-dimensional semantic space:
+  • Connectivity (L): Reachability, communication, relationships
+  • Security (J):     Rules, policies, access control, compliance
+  • Performance (P):  Speed, capacity, execution
+  • Visibility (W):   Monitoring, diagnostics, observability
 
 QUICK START:
   pinpoint.py ping google.com              # Test connectivity with semantic analysis
@@ -1230,10 +1212,10 @@ COMMON USAGE EXAMPLES:
 
 UNDERSTANDING OUTPUT:
   Coordinates shown as (L, J, P, W) with values 0.0-1.0
-  - High Love (0.7+): Good connectivity
-  - High Justice (0.7+): Strong policy enforcement
-  - High Power (0.7+): Good performance
-  - High Wisdom (0.7+): Good visibility
+  - High Connectivity (0.7+): Good reachability
+  - High Security (0.7+): Strong access controls
+  - High Performance (0.7+): Good speed/capacity
+  - High Visibility (0.7+): Good monitoring
 
   Example: Coordinates(0.85, 0.35, 0.70, 0.90)
     → Excellent connectivity, minimal restrictions, good performance, great visibility
@@ -1545,10 +1527,10 @@ OUTPUT INCLUDES:
   • Recommendations for improvement
 
 UNDERSTANDING RESULTS:
-  High Love (0.7+):    Good connectivity, reliable
-  High Justice (0.7+): Strong security/policies (may be restrictive)
-  High Power (0.7+):   Good performance
-  High Wisdom (0.7+):  Good visibility/monitoring
+  High Connectivity (0.7+): Good reachability, reliable
+  High Security (0.7+):     Strong access controls (may be restrictive)
+  High Performance (0.7+):  Good speed/capacity
+  High Visibility (0.7+):   Good monitoring/observability
 
   Semantic Mass:       Higher = more services/complexity
   Semantic Clarity:    Higher = more well-defined purpose
