@@ -34,7 +34,12 @@ class FirstRunExperience:
         # Check environment variable to skip first run
         if os.environ.get('SKIP_FIRST_RUN', '0') == '1':
             return False
-        
+
+        # Check for first-run marker file (most reliable)
+        marker_path = Path.home() / ".network-pinpointer" / ".setup_complete"
+        if marker_path.exists():
+            return False
+
         # Check for existing config
         for config_path in self.config_manager.DEFAULT_CONFIG_LOCATIONS:
             if config_path.exists():
@@ -46,6 +51,13 @@ class FirstRunExperience:
             return False
 
         return True
+
+    def mark_setup_complete(self):
+        """Create marker file to prevent welcome from showing again"""
+        marker_dir = Path.home() / ".network-pinpointer"
+        marker_dir.mkdir(parents=True, exist_ok=True)
+        marker_path = marker_dir / ".setup_complete"
+        marker_path.write_text(f"Setup completed on {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     def run(self) -> Optional[NetworkPinpointerConfig]:
         """
@@ -63,10 +75,15 @@ class FirstRunExperience:
         if not self._confirm("Would you like a quick guided setup?", default=True):
             print(f"\n{self.fmt.dim('No problem! You can run the setup later with:')} "
                   f"{self.fmt.bold('network-pinpointer setup')}")
+            # Mark complete even if skipped, so we don't ask again
+            self.mark_setup_complete()
             return None
 
         # Run setup wizard
         config = self._setup_wizard()
+
+        # Mark setup as complete so welcome doesn't show again
+        self.mark_setup_complete()
 
         # Show next steps
         self._show_next_steps(config)
