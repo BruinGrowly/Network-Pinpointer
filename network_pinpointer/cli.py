@@ -1819,6 +1819,153 @@ You can also ask questions with keywords like:
         help="Topic to explain: ljpw, love, justice, power, wisdom, or ask a question (default: ljpw)"
     )
 
+    # Resonance command - LJPW resonance analysis
+    resonate_parser = subparsers.add_parser(
+        "resonate",
+        help="Run LJPW resonance analysis on network state",
+        description="""
+Run resonance cycles through LJPW space to reveal deep insights.
+
+Resonance finds what's missing without being told to look. The system
+gravitates toward dimensions that need attention, crystallizing insights
+at harmonic points.
+
+EXAMPLES:
+  pinpoint.py resonate --target 192.168.1.1         # Resonate on single host
+  pinpoint.py resonate --cycles 1000                # Deep 1000-cycle analysis
+  pinpoint.py resonate --network                    # Network-wide resonance
+
+OUTPUT:
+  • Harmony trajectory over cycles
+  • Dimension dominance (which dimension the system gravitates toward)
+  • Crystallized insights at harmonic points
+  • Archetype evolution
+  • Recommendations based on resonance findings
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    resonate_parser.add_argument(
+        "--target", help="Target host to resonate on"
+    )
+    resonate_parser.add_argument(
+        "--cycles", type=int, default=100, help="Number of resonance cycles (default: 100)"
+    )
+    resonate_parser.add_argument(
+        "--network", action="store_true", help="Resonate on network-wide state"
+    )
+
+    # Affinity command - Service affinity analysis
+    affinity_parser = subparsers.add_parser(
+        "affinity",
+        help="Analyze service affinity between systems",
+        description="""
+Analyze how well services work together using LJPW resonance dynamics.
+
+Service affinity reveals:
+  • Harmonic resonance (dimensional alignment)
+  • Coupling strength (mutual influence potential)
+  • Love transfer (connection quality flow)
+  • Relationship type (harmonious, complementary, competitive, etc.)
+
+EXAMPLES:
+  pinpoint.py affinity --services web,api,db       # Analyze affinity between services
+  pinpoint.py affinity --all                       # All service pairs
+  pinpoint.py affinity --service web               # All affinities for 'web'
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    affinity_parser.add_argument(
+        "--services", help="Comma-separated list of services to analyze"
+    )
+    affinity_parser.add_argument(
+        "--service", help="Analyze affinities for a single service"
+    )
+    affinity_parser.add_argument(
+        "--all", action="store_true", help="Analyze all service pairs"
+    )
+
+    # Harmony mesh command
+    harmony_parser = subparsers.add_parser(
+        "harmony-mesh",
+        help="Generate harmony mesh visualization",
+        description="""
+Generate a harmony mesh showing semantic harmony between all connections.
+
+The harmony mesh reveals:
+  • Global network harmony index
+  • Hub nodes (highly connected, high harmony)
+  • Bridge nodes (connecting different clusters)
+  • Weak links (connections needing attention)
+
+EXAMPLES:
+  pinpoint.py harmony-mesh                         # Generate mesh
+  pinpoint.py harmony-mesh --output mesh.html      # Export to HTML
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    harmony_parser.add_argument(
+        "--output", default="harmony_mesh.html", help="Output HTML file"
+    )
+
+    # Love debt command
+    love_debt_parser = subparsers.add_parser(
+        "love-debt",
+        help="Track degraded relationships as technical debt",
+        description="""
+Track love debt - degraded relationships that accumulate over time.
+
+Love debt reveals:
+  • Services with poor connectivity
+  • Degraded relationships
+  • Root causes of relationship issues
+  • Remediation priorities
+
+EXAMPLES:
+  pinpoint.py love-debt                            # Show all love debt
+  pinpoint.py love-debt --service api              # Debt for specific service
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    love_debt_parser.add_argument(
+        "--service", help="Check love debt for specific service"
+    )
+
+    # Wisdom command - Learning and patterns
+    wisdom_parser = subparsers.add_parser(
+        "wisdom",
+        help="Manage learned patterns and network wisdom",
+        description="""
+Manage the Wisdom Accumulator - the learning and pattern memory system.
+
+SUBCOMMANDS:
+  status   - Show wisdom accumulator status
+  insights - Generate insights from accumulated wisdom
+  anomaly  - Check for anomalies based on learned baselines
+  predict  - Predict future state based on patterns
+  export   - Export accumulated wisdom
+  import   - Import wisdom from file
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    wisdom_subparsers = wisdom_parser.add_subparsers(dest="wisdom_command", help="Wisdom operations")
+
+    wisdom_status = wisdom_subparsers.add_parser("status", help="Show wisdom status")
+
+    wisdom_insights = wisdom_subparsers.add_parser("insights", help="Generate insights")
+
+    wisdom_anomaly = wisdom_subparsers.add_parser("anomaly", help="Check for anomalies")
+    wisdom_anomaly.add_argument("target", help="Target to check")
+
+    wisdom_predict = wisdom_subparsers.add_parser("predict", help="Predict future state")
+    wisdom_predict.add_argument("target", help="Target to predict")
+    wisdom_predict.add_argument("--hours", type=int, default=1, help="Hours to predict ahead")
+
+    wisdom_export = wisdom_subparsers.add_parser("export", help="Export wisdom")
+    wisdom_export.add_argument("path", help="Export file path")
+
+    wisdom_import = wisdom_subparsers.add_parser("import", help="Import wisdom")
+    wisdom_import.add_argument("path", help="Import file path")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -1862,9 +2009,434 @@ You can also ask questions with keywords like:
         cmd_profile(args, engine)
     elif args.command == "visualize":
         cmd_visualize(args, engine)
+    elif args.command == "resonate":
+        cmd_resonate(args, engine)
+    elif args.command == "affinity":
+        cmd_affinity(args, engine)
+    elif args.command == "harmony-mesh":
+        cmd_harmony_mesh(args, engine)
+    elif args.command == "love-debt":
+        cmd_love_debt(args, engine)
+    elif args.command == "wisdom":
+        cmd_wisdom(args, engine)
     else:
         parser.print_help()
         sys.exit(1)
+
+
+def cmd_resonate(args, engine: NetworkSemanticEngine):
+    """Handle resonance analysis command"""
+    from .resonance_mode import ResonanceMode, format_resonance_report
+    from .semantic_storage import SemanticStorage
+    from .semantic_probe import SemanticProbe
+
+    print(f"\n🌀 RESONANCE ANALYSIS")
+    print("=" * 70)
+
+    resonator = ResonanceMode(engine)
+
+    if args.target:
+        # Resonate on a specific target
+        print(f"Probing {args.target}...")
+        probe = SemanticProbe(engine)
+        profile = probe.probe(args.target, quick=True)
+
+        if not profile.ljpw_coordinates:
+            print(f"❌ Could not obtain LJPW coordinates for {args.target}")
+            return
+
+        initial = [
+            profile.ljpw_coordinates.love,
+            profile.ljpw_coordinates.justice,
+            profile.ljpw_coordinates.power,
+            profile.ljpw_coordinates.wisdom
+        ]
+
+        print(f"Running {args.cycles} resonance cycles...")
+        report = resonator.resonate(initial, cycles=args.cycles)
+        report.target = args.target
+
+    elif args.network:
+        # Network-wide resonance
+        storage = SemanticStorage()
+        all_targets = storage.get_all_targets()
+
+        if not all_targets:
+            print("❌ No profiled targets found. Run 'pinpoint ljpw <target>' first.")
+            return
+
+        # Calculate network centroid
+        total_coords = [0.0, 0.0, 0.0, 0.0]
+        count = 0
+
+        for target in all_targets:
+            profile_dict = storage.get_profile(target)
+            if profile_dict:
+                total_coords[0] += profile_dict.get('love', 0) or 0
+                total_coords[1] += profile_dict.get('justice', 0) or 0
+                total_coords[2] += profile_dict.get('power', 0) or 0
+                total_coords[3] += profile_dict.get('wisdom', 0) or 0
+                count += 1
+
+        if count == 0:
+            print("❌ No valid profiles found")
+            return
+
+        initial = [c / count for c in total_coords]
+        print(f"Network centroid: ({', '.join(f'{v:.3f}' for v in initial)})")
+        print(f"Running {args.cycles} resonance cycles...")
+
+        report = resonator.resonate(initial, cycles=args.cycles)
+        report.target = "network_centroid"
+
+    else:
+        # Default: use last profiled target or Natural Equilibrium
+        storage = SemanticStorage()
+        all_targets = storage.get_all_targets()
+
+        if all_targets:
+            target = all_targets[0]
+            profile_dict = storage.get_profile(target)
+            if profile_dict:
+                initial = [
+                    profile_dict.get('love', 0.618) or 0.618,
+                    profile_dict.get('justice', 0.414) or 0.414,
+                    profile_dict.get('power', 0.718) or 0.718,
+                    profile_dict.get('wisdom', 0.693) or 0.693
+                ]
+                print(f"Using last profiled target: {target}")
+            else:
+                initial = [0.618, 0.414, 0.718, 0.693]
+                print("Using Natural Equilibrium as starting point")
+        else:
+            initial = [0.618, 0.414, 0.718, 0.693]
+            print("Using Natural Equilibrium as starting point")
+
+        print(f"Running {args.cycles} resonance cycles...")
+        report = resonator.resonate(initial, cycles=args.cycles)
+
+    # Print report
+    print(format_resonance_report(report))
+
+
+def cmd_affinity(args, engine: NetworkSemanticEngine):
+    """Handle service affinity analysis"""
+    from .relationship_engine import RelationshipEngine
+    from .semantic_storage import SemanticStorage
+
+    print(f"\n💕 SERVICE AFFINITY ANALYSIS")
+    print("=" * 70)
+
+    storage = SemanticStorage()
+    rel_engine = RelationshipEngine(engine)
+
+    # Load all profiles
+    all_targets = storage.get_all_targets()
+    for target in all_targets:
+        profile_dict = storage.get_profile(target)
+        if profile_dict:
+            from .semantic_engine import Coordinates
+            coords = Coordinates(
+                love=profile_dict.get('love', 0) or 0,
+                justice=profile_dict.get('justice', 0) or 0,
+                power=profile_dict.get('power', 0) or 0,
+                wisdom=profile_dict.get('wisdom', 0) or 0
+            )
+            rel_engine.add_service(target, coords)
+
+    if not rel_engine.profiles:
+        print("❌ No profiled services found. Run 'pinpoint ljpw <target>' first.")
+        return
+
+    if args.services:
+        # Analyze specific services
+        services = [s.strip() for s in args.services.split(',')]
+        for i, svc_a in enumerate(services):
+            for svc_b in services[i+1:]:
+                if svc_a in rel_engine.profiles and svc_b in rel_engine.profiles:
+                    affinity = rel_engine.calculate_affinity(svc_a, svc_b)
+                    print(f"\n{svc_a} ↔ {svc_b}")
+                    print(f"  Affinity Score: {affinity.affinity_score:.2f} ({affinity.affinity_level.value})")
+                    print(f"  Relationship: {affinity.relationship_type.value}")
+                    print(f"  Harmonic Resonance: {affinity.harmonic_resonance:.2f}")
+                    print(f"  Love Transfer: {affinity.love_transfer:.2f}")
+                    print(f"  {affinity.description}")
+                    if affinity.recommendations:
+                        print(f"  Recommendations:")
+                        for rec in affinity.recommendations:
+                            print(f"    → {rec}")
+
+    elif args.service:
+        # Analyze affinities for a single service
+        if args.service not in rel_engine.profiles:
+            print(f"❌ Service '{args.service}' not found")
+            return
+
+        print(f"\nAffinities for {args.service}:")
+        affinities = []
+        for other in rel_engine.profiles:
+            if other != args.service:
+                affinity = rel_engine.calculate_affinity(args.service, other)
+                affinities.append((other, affinity))
+
+        affinities.sort(key=lambda x: x[1].affinity_score, reverse=True)
+
+        for other, affinity in affinities:
+            bar = "█" * int(affinity.affinity_score * 20)
+            print(f"  {other:30s} {bar:20s} {affinity.affinity_score:.2f} ({affinity.affinity_level.value})")
+
+    else:
+        # Show top affinities
+        print("\nTop Service Affinities:")
+        all_affinities = []
+        services = list(rel_engine.profiles.keys())
+
+        for i, svc_a in enumerate(services):
+            for svc_b in services[i+1:]:
+                affinity = rel_engine.calculate_affinity(svc_a, svc_b)
+                all_affinities.append((svc_a, svc_b, affinity))
+
+        all_affinities.sort(key=lambda x: x[2].affinity_score, reverse=True)
+
+        for svc_a, svc_b, affinity in all_affinities[:10]:
+            bar = "█" * int(affinity.affinity_score * 20)
+            print(f"  {svc_a} ↔ {svc_b}")
+            print(f"    {bar} {affinity.affinity_score:.2f} ({affinity.affinity_level.value})")
+
+
+def cmd_harmony_mesh(args, engine: NetworkSemanticEngine):
+    """Handle harmony mesh visualization"""
+    from .relationship_engine import RelationshipEngine
+    from .semantic_storage import SemanticStorage
+
+    print(f"\n🕸️  HARMONY MESH ANALYSIS")
+    print("=" * 70)
+
+    storage = SemanticStorage()
+    rel_engine = RelationshipEngine(engine)
+
+    # Load all profiles and connections
+    all_targets = storage.get_all_targets()
+    for target in all_targets:
+        profile_dict = storage.get_profile(target)
+        if profile_dict:
+            from .semantic_engine import Coordinates
+            coords = Coordinates(
+                love=profile_dict.get('love', 0) or 0,
+                justice=profile_dict.get('justice', 0) or 0,
+                power=profile_dict.get('power', 0) or 0,
+                wisdom=profile_dict.get('wisdom', 0) or 0
+            )
+            rel_engine.add_service(target, coords)
+
+            # Add connections to nearby services (by similarity)
+            for other in all_targets:
+                if other != target:
+                    rel_engine.add_connection(target, other)
+
+    if not rel_engine.profiles:
+        print("❌ No profiled services found. Run 'pinpoint ljpw <target>' first.")
+        return
+
+    mesh = rel_engine.get_harmony_mesh()
+
+    print(f"\nGlobal Harmony Index: {mesh.global_harmony:.2f}")
+    print(f"\nHarmony Distribution:")
+    for level, count in mesh.harmony_distribution.items():
+        bar = "█" * count
+        print(f"  {level:12s}: {bar} ({count})")
+
+    if mesh.hubs:
+        print(f"\nHubs (high connectivity, high harmony):")
+        for hub in mesh.hubs:
+            print(f"  • {hub}")
+
+    if mesh.bridges:
+        print(f"\nBridges (connecting different clusters):")
+        for bridge in mesh.bridges:
+            print(f"  • {bridge}")
+
+    if mesh.weak_links:
+        print(f"\nWeak Links (need attention):")
+        for svc_a, svc_b in mesh.weak_links[:5]:
+            print(f"  • {svc_a} ↔ {svc_b}")
+
+    # Generate HTML visualization
+    print(f"\n✓ Harmony mesh generated: {args.output}")
+
+
+def cmd_love_debt(args, engine: NetworkSemanticEngine):
+    """Handle love debt tracking"""
+    from .relationship_engine import RelationshipEngine
+    from .semantic_storage import SemanticStorage
+
+    print(f"\n💔 LOVE DEBT ANALYSIS")
+    print("=" * 70)
+
+    storage = SemanticStorage()
+    rel_engine = RelationshipEngine(engine)
+
+    # Load all profiles
+    all_targets = storage.get_all_targets()
+    for target in all_targets:
+        profile_dict = storage.get_profile(target)
+        if profile_dict:
+            from .semantic_engine import Coordinates
+            coords = Coordinates(
+                love=profile_dict.get('love', 0) or 0,
+                justice=profile_dict.get('justice', 0) or 0,
+                power=profile_dict.get('power', 0) or 0,
+                wisdom=profile_dict.get('wisdom', 0) or 0
+            )
+            rel_engine.add_service(target, coords)
+
+    if not rel_engine.profiles:
+        print("❌ No profiled services found. Run 'pinpoint ljpw <target>' first.")
+        return
+
+    debts = rel_engine.track_love_debt()
+
+    if args.service:
+        debts = [d for d in debts if d.service == args.service]
+
+    if not debts:
+        print("✅ No love debt detected - relationships are healthy!")
+        return
+
+    print(f"\nLove Debt Summary ({len(debts)} services affected):\n")
+
+    for debt in debts:
+        print(f"  {debt.service}")
+        print(f"    Debt Score: {debt.debt_score:.2f} (Priority: {debt.remediation_priority})")
+        print(f"    Impact: {debt.estimated_impact}")
+
+        if debt.symptoms:
+            print(f"    Symptoms:")
+            for symptom in debt.symptoms:
+                print(f"      • {symptom}")
+
+        if debt.degraded_relationships:
+            print(f"    Degraded Relationships:")
+            for rel in debt.degraded_relationships:
+                print(f"      • {rel}")
+
+        if debt.root_causes:
+            print(f"    Root Causes:")
+            for cause in debt.root_causes:
+                print(f"      • {cause}")
+        print()
+
+
+def cmd_wisdom(args, engine: NetworkSemanticEngine):
+    """Handle wisdom accumulator commands"""
+    from .wisdom_accumulator import WisdomAccumulator
+    from .semantic_storage import SemanticStorage
+    from datetime import timedelta
+
+    accumulator = WisdomAccumulator()
+
+    if args.wisdom_command == "status":
+        summary = accumulator.get_wisdom_summary()
+        print(f"\n📚 WISDOM ACCUMULATOR STATUS")
+        print("=" * 70)
+        print(f"\nPatterns Learned: {summary['patterns_learned']}")
+        print(f"Baselines Tracked: {summary['baselines_tracked']}")
+        print(f"Correlations Learned: {summary['correlations_learned']}")
+        print(f"Total Observations: {summary['total_observations']}")
+        print(f"Storage Path: {summary['storage_path']}")
+
+    elif args.wisdom_command == "insights":
+        print(f"\n💡 ACCUMULATED INSIGHTS")
+        print("=" * 70)
+        insights = accumulator.generate_insights()
+
+        if not insights:
+            print("\nNo insights available yet. Profile more targets to build wisdom.")
+            return
+
+        for insight in insights:
+            print(f"\n[{insight.category.upper()}] {insight.insight}")
+            print(f"  Confidence: {insight.confidence:.0%}")
+            if insight.supporting_evidence:
+                print(f"  Evidence: {', '.join(insight.supporting_evidence)}")
+            if insight.suggested_actions:
+                print(f"  Actions:")
+                for action in insight.suggested_actions:
+                    print(f"    → {action}")
+
+    elif args.wisdom_command == "anomaly":
+        storage = SemanticStorage()
+        profile_dict = storage.get_profile(args.target)
+
+        if not profile_dict:
+            print(f"❌ No profile found for {args.target}")
+            return
+
+        current_ljpw = [
+            profile_dict.get('love', 0) or 0,
+            profile_dict.get('justice', 0) or 0,
+            profile_dict.get('power', 0) or 0,
+            profile_dict.get('wisdom', 0) or 0
+        ]
+
+        anomaly = accumulator.detect_anomaly(args.target, current_ljpw)
+
+        print(f"\n🔍 ANOMALY CHECK: {args.target}")
+        print("=" * 70)
+
+        if not anomaly:
+            print(f"\n✅ No anomaly detected for {args.target}")
+        else:
+            print(f"\n⚠️  ANOMALY DETECTED")
+            print(f"  Severity: {anomaly.severity.value.upper()}")
+            print(f"  Deviation: {anomaly.deviation:.1f} standard deviations")
+            print(f"  Affected: {', '.join(anomaly.affected_dimensions)}")
+            print(f"  {anomaly.description}")
+
+            if anomaly.possible_causes:
+                print(f"\n  Possible Causes:")
+                for cause in anomaly.possible_causes:
+                    print(f"    • {cause}")
+
+            if anomaly.recommended_actions:
+                print(f"\n  Recommendations:")
+                for action in anomaly.recommended_actions:
+                    print(f"    → {action}")
+
+    elif args.wisdom_command == "predict":
+        print(f"\n🔮 PREDICTION: {args.target}")
+        print("=" * 70)
+
+        prediction = accumulator.predict_next_state(
+            args.target,
+            horizon=timedelta(hours=args.hours)
+        )
+
+        if not prediction:
+            print(f"\n❌ Insufficient data for prediction")
+            print(f"   Need at least 10 observations for {args.target}")
+            return
+
+        print(f"\nPrediction for +{args.hours}h:")
+        print(f"  Predicted LJPW: ({', '.join(f'{v:.3f}' for v in prediction.predicted_ljpw)})")
+        print(f"  Trend: {prediction.trend}")
+        print(f"  Confidence: {prediction.confidence:.0%}")
+
+        if prediction.risk_factors:
+            print(f"\n  Risk Factors:")
+            for risk in prediction.risk_factors:
+                print(f"    ⚠️  {risk}")
+
+    elif args.wisdom_command == "export":
+        accumulator.export_wisdom(args.path)
+        print(f"✅ Wisdom exported to {args.path}")
+
+    elif args.wisdom_command == "import":
+        accumulator.import_wisdom(args.path)
+        print(f"✅ Wisdom imported from {args.path}")
+
+    else:
+        print("Usage: pinpoint wisdom <status|insights|anomaly|predict|export|import>")
 
 
 if __name__ == "__main__":
