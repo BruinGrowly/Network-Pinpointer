@@ -27,6 +27,7 @@ class NetworkTarget:
     baseline: Optional[Dict[str, float]] = None
     alert_threshold: float = 0.15
     critical: bool = False
+    description: str = ""
 
 
 @dataclass
@@ -209,8 +210,18 @@ class ConfigManager:
 
         return NetworkPinpointerConfig(**config_dict)
 
-    def save_config(self, path: Optional[Path] = None, format: str = 'yaml'):
-        """Save current configuration to file"""
+    def save_config(self, config: Optional[NetworkPinpointerConfig] = None, path: Optional[Path] = None, format: str = 'yaml') -> Path:
+        """Save configuration to file
+
+        Args:
+            config: Config to save. If None, saves self.config
+            path: Path to save to. If None, uses default location
+            format: 'yaml' or 'json'
+
+        Returns:
+            Path where config was saved
+        """
+        config_to_save = config if config is not None else self.config
 
         if path is None:
             path = Path.home() / ".network-pinpointer" / f"config.{format}"
@@ -219,7 +230,7 @@ class ConfigManager:
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Convert to dict
-        config_dict = asdict(self.config)
+        config_dict = asdict(config_to_save)
 
         # Write file
         with open(path, 'w') as f:
@@ -228,7 +239,7 @@ class ConfigManager:
             elif format == 'json':
                 json.dump(config_dict, f, indent=2)
 
-        print(f"✓ Configuration saved to: {path}")
+        return path
 
     def create_example_config(self, path: Path):
         """Create an example configuration file"""

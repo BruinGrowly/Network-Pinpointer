@@ -371,10 +371,15 @@ License: MIT
 def main():
     """Main entry point"""
     try:
-        # Check for first run and show welcoming experience
-        # (Love principle: warm greeting for new users)
-        from network_pinpointer.first_run import run_first_run_if_needed
-        run_first_run_if_needed()
+        # Skip first-run experience for help/version commands
+        skip_first_run_args = {'--help', '-h', '--version', '-V', 'help', 'version'}
+        should_skip_first_run = any(arg in skip_first_run_args for arg in sys.argv[1:])
+
+        if not should_skip_first_run:
+            # Check for first run and show welcoming experience
+            # (Love principle: warm greeting for new users)
+            from network_pinpointer.first_run import run_first_run_if_needed
+            run_first_run_if_needed()
 
         cli = NetworkPinpointerCLI()
         cli.run()
